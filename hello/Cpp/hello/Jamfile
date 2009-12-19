@@ -1,0 +1,6 @@
+
+fost-exe hello-world
+    :
+        ../hello-lib
+        hello.cpp
+    ;
