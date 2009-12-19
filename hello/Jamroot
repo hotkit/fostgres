@@ -1,0 +1,15 @@
+# Allow other scripts to work relative to the Jamroot location
+path-constant TOP : . ;
+
+# Some includes used to provide new rules and configuration
+include ../boost-version.jam ;
+include ../fost-base/fost.jam ;
+
+#Define this project
+fost-project hello ;
+
+# Bring in the projects used
+use-project fost-base : ../fost-base ;
+
+# The parts of the system that need to be built
+build-project Cpp/hello-lib ;

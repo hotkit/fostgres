@@ -1,0 +1,4 @@
+
+fost-lib-autotest hello-lib
+    : Cpp/hello-lib
+    ;
