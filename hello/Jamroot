@@ -5,11 +5,11 @@ path-constant TOP : . ;
 include ../boost-version.jam ;
 include ../fost-base/fost.jam ;
 
-#Define this project
-fost-project hello ;
-
 # Bring in the projects used
 use-project fost-base : ../fost-base ;
+
+#Define this project
+fost-project hello ;
 
 # The parts of the system that need to be built
 build-project Cpp/hello-lib ;
