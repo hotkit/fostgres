@@ -1,6 +1,7 @@
 
 fost-exe hello-world
     :
+        ../../../fost-base/Cpp/fost-cli
         ../hello-lib
         hello.cpp
     ;

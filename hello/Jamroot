@@ -12,5 +12,8 @@ use-project fost-base : ../fost-base ;
 fost-project hello ;
 
 # The parts of the system that need to be built
-build-project Cpp/hello-lib ;
-build-project Cpp/hello ;
+alias hello :
+        ../fost-base//fost
+        Cpp/hello-lib
+        Cpp/hello
+    ;

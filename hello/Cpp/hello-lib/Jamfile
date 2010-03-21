@@ -1,4 +1,6 @@
 
 fost-lib-autotest hello-lib
     : Cpp/hello-lib
+    :
+        ../../../fost-base/Cpp/fost-core
     ;
