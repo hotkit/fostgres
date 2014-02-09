@@ -1,0 +1,12 @@
+[submodule "Boost"]
+	path = Boost
+	url = git@github.com:KayEss/fost-boost.git
+[submodule "crypto++"]
+	path = crypto++
+	url = git@github.com:KayEss/fost-crypto.git
+[submodule "OpenSSL"]
+	path = OpenSSL
+	url = git@github.com:KayEss/fost-openssl.git
+[submodule "fost-base"]
+	path = fost-base
+	url = git@github.com:KayEss/fost-base.git
