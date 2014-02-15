@@ -3,6 +3,10 @@ language: cpp
 git:
   submodules: false
 
+compiler:
+    - gcc
+    - clang
+
 before_install:
     - sed -i 's/git@github.com:/git:\/\/github.com\//' .gitmodules
     - git submodule init
@@ -14,4 +18,8 @@ install:
     - Boost/install $(lsb_release -cs)
 
 script:
-    - ./build
+    - ./build toolset=$CC -q
+
+matrix:
+    allow_failures:
+        - compiler: gcc
