@@ -6,17 +6,17 @@ export VARIANTS=$*
 if test -e /proc/
 then {
     export CPUCOUNT=`grep -c ^processor /proc/cpuinfo`
-    export TOOLSET=gcc
+    export TOOLSET=''
     export LD_LIBRARY_PATH=../dist/lib
 } else {
     export CPUCOUNT=`sysctl -n hw.ncpu`
-    export TOOLSET=darwin
+    export TOOLSET='toolset=darwin'
     export DYLD_LIBRARY_PATH=../dist/lib
     export LANG=C
 }
 fi
 
-if ../bjam -j$CPUCOUNT toolset=$TOOLSET $VARIANTS
+if ../bjam -j$CPUCOUNT $TOOLSET $VARIANTS
 then {
     echo hello $VARIANTS OK
     exit 0
