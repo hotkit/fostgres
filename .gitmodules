@@ -10,3 +10,6 @@
 [submodule "fost-base"]
 	path = fost-base
 	url = git@github.com:KayEss/fost-base.git
+[submodule "threading"]
+	path = threading
+	url = git@github.com:KayEss/f5-threading.git
