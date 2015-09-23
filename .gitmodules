@@ -25,3 +25,6 @@
 [submodule "PostreSQL"]
 	path = PostreSQL
 	url = git@github.com:KayEss/fost-libpq.git
+[submodule "PostgreSQL"]
+	path = PostgreSQL
+	url = git@github.com:KayEss/fost-libpq.git
