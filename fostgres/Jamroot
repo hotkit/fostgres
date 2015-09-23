@@ -14,5 +14,8 @@ fost-project fostgres ;
 # The parts of the system that need to be built
 alias fostgres :
         ../fost-base//fost
+        ../fost-internet//fost
+        ../fost-orm//fost
+        ../fost-postgres//fost
         Cpp/fostgres
     ;
