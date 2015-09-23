@@ -13,3 +13,15 @@
 [submodule "threading"]
 	path = threading
 	url = git@github.com:KayEss/f5-threading.git
+[submodule "fost-internet"]
+	path = fost-internet
+	url = git@github.com:KayEss/fost-internet.git
+[submodule "fost-orm"]
+	path = fost-orm
+	url = git@github.com:KayEss/fost-orm.git
+[submodule "fost-postgres"]
+	path = fost-postgres
+	url = git@github.com:KayEss/fost-postgres.git
+[submodule "PostreSQL"]
+	path = PostreSQL
+	url = git@github.com:KayEss/fost-libpq.git
