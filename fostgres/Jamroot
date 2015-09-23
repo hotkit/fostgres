@@ -9,11 +9,10 @@ include ../fost-base/fost.jam ;
 use-project fost-base : ../fost-base ;
 
 #Define this project
-fost-project hello ;
+fost-project fostgres ;
 
 # The parts of the system that need to be built
-alias hello :
+alias fostgres :
         ../fost-base//fost
-        Cpp/hello-lib
-        Cpp/hello
+        Cpp/fostgres
     ;

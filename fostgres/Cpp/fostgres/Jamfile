@@ -1,0 +1,6 @@
+
+fost-exe fostgres
+    :
+        ../../../fost-base/Cpp/fost-cli
+        fostgres.cpp
+    ;
