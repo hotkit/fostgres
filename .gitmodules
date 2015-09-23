@@ -28,3 +28,6 @@
 [submodule "PostgreSQL"]
 	path = PostgreSQL
 	url = git@github.com:KayEss/fost-libpq.git
+[submodule "fost-web"]
+	path = fost-web
+	url = git@github.com:KayEss/fost-web.git
