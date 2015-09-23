@@ -17,5 +17,6 @@ alias fostgres :
         ../fost-internet//fost
         ../fost-orm//fost
         ../fost-postgres//fost
+        ../fost-web//fost
         Cpp/fostgres
     ;
