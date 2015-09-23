@@ -1,6 +1,6 @@
 
-fost-exe fostgres
+fost-lib-autotest fostgres
+    : Cpp/fostgres
     :
         ../../../fost-base/Cpp/fost-cli
-        fostgres.cpp
     ;

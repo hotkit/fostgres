@@ -6,12 +6,4 @@
 */
 
 
-#include <fost/main>
-
-
-FSL_MAIN(
-    "fostgres",
-    "fostgres web server"
-)( fostlib::ostream &out, fostlib::arguments &args ) {
-    return 0;
-}
+#include <fost/core>
