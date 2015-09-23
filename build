@@ -1,6 +1,18 @@
 #!/bin/bash
 cd `dirname $0`
+set -ex
 
 VARIANTS=$*
 
-hello/compile $VARIANTS
+git pull
+
+git submodule init
+git submodule sync
+git submodule update --init --recursive
+
+Boost/build 59 0
+Boost/install 59 0
+
+PostgreSQL/configure
+
+fostgres/compile $VARIANTS
