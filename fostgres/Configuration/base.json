@@ -2,14 +2,6 @@
     "webserver": {
         "Port": 8091,
         "Bind to": 0,
-        "hosts": {"": "fostgres"},
-        "views": {
-            "fostgres": {
-                "view": "fost.view.pathprefix",
-                "configuration": {
-                    "": "fost.response.404"
-                }
-            }
-        }
+        "hosts": {"": "fostgres"}
    }
 }

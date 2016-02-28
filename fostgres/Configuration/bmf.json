@@ -1,0 +1,12 @@
+{
+    "webserver": {
+        "views": {
+            "fostgres": {
+                "view": "fost.view.pathprefix",
+                "configuration": {
+                    "": "fost.response.404"
+                }
+            }
+        }
+    }
+}

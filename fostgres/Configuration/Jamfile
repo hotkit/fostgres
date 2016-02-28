@@ -1,4 +1,4 @@
-install rask-etc :
+install fostgres-etc :
         [ glob-tree *.* : Jamfile ]
     :
         <location>$(PREFIX)/etc
