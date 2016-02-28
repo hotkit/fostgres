@@ -8,6 +8,7 @@
 
 #include <fost/push_back>
 #include <fostgres/response.hpp>
+#include <fostgres/sql.hpp>
 
 
 namespace {
@@ -27,6 +28,13 @@ namespace {
             fostlib::json::array_t rows;
             fostlib::push_back(rows, path);
             for ( const auto conf : configuration["sql"] ) {
+                if ( conf.has_key("GET") ) {
+                    auto data = fostgres::sql(
+                        fostlib::coerce<fostlib::string>(configuration["host"]),
+                        fostlib::coerce<fostlib::string>(configuration["database"]),
+                        fostlib::coerce<fostlib::string>(conf["GET"]));
+                    return fostgres::response(data);
+                }
                 fostlib::push_back(rows, conf);
             }
             return fostgres::response(rows);

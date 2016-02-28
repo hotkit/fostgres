@@ -17,6 +17,9 @@ namespace fostgres {
 
     /// Turn response data into an actual response
     std::pair<boost::shared_ptr<fostlib::mime>, int>  response(fostlib::json data);
+    /// Turn response data into an actual response
+    std::pair<boost::shared_ptr<fostlib::mime>, int>  response(
+        const std::pair<std::vector<fostlib::string>, std::vector<fostlib::json>>&);
 
 
 }

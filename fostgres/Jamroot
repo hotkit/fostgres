@@ -13,6 +13,7 @@ fost-project fostgres
     :
         <include>../fost-internet/Cpp/include
         <include>../fost-orm/Cpp/include
+        <include>../fost-postgres/Cpp/include
         <include>../fost-web/Cpp/include
     ;
 

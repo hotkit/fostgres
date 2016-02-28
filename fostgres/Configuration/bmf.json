@@ -15,7 +15,7 @@
                     "database": "bmf-dd",
                     "sql": [
                         {
-                            "GET": "SELECT * FROM package_contract_type"
+                            "GET": "SELECT * FROM package_contracttype"
                         }
                     ]
                 }
