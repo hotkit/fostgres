@@ -2,5 +2,4 @@
 fost-lib-autotest fostgres
     : Cpp/fostgres
     :
-        ../../../fost-base/Cpp/fost-cli
     ;
