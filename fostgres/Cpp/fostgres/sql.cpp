@@ -27,6 +27,10 @@ std::pair<std::vector<fostlib::string>, std::vector<fostlib::json>> fostgres::sq
 
     /// Calculate the column headings
     std::vector<fostlib::string> columns;
+    std::size_t number{0};
+    for ( const auto &c : rs.columns() ) {
+        columns.push_back(c.value("un-named " + std::to_string(++number)));
+    }
 
     /// Now iterate the rows and add them
     std::vector<fostlib::json> rows;
