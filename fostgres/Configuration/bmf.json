@@ -4,8 +4,12 @@
             "fostgres": {
                 "view": "fost.view.pathprefix",
                 "configuration": {
-                    "": "fost.response.404"
+                    "": "fost.response.404",
+                    "dd/package/contract_type/": "bmf.dd.package.contract_type"
                 }
+            },
+            "bmf.dd.package.contract_type": {
+                "view": "fostgres.sql"
             }
         }
     }

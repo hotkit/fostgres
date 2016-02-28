@@ -2,6 +2,7 @@
     "webserver": {
         "Port": 8091,
         "Bind to": 0,
+        "Load": ["fostgres"],
         "hosts": {"": "fostgres"}
    }
 }

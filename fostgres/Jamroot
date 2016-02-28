@@ -9,7 +9,12 @@ include ../fost-base/fost.jam ;
 use-project fost-base : ../fost-base ;
 
 #Define this project
-fost-project fostgres ;
+fost-project fostgres
+    :
+        <include>../fost-internet/Cpp/include
+        <include>../fost-orm/Cpp/include
+        <include>../fost-web/Cpp/include
+    ;
 
 # The parts of the system that need to be built
 alias fostgres :
