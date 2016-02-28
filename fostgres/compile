@@ -18,7 +18,7 @@ fi
 
 if ../bjam -j$CPUCOUNT $TOOLSET $VARIANTS
 then {
-    echo hello $VARIANTS OK
+    echo fostgres $VARIANTS OK
     exit 0
 } else {
     exit 1
