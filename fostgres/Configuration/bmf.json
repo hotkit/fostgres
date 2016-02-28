@@ -5,11 +5,20 @@
                 "view": "fost.view.pathprefix",
                 "configuration": {
                     "": "fost.response.404",
-                    "dd/package/contract_type/": "bmf.dd.package.contract_type"
+                    "fostgres/ddservice/package/contract_type/": "bmf.dd.package.contract_type"
                 }
             },
             "bmf.dd.package.contract_type": {
-                "view": "fostgres.sql"
+                "view": "fostgres.sql",
+                "configuration": {
+                    "host": "/home/kirit/Projects/bmf/postgres/run",
+                    "database": "bmf-dd",
+                    "sql": [
+                        {
+                            "GET": "SELECT * FROM package_contract_type"
+                        }
+                    ]
+                }
             }
         }
     }

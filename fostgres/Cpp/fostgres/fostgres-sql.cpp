@@ -6,7 +6,8 @@
 */
 
 
-#include <fost/urlhandler>
+#include <fost/push_back>
+#include <fostgres/response.hpp>
 
 
 namespace {
@@ -19,16 +20,16 @@ namespace {
         }
 
         std::pair<boost::shared_ptr<fostlib::mime>, int> operator () (
-            const fostlib::json &, const fostlib::string &,
+            const fostlib::json &configuration, const fostlib::string &path,
             fostlib::http::server::request &req,
             const fostlib::host &
         ) const {
-            boost::shared_ptr<fostlib::mime> response(
-                    new fostlib::text_body(
-                        L"<html><head><title>Whatevs</title></head>"
-                            L"<body><h1>Whatevs</h1></body></html>",
-                        fostlib::mime::mime_headers(), L"text/html" ));
-            return std::make_pair(response, 501);
+            fostlib::json::array_t rows;
+            fostlib::push_back(rows, path);
+            for ( const auto conf : configuration["sql"] ) {
+                fostlib::push_back(rows, conf);
+            }
+            return fostgres::response(rows);
         }
     } c_fostgres_sql;
 
