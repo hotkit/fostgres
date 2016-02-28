@@ -1,0 +1,6 @@
+install rask-etc :
+        [ glob-tree *.* : Jamfile ]
+    :
+        <location>$(PREFIX)/etc
+        <install-source-root>$(TOP)/fostgres
+    ;

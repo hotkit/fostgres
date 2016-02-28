@@ -1,0 +1,13 @@
+{
+    "webserver": {
+        "logging": {"sinks": [
+            {
+                "name": "stdout",
+                "configuration": {
+                    "log-level": 257,
+                    "color": true
+                }
+            }
+        ]}
+    }
+}
