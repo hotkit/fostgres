@@ -33,11 +33,11 @@ namespace {
                         fostlib::coerce<fostlib::string>(configuration["host"]),
                         fostlib::coerce<fostlib::string>(configuration["database"]),
                         fostlib::coerce<fostlib::string>(conf["GET"]));
-                    return fostgres::response(data);
+                    return fostgres::response(configuration, data);
                 }
                 fostlib::push_back(rows, conf);
             }
-            return fostgres::response(rows);
+            return fostgres::response(configuration, rows);
         }
     } c_fostgres_sql;
 
