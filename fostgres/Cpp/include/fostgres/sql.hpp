@@ -10,13 +10,14 @@
 
 
 #include <fost/urlhandler>
+#include <fost/postgres>
 
 
 namespace fostgres {
 
 
     /// Execute the command and return the column names and data
-    std::pair<std::vector<fostlib::string>, std::vector<fostlib::json>> sql(
+    std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> sql(
         const fostlib::string &host, const fostlib::string &database, const fostlib::string &cmd);
 
 

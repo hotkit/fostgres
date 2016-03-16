@@ -18,7 +18,7 @@
                 "pretty": false,
                 "sql": [
                     {
-                        "GET": "SELECT id, posted, status FROM dd_journal"
+                        "GET": "SELECT * FROM dd_journal"
                     }
                 ]
             }

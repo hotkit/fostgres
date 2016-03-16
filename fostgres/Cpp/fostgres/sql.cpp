@@ -7,12 +7,11 @@
 
 
 #include <fost/log>
-#include <fost/postgres>
 #include <fostgres/fostgres.hpp>
 #include <fostgres/sql.hpp>
 
 
-std::pair<std::vector<fostlib::string>, std::vector<fostlib::json>> fostgres::sql(
+std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
     const fostlib::string &host, const fostlib::string &database, const fostlib::string &cmd
 ) {
     auto logger = fostlib::log::debug(c_fostgres);
@@ -29,20 +28,10 @@ std::pair<std::vector<fostlib::string>, std::vector<fostlib::json>> fostgres::sq
     std::vector<fostlib::string> columns;
     std::size_t number{0};
     for ( const auto &c : rs.columns() ) {
-        columns.push_back(c.value("un-named " + std::to_string(++number)));
-    }
-
-    /// Now iterate the rows and add them
-    std::vector<fostlib::json> rows;
-    for ( const auto &row : rs ) {
-        fostlib::json data;
-        for ( std::size_t index{0}; index < row.size(); ++index ) {
-            fostlib::push_back(data, row[index]);
-        }
-        rows.push_back(data);
+        columns.push_back(c.value("un-named." + std::to_string(++number)));
     }
 
     /// Return data suitable for sending to the browser
-    return std::make_pair(std::move(columns), std::move(rows));
+    return std::make_pair(std::move(columns), std::move(rs));
 }
 

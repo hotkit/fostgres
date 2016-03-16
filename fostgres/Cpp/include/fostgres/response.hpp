@@ -9,6 +9,7 @@
 #pragma once
 
 
+#include <fost/postgres>
 #include <fost/urlhandler>
 
 
@@ -18,10 +19,19 @@ namespace fostgres {
     /// Turn response data into an actual response
     std::pair<boost::shared_ptr<fostlib::mime>, int>  response(
         const fostlib::json &config, const fostlib::json &data);
-    /// Turn response data into an actual response
+    /// Turn response data into an actual response taking into account the accept header
     std::pair<boost::shared_ptr<fostlib::mime>, int>  response(
         const fostlib::json &config,
-        const std::pair<std::vector<fostlib::string>, std::vector<fostlib::json>>&);
+        const std::pair<std::vector<fostlib::string>, fostlib::pg::recordset>&);
+
+    /// Turn the response data into CSV like JSON no matter the accept header
+    std::pair<boost::shared_ptr<fostlib::mime>, int>  response_json_csv(
+        const fostlib::json &config,
+        const std::pair<std::vector<fostlib::string>, fostlib::pg::recordset>&);
+    /// Turn the response data into CSJ no matter the accept header
+    std::pair<boost::shared_ptr<fostlib::mime>, int>  response_csj(
+        const fostlib::json &config,
+        const std::pair<std::vector<fostlib::string>, fostlib::pg::recordset>&);
 
 
 }
