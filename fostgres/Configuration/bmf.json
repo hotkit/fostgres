@@ -17,8 +17,11 @@
             "configuration": {
                 "host": "/home/kirit/Projects/bmf/postgres/run",
                 "database": "FSL_BMF_Django_04",
-                "pretty": false,
                 "sql": [
+                    {
+                        "path": [1],
+                        "GET": "SELECT * FROM auth_suer WHERE id=$1"
+                    },
                     {
                         "GET": "SELECT * FROM auth_user ORDER BY id"
                     }
@@ -30,7 +33,6 @@
             "configuration": {
                 "host": "/home/kirit/Projects/bmf/postgres/run",
                 "database": "FSL_BMF_Django_04",
-                "pretty": false,
                 "sql": [
                     {
                         "GET": "SELECT * FROM session_customerattendance ORDER BY id"
@@ -43,7 +45,6 @@
             "configuration": {
                 "host": "/home/kirit/Projects/bmf/postgres/run",
                 "database": "bmf-dd",
-                "pretty": false,
                 "sql": [
                     {
                         "GET": "SELECT * FROM dd_journal ORDER BY id"
