@@ -5,9 +5,37 @@
                 "view": "fost.view.pathprefix",
                 "configuration": {
                     "": "fost.response.404",
+                    "fostgres/arp/django/contrib/auth/user/": "bmf.arp.auth.user",
+                    "fostgres/arp/session/customerattendance/": "bmf.arp.session.customerattendance",
                     "fostgres/ddservice/dd/journal/": "bmf.dd.dd.journal",
                     "fostgres/ddservice/package/contract_type/": "bmf.dd.package.contract_type"
                 }
+            }
+        },
+        "views/bmf.arp.auth.user": {
+            "view": "fostgres.sql",
+            "configuration": {
+                "host": "/home/kirit/Projects/bmf/postgres/run",
+                "database": "FSL_BMF_Django_04",
+                "pretty": false,
+                "sql": [
+                    {
+                        "GET": "SELECT * FROM auth_user ORDER BY id"
+                    }
+                ]
+            }
+        },
+        "views/bmf.arp.session.customerattendance": {
+            "view": "fostgres.sql",
+            "configuration": {
+                "host": "/home/kirit/Projects/bmf/postgres/run",
+                "database": "FSL_BMF_Django_04",
+                "pretty": false,
+                "sql": [
+                    {
+                        "GET": "SELECT * FROM session_customerattendance ORDER BY id"
+                    }
+                ]
             }
         },
         "views/bmf.dd.dd.journal": {
@@ -18,7 +46,7 @@
                 "pretty": false,
                 "sql": [
                     {
-                        "GET": "SELECT * FROM dd_journal"
+                        "GET": "SELECT * FROM dd_journal ORDER BY id"
                     }
                 ]
             }
@@ -30,7 +58,7 @@
                 "database": "bmf-dd",
                 "sql": [
                     {
-                        "GET": "SELECT * FROM package_contracttype"
+                        "GET": "SELECT * FROM package_contracttype ORDER BY id"
                     }
                 ]
             }
