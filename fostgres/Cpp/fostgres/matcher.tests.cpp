@@ -7,6 +7,7 @@
 
 
 #include <fostgres/matcher.hpp>
+#include <fost/push_back>
 #include <fost/test>
 
 
@@ -15,5 +16,35 @@ FSL_TEST_SUITE(matcher);
 
 FSL_TEST_FUNCTION(empty) {
     FSL_CHECK(fostgres::matcher(fostlib::json(), "").isnull());
+}
+
+
+FSL_TEST_FUNCTION(args_mismatch_1) {
+    fostlib::json config;
+    fostlib::push_back(config, "path", 1);
+    auto m = fostgres::matcher(config, "");
+    FSL_CHECK(m.isnull());
+}
+
+
+FSL_TEST_FUNCTION(args_match_1) {
+    fostlib::json config;
+    fostlib::push_back(config, "path", 1);
+    auto m = fostgres::matcher(config, "first");
+    FSL_CHECK(not m.isnull());
+    FSL_CHECK_EQ(m.value().arguments.size(), 1u);
+    FSL_CHECK_EQ(m.value().arguments[0], "first");
+}
+
+
+FSL_TEST_FUNCTION(args_match_2) {
+    fostlib::json config;
+    fostlib::push_back(config, "path", 2);
+    fostlib::push_back(config, "path", 1);
+    auto m = fostgres::matcher(config, "second/first/");
+    FSL_CHECK(not m.isnull());
+    FSL_CHECK_EQ(m.value().arguments.size(), 2u);
+    FSL_CHECK_EQ(m.value().arguments[0], "first");
+    FSL_CHECK_EQ(m.value().arguments[1], "second");
 }
 

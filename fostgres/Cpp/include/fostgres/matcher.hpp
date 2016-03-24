@@ -16,7 +16,8 @@ namespace fostgres {
 
 
     struct match {
-        std::vector<fostlib::json> arguments;
+        fostlib::json configuration;
+        std::vector<fostlib::string> arguments;
     };
 
 

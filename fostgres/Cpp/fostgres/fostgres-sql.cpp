@@ -7,6 +7,7 @@
 
 
 #include <fost/push_back>
+#include <fostgres/matcher.hpp>
 #include <fostgres/response.hpp>
 #include <fostgres/sql.hpp>
 
@@ -25,19 +26,22 @@ namespace {
             fostlib::http::server::request &req,
             const fostlib::host &
         ) const {
-            fostlib::json::array_t rows;
-            fostlib::push_back(rows, path);
-            for ( const auto conf : configuration["sql"] ) {
-                if ( conf.has_key("GET") ) {
-                    auto data = fostgres::sql(
+            auto m = fostgres::matcher(configuration["sql"], path);
+            if ( not m.isnull() ) {
+                if ( m.value().arguments.size() ) {
+                    return fostgres::response(configuration, fostgres::sql(
                         fostlib::coerce<fostlib::string>(configuration["host"]),
                         fostlib::coerce<fostlib::string>(configuration["database"]),
-                        fostlib::coerce<fostlib::string>(conf["GET"]));
-                    return fostgres::response(configuration, std::move(data));
+                        fostlib::coerce<fostlib::string>(m.value().configuration["GET"]),
+                        m.value().arguments));
+                } else {
+                    return fostgres::response(configuration, fostgres::sql(
+                        fostlib::coerce<fostlib::string>(configuration["host"]),
+                        fostlib::coerce<fostlib::string>(configuration["database"]),
+                        fostlib::coerce<fostlib::string>(m.value().configuration["GET"])));
                 }
-                fostlib::push_back(rows, conf);
             }
-            return fostgres::response(configuration, rows);
+            throw fostlib::exceptions::not_implemented(__FUNCTION__);
         }
     } c_fostgres_sql;
 
