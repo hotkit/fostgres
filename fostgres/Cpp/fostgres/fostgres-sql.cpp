@@ -29,13 +29,13 @@ namespace {
             auto m = fostgres::matcher(configuration["sql"], path);
             if ( not m.isnull() ) {
                 if ( m.value().arguments.size() ) {
-                    return fostgres::response(configuration, fostgres::sql(
+                    return fostgres::response(m.value().configuration, fostgres::sql(
                         fostlib::coerce<fostlib::string>(configuration["host"]),
                         fostlib::coerce<fostlib::string>(configuration["database"]),
                         fostlib::coerce<fostlib::string>(m.value().configuration["GET"]),
                         m.value().arguments));
                 } else {
-                    return fostgres::response(configuration, fostgres::sql(
+                    return fostgres::response(m.value().configuration, fostgres::sql(
                         fostlib::coerce<fostlib::string>(configuration["host"]),
                         fostlib::coerce<fostlib::string>(configuration["database"]),
                         fostlib::coerce<fostlib::string>(m.value().configuration["GET"])));

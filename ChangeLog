@@ -1,2 +1,5 @@
-2015-09-23  Kirit Saelensminde  <kirit@felspar.com>
+2016-03-25  Kirit Saelensminde  <kirit@felspar.com>
+ Basic implementation of CSJ and JSON options for views that fetch data from the database.
+
+ 2015-09-23  Kirit Saelensminde  <kirit@felspar.com>
  Added ChangeLog
