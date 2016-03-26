@@ -40,10 +40,10 @@ namespace {
             void line() {
                 while ( iter != end && current.length() < 48 * 1024 ) {
                     auto record = *iter;
-                    current += fostlib::json::unparse(record[0], false).std_str();
+                    fostlib::json::unparse(current, record[0], false);
                     for ( std::size_t index{1}; index < record.size(); ++index ) {
                         current += ',';
-                        current += fostlib::json::unparse(record[index], false).std_str();
+                        fostlib::json::unparse(current, record[index], false);
                     }
                     current += '\n';
                     ++iter;
