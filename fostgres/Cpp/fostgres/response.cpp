@@ -6,6 +6,7 @@
 */
 
 
+#include <fostgres/matcher.hpp>
 #include <fostgres/response.hpp>
 #include <f5/threading/map.hpp>
 
@@ -36,16 +37,15 @@ fostgres::responder::responder(fostlib::string name, responder_function fn) {
 
 
 std::pair<boost::shared_ptr<fostlib::mime>, int>  fostgres::response(
-    const fostlib::json &config,
-    std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> &&data
+    const fostlib::json &config, const match &m, fostlib::http::server::request &req
 ) {
-    auto fname = config["return"].get<fostlib::string>();
+    auto fname = m.configuration["return"].get<fostlib::string>();
     if ( not fname.isnull() ) {
         auto returner = g_responders().find(fname.value());
         if ( returner ) {
-            return returner(config, std::move(data));
+            return returner(config, m, req);
         }
     }
-    return response_csj(config, std::move(data));
+    return response_csj(config, m, req);
 }
 

@@ -6,7 +6,9 @@
 */
 
 
+#include <fostgres/matcher.hpp>
 #include <fostgres/response.hpp>
+#include <fostgres/sql.hpp>
 
 
 namespace {
@@ -89,16 +91,34 @@ namespace {
     };
 
 
+    std::pair<boost::shared_ptr<fostlib::mime>, int>  get(
+        const fostlib::json &config, const fostgres::match &m,
+        fostlib::http::server::request &req
+    ) {
+        auto data = m.arguments.size()
+            ? fostgres::sql(
+                fostlib::coerce<fostlib::string>(config["host"]),
+                fostlib::coerce<fostlib::string>(config["database"]),
+                fostlib::coerce<fostlib::string>(m.configuration["GET"]),
+                m.arguments)
+            : fostgres::sql(
+                fostlib::coerce<fostlib::string>(config["host"]),
+                fostlib::coerce<fostlib::string>(config["database"]),
+                fostlib::coerce<fostlib::string>(m.configuration["GET"]));
+        return std::make_pair(
+            boost::shared_ptr<fostlib::mime>(
+                new csj_mime(std::move(data.first), std::move(data.second))),
+            200);
+    }
+
+
 }
 
 
 std::pair<boost::shared_ptr<fostlib::mime>, int>  fostgres::response_csj(
-    const fostlib::json &config,
-    std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> &&data
+    const fostlib::json &config, const fostgres::match &m,
+    fostlib::http::server::request &req
 ) {
-    return std::make_pair(
-        boost::shared_ptr<fostlib::mime>(
-            new csj_mime(std::move(data.first), std::move(data.second))),
-        200);
+    return get(config, m, req);
 }
 

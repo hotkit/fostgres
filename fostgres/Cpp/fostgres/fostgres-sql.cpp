@@ -9,7 +9,6 @@
 #include <fost/push_back>
 #include <fostgres/matcher.hpp>
 #include <fostgres/response.hpp>
-#include <fostgres/sql.hpp>
 
 
 namespace {
@@ -28,20 +27,10 @@ namespace {
         ) const {
             auto m = fostgres::matcher(configuration["sql"], path);
             if ( not m.isnull() ) {
-                if ( m.value().arguments.size() ) {
-                    return fostgres::response(m.value().configuration, fostgres::sql(
-                        fostlib::coerce<fostlib::string>(configuration["host"]),
-                        fostlib::coerce<fostlib::string>(configuration["database"]),
-                        fostlib::coerce<fostlib::string>(m.value().configuration["GET"]),
-                        m.value().arguments));
-                } else {
-                    return fostgres::response(m.value().configuration, fostgres::sql(
-                        fostlib::coerce<fostlib::string>(configuration["host"]),
-                        fostlib::coerce<fostlib::string>(configuration["database"]),
-                        fostlib::coerce<fostlib::string>(m.value().configuration["GET"])));
-                }
+                return fostgres::response(configuration, m.value(), req);
             }
-            throw fostlib::exceptions::not_implemented(__FUNCTION__);
+            throw fostlib::exceptions::not_implemented(__FUNCTION__,
+                "No match found -- should be 404");
         }
     } c_fostgres_sql;
 

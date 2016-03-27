@@ -63,7 +63,12 @@
                         "return": "object",
                         "path": [1],
                         "GET": "SELECT '/fostgres/ddservice/package/contract_type/' || id AS \"@id\",  *
-                                FROM package_contracttype WHERE id=$1"
+                                FROM package_contracttype WHERE id=$1",
+                        "PUT": {
+                            "table": "package_contracttype",
+                            "keys": ["id"],
+                            "attributes": ["name"]
+                        }
                     },
                     {
                         "GET": "SELECT '/fostgres/ddservice/package/contract_type/' || id AS \"@id\",  *

@@ -16,11 +16,13 @@
 namespace fostgres {
 
 
+    struct match;
+
+
     /// Responder function
     using responder_function = std::function<
         std::pair<boost::shared_ptr<fostlib::mime>, int>
-            (const fostlib::json &config,
-                std::pair<std::vector<fostlib::string>, fostlib::pg::recordset>&&)>;
+            (const fostlib::json &, const match &, fostlib::http::server::request &)>;
 
 
     /// Register a responder with a const instance of this class
@@ -30,23 +32,11 @@ namespace fostgres {
 
 
     /// Turn response data into an actual response taking into account the accept header
-    std::pair<boost::shared_ptr<fostlib::mime>, int>  response(
-        const fostlib::json &config,
-        std::pair<std::vector<fostlib::string>, fostlib::pg::recordset>&&);
-
-
-    /// Turn the response data into CSV like JSON no matter the accept header
-    std::pair<boost::shared_ptr<fostlib::mime>, int>  response_json_csv(
-        const fostlib::json &config,
-        std::pair<std::vector<fostlib::string>, fostlib::pg::recordset>&&);
-    /// Turn the response data into CSJ no matter the accept header
-    std::pair<boost::shared_ptr<fostlib::mime>, int>  response_csj(
-        const fostlib::json &config,
-        std::pair<std::vector<fostlib::string>, fostlib::pg::recordset>&&);
-    /// Turn the response data into a JSON object no matter the accept header
-    std::pair<boost::shared_ptr<fostlib::mime>, int>  response_object(
-        const fostlib::json &config,
-        std::pair<std::vector<fostlib::string>, fostlib::pg::recordset>&&);
+    std::pair<boost::shared_ptr<fostlib::mime>, int> response(
+        const fostlib::json &config, const match &, fostlib::http::server::request &);
+    /// Turn response data into an actual response taking into account the accept header
+    std::pair<boost::shared_ptr<fostlib::mime>, int> response_csj(
+        const fostlib::json &config, const match &, fostlib::http::server::request &);
 
 
 }
