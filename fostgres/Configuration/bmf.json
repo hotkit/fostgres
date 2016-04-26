@@ -7,6 +7,7 @@
                     "": "fost.response.404",
                     "fostgres/arp/django/contrib/auth/user/": "bmf.arp.auth.user",
                     "fostgres/arp/session/customerattendance/": "bmf.arp.session.customerattendance",
+                    "fostgres/chronon/account/": "chronon.account",
                     "fostgres/ddservice/dd/journal/": "bmf.dd.dd.journal",
                     "fostgres/ddservice/package/contract_type/": "bmf.dd.package.contract_type"
                 }
@@ -73,6 +74,28 @@
                     {
                         "GET": "SELECT '/fostgres/ddservice/package/contract_type/' || id AS \"@id\",  *
                                 FROM package_contracttype ORDER BY id"
+                    }
+                ]
+            }
+        },
+        "views/chronon.account": {
+            "view": "fostgres.sql",
+            "configuration": {
+                "host": "/home/kirit/Projects/varanus/dist/postgres/run",
+                "database": "kirit",
+                "sql": [
+                    {
+                        "return": "object",
+                        "path": [1],
+                        "GET": "SELECT * FROM accounts WHERE username=$1",
+                        "PATCH": {
+                            "table": "accounts",
+                            "keys": ["username"],
+                            "attributes": ["cost"]
+                        }
+                    },
+                    {
+                        "GET": "SELECT * FROM accounts"
                     }
                 ]
             }
