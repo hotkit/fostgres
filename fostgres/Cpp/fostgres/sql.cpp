@@ -26,6 +26,21 @@ namespace {
 
 
 std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
+    fostlib::pg::connection &cnx, const fostlib::string &cmd
+) {
+    auto logger = fostlib::log::debug(c_fostgres);
+    logger("", "Executing SQL command")
+        ("command", cmd);
+
+    /// Execute the SQL we've been given
+    auto rs = cnx.exec(fostlib::coerce<fostlib::utf8_string>(cmd));
+
+    /// Return data suitable for sending to the browser
+    return std::make_pair(columns(rs), std::move(rs));
+}
+
+
+std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
     const fostlib::string &host, const fostlib::string &database, const fostlib::string &cmd
 ) {
     auto logger = fostlib::log::debug(c_fostgres);
@@ -39,6 +54,23 @@ std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
     auto rs = cnx.exec(fostlib::coerce<fostlib::utf8_string>(cmd));
 
     /// Return data suitable for sending to the browser
+    return std::make_pair(columns(rs), std::move(rs));
+}
+
+
+std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
+    fostlib::pg::connection &cnx,
+    const fostlib::string &cmd, const std::vector<fostlib::string> &args
+) {
+    auto logger = fostlib::log::debug(c_fostgres);
+    logger("", "Executing SQL command")
+        ("command", cmd)
+        ("args", args);
+
+    /// Execute the SQL we've been given
+    auto sp = cnx.procedure(fostlib::coerce<fostlib::utf8_string>(cmd));
+    auto rs = sp.exec(args);
+
     return std::make_pair(columns(rs), std::move(rs));
 }
 
