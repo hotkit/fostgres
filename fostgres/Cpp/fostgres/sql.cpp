@@ -30,6 +30,7 @@ std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
 ) {
     auto logger = fostlib::log::debug(c_fostgres);
     logger("", "Executing SQL command")
+        ("dsn", cnx.configuration())
         ("command", cmd);
 
     /// Execute the SQL we've been given
@@ -41,16 +42,15 @@ std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
 
 
 std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
-    const fostlib::string &host, const fostlib::string &database, const fostlib::string &cmd
+    const fostlib::json &dsn, const fostlib::string &cmd
 ) {
     auto logger = fostlib::log::debug(c_fostgres);
     logger("", "Executing SQL command")
-        ("host", host)
-        ("database", database)
         ("command", cmd);
 
     /// Execute the SQL we've been given
-    fostlib::pg::connection cnx(host, database);
+    fostlib::pg::connection cnx(dsn);
+    logger("dsn", cnx.configuration());
     auto rs = cnx.exec(fostlib::coerce<fostlib::utf8_string>(cmd));
 
     /// Return data suitable for sending to the browser
@@ -64,6 +64,7 @@ std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
 ) {
     auto logger = fostlib::log::debug(c_fostgres);
     logger("", "Executing SQL command")
+        ("dsn", cnx.configuration())
         ("command", cmd)
         ("args", args);
 
@@ -76,18 +77,18 @@ std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
 
 
 std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
-    const fostlib::string &host, const fostlib::string &database,
-    const fostlib::string &cmd, const std::vector<fostlib::string> &args
+    const fostlib::json &dsn,
+    const fostlib::string &cmd,
+    const std::vector<fostlib::string> &args
 ) {
     auto logger = fostlib::log::debug(c_fostgres);
     logger("", "Executing SQL command")
-        ("host", host)
-        ("database", database)
         ("command", cmd)
         ("args", args);
 
     /// Execute the SQL we've been given
-    fostlib::pg::connection cnx(host, database);
+    fostlib::pg::connection cnx(dsn);
+    logger("dsn", cnx.configuration());
     auto sp = cnx.procedure(fostlib::coerce<fostlib::utf8_string>(cmd));
     auto rs = sp.exec(args);
 

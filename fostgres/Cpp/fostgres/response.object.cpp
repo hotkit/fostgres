@@ -104,9 +104,7 @@ namespace {
         const fostlib::json &config, const fostgres::match &m,
         fostlib::http::server::request &req
     ) {
-        fostlib::pg::connection cnx{
-            fostlib::coerce<fostlib::string>(config["host"]),
-            fostlib::coerce<fostlib::string>(config["database"])};
+        fostlib::pg::connection cnx{config};
         if ( req.method() == "GET" or req.method() == "HEAD" ) {
             return get(cnx, config, m, req);
         } else if ( req.method() == "PUT" ) {

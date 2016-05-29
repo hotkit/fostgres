@@ -96,14 +96,10 @@ namespace {
         fostlib::http::server::request &req
     ) {
         auto data = m.arguments.size()
-            ? fostgres::sql(
-                fostlib::coerce<fostlib::string>(config["host"]),
-                fostlib::coerce<fostlib::string>(config["database"]),
+            ? fostgres::sql(config,
                 fostlib::coerce<fostlib::string>(m.configuration["GET"]),
                 m.arguments)
-            : fostgres::sql(
-                fostlib::coerce<fostlib::string>(config["host"]),
-                fostlib::coerce<fostlib::string>(config["database"]),
+            : fostgres::sql(config,
                 fostlib::coerce<fostlib::string>(m.configuration["GET"]));
         return std::make_pair(
             boost::shared_ptr<fostlib::mime>(
