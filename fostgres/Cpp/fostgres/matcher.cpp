@@ -17,7 +17,7 @@ namespace {
         fostgres::match m{o};
         if ( o.has_key("path") ) {
             for ( auto nj : o["path"] ) {
-                auto n = fostlib::coerce<int>(nj);
+                auto n = fostlib::coerce<unsigned int>(nj);
                 if ( n <= parts.size() ) {
                     m.arguments.push_back(parts[n - 1]);
                 } else {
