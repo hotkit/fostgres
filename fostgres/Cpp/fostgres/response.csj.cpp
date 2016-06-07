@@ -10,6 +10,8 @@
 #include <fostgres/response.hpp>
 #include <fostgres/sql.hpp>
 
+#include <fost/push_back>
+
 
 namespace {
 
@@ -108,6 +110,14 @@ namespace {
     }
 
 
+    std::pair<boost::shared_ptr<fostlib::mime>, int>  patch(
+        const fostlib::json &config, const fostgres::match &m,
+        fostlib::http::server::request &req
+    ) {
+        throw fostlib::exceptions::not_implemented(__FUNCTION__);
+    }
+
+
 }
 
 
@@ -115,6 +125,13 @@ std::pair<boost::shared_ptr<fostlib::mime>, int>  fostgres::response_csj(
     const fostlib::json &config, const fostgres::match &m,
     fostlib::http::server::request &req
 ) {
-    return get(config, m, req);
+    if ( req.method() == "GET" ) {
+        return get(config, m, req);
+    } else if ( req.method() == "PATCH" ) {
+        return patch(config, m, req);
+    } else {
+        throw fostlib::exceptions::not_implemented(__FUNCTION__,
+            "Must use GET, HEAD or PATCH");
+    }
 }
 
