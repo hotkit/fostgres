@@ -6,7 +6,9 @@
 */
 
 
+#include <fost/insert>
 #include <fost/push_back>
+
 #include <fostgres/matcher.hpp>
 #include <fostgres/response.hpp>
 
@@ -27,7 +29,12 @@ namespace {
         ) const {
             auto m = fostgres::matcher(configuration["sql"], path);
             if ( not m.isnull() ) {
-                return fostgres::response(configuration, m.value(), req);
+                try {
+                    return fostgres::response(configuration, m.value(), req);
+                } catch ( fostlib::exceptions::exception &e ) {
+                    fostlib::insert(e.data(), "view", "matched", m.value().configuration);
+                    throw;
+                }
             }
             throw fostlib::exceptions::not_implemented(__FUNCTION__,
                 "No match found -- should be 404");
