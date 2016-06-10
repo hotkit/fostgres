@@ -205,16 +205,36 @@ namespace {
             }
             fostlib::json keys, values;
             for ( auto &col_def : col_defs ) {
-                if ( col_def.second["key"].get(false) ) {
+                fostlib::nullable<fostlib::json> data;
+                if ( col_def.second["source"].isnull() ) {
                     if ( row.has_key(col_def.first) ) {
-                        fostlib::insert(keys, col_def.first, row[col_def.first]);
+                        data = row[col_def.first];
+                    }
+                } else {
+                    auto n = fostlib::coerce<fostlib::nullable<std::size_t>>(
+                        col_def.second["source"].get<int64_t>());
+                    if ( not n.isnull() ) {
+                        if ( n.value() > 0 && n.value() <= m.arguments.size() ) {
+                            data = fostlib::json(m.arguments[n.value() -1]);
+                        }
+                    } else {
+                        auto s = col_def.second["source"].get<fostlib::string>();
+                        if ( not s.isnull() && row.has_key(s.value()) ) {
+                            data = row[s.value()];
+                        }
+                    }
+                }
+                if ( col_def.second["key"].get(false) ) {
+                    // Key column
+                    if ( not data.isnull() ) {
+                        fostlib::insert(keys, col_def.first, data.value());
                     } else {
                         throw fostlib::exceptions::not_implemented(__FUNCTION__,
                             "Key column doesn't have a value", col_def.first);
                     }
-                } else if ( row.has_key(col_def.first) ) {
+                } else if ( not data.isnull() ) {
                     // Value column
-                    fostlib::insert(values, col_def.first, row[col_def.first]);
+                    fostlib::insert(values, col_def.first, data.value());
                 }
             }
             cnx.upsert(relation.c_str(), keys, values);
