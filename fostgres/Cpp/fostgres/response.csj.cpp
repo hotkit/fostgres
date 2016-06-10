@@ -33,11 +33,12 @@ namespace {
             csj_iterator(std::vector<fostlib::string> &&columns, fostlib::pg::recordset &&r)
             : rs(std::move(r)), iter(rs.begin()), end(rs.end()) {
                 current.reserve(64 * 1024);
-                fostlib::stringstream ss;
-                std::copy(columns.begin(), columns.end() - 1,
-                    std::ostream_iterator<fostlib::string>(ss, ","));
-                ss << columns.back() << std::endl;
-                current = ss.str();
+                fostlib::json::unparse(current, columns[0]);
+                for ( std::size_t index{1}; index < columns.size(); ++index ) {
+                    current += ',';
+                    fostlib::json::unparse(current, columns[index]);
+                }
+                current += '\n';
                 if ( iter != end ) line();
             }
 
