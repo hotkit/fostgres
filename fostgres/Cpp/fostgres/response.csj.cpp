@@ -6,10 +6,13 @@
 */
 
 
+#include <fostgres/fostgres.hpp>
 #include <fostgres/matcher.hpp>
 #include <fostgres/response.hpp>
 #include <fostgres/sql.hpp>
 
+#include <fost/log>
+#include <fost/parse/json.hpp>
 #include <fost/push_back>
 
 
@@ -115,7 +118,114 @@ namespace {
         const fostlib::json &config, const fostgres::match &m,
         fostlib::http::server::request &req
     ) {
-        throw fostlib::exceptions::not_implemented(__FUNCTION__);
+        auto logger = fostlib::log::debug(fostgres::c_fostgres);
+        logger("", "CSJ PATCH");
+        fostlib::json work_done{fostlib::json::object_t()};
+        std::size_t records{};
+
+        // We're going to need these items later
+        fostlib::pg::connection cnx{config};
+        fostlib::json_string_parser json_string_p;
+        fostlib::json_parser json_p;
+        fostlib::string relation = fostlib::coerce<fostlib::string>(m.configuration["PATCH"]["table"]);
+        fostlib::json col_config = m.configuration["PATCH"]["columns"];
+        std::vector<std::pair<fostlib::string, fostlib::json>> col_defs;
+        for ( auto col_def = col_config.begin(); col_def != col_config.end(); ++col_def ) {
+            col_defs.push_back(std::make_pair(
+                fostlib::coerce<fostlib::string>(col_def.key()), *col_def));
+        }
+
+        // Interpret body as UTF8 and split into lines. Ensure it's not empty
+        auto body = fostlib::coerce<fostlib::string>(
+            fostlib::coerce<fostlib::utf8_string>(req.data()->data()));
+        logger("body", body);
+        auto lines = fostlib::split(body, "\n");
+        auto line = lines.begin();
+        if ( line == lines.end() ) {
+            throw fostlib::exceptions::not_implemented(__FUNCTION__,
+                    "Empty body send to PATCH handler");
+        }
+        logger("lines", lines.size());
+
+        // Parse the first line and turn it into the column name structure
+        std::vector<fostlib::string> header;
+        auto append_header = [&header](auto v) {
+            header.push_back(std::move(v));
+        };
+        {
+            fostlib::parser_lock lock;
+            if ( not fostlib::parse(lock, (line++)->c_str(),
+                    *boost::spirit::space_p
+                    >> json_string_p[append_header]
+                    >> *(
+                        *boost::spirit::space_p
+                        >> boost::spirit::chlit< wchar_t >( L',' )
+                        >> *boost::spirit::space_p
+                        >> json_string_p[append_header])
+                    >> *boost::spirit::space_p
+                ).full )
+            {
+                throw fostlib::exceptions::not_implemented(__FUNCTION__,
+                        "Could not parse the columns headers row");
+            }
+            logger("header", header);
+        }
+
+        // Parse each line and send it to the database
+        for ( std::size_t line_number{1}; line != lines.end(); ++line, ++line_number ) {
+            std::vector<fostlib::json> columns;
+            auto append_column = [&columns](auto v) {
+                columns.push_back(v);
+            };
+            {
+                fostlib::parser_lock lock;
+                if ( not fostlib::parse(lock, line->c_str(),
+                        *boost::spirit::space_p
+                        >> json_p[append_column]
+                        >> *(
+                        *boost::spirit::space_p
+                        >> boost::spirit::chlit< wchar_t >( L',' )
+                        >> *boost::spirit::space_p
+                        >> json_p[append_column])
+                        >> *boost::spirit::space_p
+                    ).full )
+                {
+                    throw fostlib::exceptions::not_implemented(__FUNCTION__,
+                            "Could not parse row " + std::to_string(line_number));
+                }
+            }
+            if ( columns.size() != header.size() ) {
+                throw fostlib::exceptions::not_implemented(__FUNCTION__,
+                        "Number of columns didn't match number of headers in  row " +
+                        std::to_string(line_number));
+            }
+            fostlib::json row;
+            for ( std::size_t c{}; c != header.size(); ++c ) {
+                fostlib::insert(row, header[c], columns[c]);
+            }
+            fostlib::json keys, values;
+            for ( auto &col_def : col_defs ) {
+                if ( col_def.second["key"].get(false) ) {
+                    if ( row.has_key(col_def.first) ) {
+                        fostlib::insert(keys, col_def.first, row[col_def.first]);
+                    } else {
+                        throw fostlib::exceptions::not_implemented(__FUNCTION__,
+                            "Key column doesn't have a value", col_def.first);
+                    }
+                } else if ( row.has_key(col_def.first) ) {
+                    // Value column
+                    fostlib::insert(values, col_def.first, row[col_def.first]);
+                }
+            }
+            cnx.upsert(relation.c_str(), keys, values);
+            ++records;
+        }
+        cnx.commit();
+        fostlib::insert(work_done, "records", records);
+        boost::shared_ptr<fostlib::mime> response(
+                new fostlib::text_body(fostlib::json::unparse(work_done, true),
+                    fostlib::mime::mime_headers(), L"application/json"));
+        return std::make_pair(response, 200);
     }
 
 
