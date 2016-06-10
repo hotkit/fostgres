@@ -6,26 +6,50 @@
 */
 
 
+#include <fostgres/fostgres.hpp>
 #include <fostgres/matcher.hpp>
+
+#include <fost/log>
 #include <fost/string>
 
 
 namespace {
     fostlib::nullable<fostgres::match> check(
-        const fostlib::json &o, const fostlib::split_type &parts
+        const fostlib::json &conf, const fostlib::split_type &parts
     ) {
-        fostgres::match m{o};
-        if ( o.has_key("path") ) {
-            for ( auto nj : o["path"] ) {
-                auto n = fostlib::coerce<unsigned int>(nj);
-                if ( n <= parts.size() ) {
-                    m.arguments.push_back(parts[n - 1]);
+        if ( not conf.has_key("path") ) return fostlib::null;
+        const fostlib::json &o = conf["path"];
+        if ( o.size() == parts.size() ) {
+            fostgres::match m{o};
+            for ( std::size_t index{0}; index < o.size(); ++index ) {
+                auto s = fostlib::coerce<fostlib::string>(o[index]);
+                if ( s.length() && s[0] == '/' ) {
+                    if ( parts[index] != s.c_str() + 1 ) {
+                        return fostlib::null;
+                    }
                 } else {
-                    return fostlib::null;
+                    const auto n = fostlib::coerce<unsigned int>(o[index]);
+                    if ( n > 0 ) {
+                        // We have a numeric match so this path part needs to
+                        // be exposed as argument number n. This entails
+                        // placing it at position (n-1) in the arguments array
+                        if ( n > m.arguments.size() ) {
+                            m.arguments.resize(n);
+                        }
+                        m.arguments[n-1] = parts[index];
+                    } else {
+                        throw fostlib::exceptions::not_implemented(__FUNCTION__,
+                                "Path arguments numbers cannot be zero");
+                    }
                 }
             }
+            return m;
         }
-        return m;
+        fostlib::log::debug(fostgres::c_fostgres)
+            ("", "Path size mismatch")
+            ("o", "size", o.size())
+            ("parts", "size", parts.size());
+        return fostlib::null;
     }
 }
 
