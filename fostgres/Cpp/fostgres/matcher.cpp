@@ -20,7 +20,7 @@ namespace {
         if ( not conf.has_key("path") ) return fostlib::null;
         const fostlib::json &o = conf["path"];
         if ( o.size() == parts.size() ) {
-            fostgres::match m{o};
+            fostgres::match m{conf};
             for ( std::size_t index{0}; index < o.size(); ++index ) {
                 auto s = fostlib::coerce<fostlib::string>(o[index]);
                 if ( s.length() && s[0] == '/' ) {
