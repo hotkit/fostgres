@@ -30,15 +30,20 @@ namespace {
         auto row = data.second.begin();
         if ( row == data.second.end() ) {
             // TODO Return proper 404
-            throw fostlib::exceptions::not_implemented(__FUNCTION__);
+            throw fostlib::exceptions::not_implemented(__FUNCTION__,
+                "No rows returned");
         }
         auto record = *row;
         for ( std::size_t index{0}; index < record.size(); ++index ) {
-            fostlib::insert(result, data.first[index], record[index]);
+            const auto parts = fostlib::split(data.first[index], "__");
+            fostlib::jcursor pos;
+            for ( const auto &p : parts ) pos /= p;
+            fostlib::insert(result, pos, record[index]);
         }
         if ( ++row != data.second.end() ) {
             // TODO Return proper error
-            throw fostlib::exceptions::not_implemented(__FUNCTION__);
+            throw fostlib::exceptions::not_implemented(__FUNCTION__,
+                "Too many rows returned");
         }
         const bool pretty = fostlib::coerce<fostlib::nullable<bool>>(config["pretty"]).value(true);
         boost::shared_ptr<fostlib::mime> response(
