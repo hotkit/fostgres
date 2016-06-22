@@ -25,6 +25,13 @@ namespace {
 }
 
 
+std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::column_names(
+    fostlib::pg::recordset && rs
+) {
+    return std::make_pair(columns(rs), std::move(rs));
+}
+
+
 std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
     fostlib::pg::connection &cnx, const fostlib::string &cmd
 ) {
