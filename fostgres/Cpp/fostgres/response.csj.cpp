@@ -205,25 +205,7 @@ namespace {
             }
             fostlib::json keys, values;
             for ( auto &col_def : col_defs ) {
-                fostlib::nullable<fostlib::json> data;
-                if ( col_def.second["source"].isnull() ) {
-                    if ( row.has_key(col_def.first) ) {
-                        data = row[col_def.first];
-                    }
-                } else {
-                    auto n = fostlib::coerce<fostlib::nullable<std::size_t>>(
-                        col_def.second["source"].get<int64_t>());
-                    if ( not n.isnull() ) {
-                        if ( n.value() > 0 && n.value() <= m.arguments.size() ) {
-                            data = fostlib::json(m.arguments[n.value() -1]);
-                        }
-                    } else {
-                        auto s = col_def.second["source"].get<fostlib::string>();
-                        if ( not s.isnull() && row.has_key(s.value()) ) {
-                            data = row[s.value()];
-                        }
-                    }
-                }
+                auto data = fostgres::datum(col_def.first, col_def.second, m.arguments, row);
                 if ( col_def.second["key"].get(false) ) {
                     // Key column
                     if ( not data.isnull() ) {

@@ -11,6 +11,39 @@
 #include <f5/threading/map.hpp>
 
 
+fostlib::nullable<fostlib::json> fostgres::datum(
+    const fostlib::string &name,
+    const fostlib::json &defn,
+    const std::vector<fostlib::string> &arguments,
+    const fostlib::json &row
+) {
+    if ( defn["source"].isnull() ) {
+        if ( row.has_key(name) ) {
+            return row[name];
+        }
+    } else {
+        auto n = fostlib::coerce<fostlib::nullable<std::size_t>>(
+            defn["source"].get<int64_t>());
+        if ( not n.isnull() ) {
+            if ( n.value() > 0 && n.value() <= arguments.size() ) {
+                return fostlib::json(arguments[n.value() -1]);
+            }
+        } else {
+            auto s = defn["source"].get<fostlib::string>();
+            if ( not s.isnull() && row.has_key(s.value()) ) {
+                return row[s.value()];
+            }
+        }
+    }
+    return fostlib::null;
+}
+
+
+/*
+    fostgres::responder
+*/
+
+
 namespace {
     using responder_map = f5::tsmap<fostlib::string, fostgres::responder_function>;
 
@@ -19,11 +52,6 @@ namespace {
         return rm;
     }
 }
-
-
-/*
-    fostgres::responder
-*/
 
 
 fostgres::responder::responder(fostlib::string name, responder_function fn) {
