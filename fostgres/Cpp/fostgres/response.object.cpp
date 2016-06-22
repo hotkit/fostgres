@@ -120,9 +120,9 @@ namespace {
         if ( not returning.size() ) {
             returning.emplace_back("*");
         }
-        return get(cnx,
-            fostgres::column_names(cnx.insert(relation.c_str(), values, returning)),
-            config, m, req);
+        auto result = fostgres::column_names(cnx.insert(relation.c_str(), values, returning));
+        cnx.commit();
+        return get(cnx, std::move(result), config, m, req);
     }
     std::pair<boost::shared_ptr<fostlib::mime>, int>  patch(
         fostlib::pg::connection &cnx,
