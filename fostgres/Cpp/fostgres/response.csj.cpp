@@ -203,6 +203,7 @@ namespace {
             for ( std::size_t c{}; c != header.size(); ++c ) {
                 fostlib::insert(row, header[c], columns[c]);
             }
+            logger("row", records, row);
             fostlib::json keys, values;
             for ( auto &col_def : col_defs ) {
                 auto data = fostgres::datum(col_def.first, col_def.second, m.arguments, row);

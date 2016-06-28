@@ -6,9 +6,12 @@
 */
 
 
+#include <fostgres/fostgres.hpp>
 #include <fostgres/matcher.hpp>
 #include <fostgres/response.hpp>
+
 #include <f5/threading/map.hpp>
+#include <fost/log>
 
 
 fostlib::nullable<fostlib::json> fostgres::datum(
@@ -17,20 +20,34 @@ fostlib::nullable<fostlib::json> fostgres::datum(
     const std::vector<fostlib::string> &arguments,
     const fostlib::json &row
 ) {
+    auto logger = fostlib::log::debug(fostgres::c_fostgres);
+    logger("", "Datum lookup")
+        ("in", "name", name)
+        ("in", "defn", defn)
+        ("in", "row", row);
     if ( defn["source"].isnull() ) {
         if ( row.has_key(name) ) {
+            logger("found", name);
+            logger("found", "value", row[name]);
             return row[name];
         }
+        logger("not-found", name);
     } else {
         auto n = fostlib::coerce<fostlib::nullable<std::size_t>>(
             defn["source"].get<int64_t>());
+        logger("searching", "source-int", n);
         if ( not n.isnull() ) {
             if ( n.value() > 0 && n.value() <= arguments.size() ) {
+                logger("found", "source", n);
+                logger("found", "value", fostlib::json(arguments[n.value() -1]));
                 return fostlib::json(arguments[n.value() -1]);
             }
         } else {
             auto s = defn["source"].get<fostlib::string>();
+            logger("searching", "source-str", s);
             if ( not s.isnull() && row.has_key(s.value()) ) {
+                logger("found", "source", s);
+                logger("found", "value", row[s.value()]);
                 return row[s.value()];
             }
         }
