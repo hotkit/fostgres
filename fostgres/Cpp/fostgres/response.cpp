@@ -27,7 +27,7 @@ fostlib::nullable<fostlib::json> fostgres::datum(
         ("in", "row", row);
     if ( defn["source"].isnull() ) {
         if ( row.has_key(name) ) {
-            logger("found", name);
+            logger("found", "name", name);
             logger("found", "value", row[name]);
             return row[name];
         }
