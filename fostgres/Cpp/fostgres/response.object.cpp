@@ -19,13 +19,10 @@ namespace {
 
     std::pair<boost::shared_ptr<fostlib::mime>, int>  get(
         fostlib::pg::connection &cnx,
+        std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> &&data,
         const fostlib::json &config, const fostgres::match &m,
         fostlib::http::server::request &req
     ) {
-        auto data = fostgres::sql(
-                cnx,
-                fostlib::coerce<fostlib::string>(m.configuration["GET"]),
-                m.arguments);
         fostlib::json result;
         auto row = data.second.begin();
         if ( row == data.second.end() ) {
@@ -51,7 +48,16 @@ namespace {
                     fostlib::mime::mime_headers(), L"application/json"));
         return std::make_pair(response, 200);
     }
-
+    std::pair<boost::shared_ptr<fostlib::mime>, int>  get(
+        fostlib::pg::connection &cnx,
+        const fostlib::json &config, const fostgres::match &m,
+        fostlib::http::server::request &req
+    ) {
+        return get(cnx,
+            fostgres::sql(cnx, fostlib::coerce<fostlib::string>(m.configuration["GET"]),
+                m.arguments),
+            config, m, req);
+    }
 
     fostlib::json calc_keys(const fostgres::match &m, const fostlib::json &config) {
         fostlib::json keys;
@@ -88,6 +94,36 @@ namespace {
         cnx.upsert(relation.c_str(), keys, values).commit();
         return get(cnx, config, m, req);
     }
+    std::pair<boost::shared_ptr<fostlib::mime>, int> post(
+        fostlib::pg::connection &cnx,
+        const fostlib::json &config, const fostgres::match &m,
+        fostlib::http::server::request &req
+    ) {
+        fostlib::json body{
+            fostlib::json::parse(
+                fostlib::coerce<fostlib::string>(
+                    fostlib::coerce<fostlib::utf8_string>(req.data()->data())))};
+        fostlib::string relation = fostlib::coerce<fostlib::string>(m.configuration["POST"]["table"]);
+        fostlib::json col_config = m.configuration["POST"]["columns"];
+        fostlib::json values;
+        for ( auto col_def = col_config.begin(); col_def != col_config.end(); ++col_def ) {
+            const auto name = fostlib::coerce<fostlib::string>(col_def.key());
+            const auto data = fostgres::datum(name, *col_def, m.arguments, body);
+            if ( not data.isnull() ) {
+                fostlib::insert(values, name, data.value());
+            }
+        }
+        const fostlib::json &ret_cols = m.configuration["POST"]["returning"];
+        std::vector<fostlib::string> returning;
+        std::transform(ret_cols.begin(), ret_cols.end(), std::back_inserter(returning),
+            [](const auto &s) { return fostlib::coerce<fostlib::string>(s); });
+        if ( not returning.size() ) {
+            returning.emplace_back("*");
+        }
+        auto result = fostgres::column_names(cnx.insert(relation.c_str(), values, returning));
+        cnx.commit();
+        return get(cnx, std::move(result), config, m, req);
+    }
     std::pair<boost::shared_ptr<fostlib::mime>, int>  patch(
         fostlib::pg::connection &cnx,
         const fostlib::json &config, const fostgres::match &m,
@@ -112,10 +148,12 @@ namespace {
         fostlib::pg::connection cnx{config};
         if ( req.method() == "GET" or req.method() == "HEAD" ) {
             return get(cnx, config, m, req);
-        } else if ( req.method() == "PUT" ) {
-            return put(cnx, config, m, req);
         } else if ( req.method() == "PATCH" ) {
             return patch(cnx, config, m, req);
+        } else if ( req.method() == "POST" ) {
+            return post(cnx, config, m, req);
+        } else if ( req.method() == "PUT" ) {
+            return put(cnx, config, m, req);
         } else {
             throw fostlib::exceptions::not_implemented(__FUNCTION__,
                 "Invalid HTTP method -- should return 405");

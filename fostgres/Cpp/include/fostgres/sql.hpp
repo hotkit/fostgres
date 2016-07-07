@@ -16,6 +16,10 @@
 namespace fostgres {
 
 
+    /// Add in the column names to a recordset
+    std::pair<std::vector<fostlib::string>, fostlib::pg::recordset>
+        column_names(fostlib::pg::recordset &&rs);
+
     /// Execute the command and return the column names and data
     std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> sql(
         const fostlib::json &dsn, const fostlib::string &cmd);

@@ -16,6 +16,14 @@
 namespace fostgres {
 
 
+    /// Take a column definition and a JSON object representing a datum
+    /// and produce the data element for forwarding into the database
+    /// if it exists
+    fostlib::nullable<fostlib::json> datum(
+        const fostlib::string &name, const fostlib::json &defn,
+        const std::vector<fostlib::string> &arguments, const fostlib::json &row);
+
+
     struct match;
 
 
