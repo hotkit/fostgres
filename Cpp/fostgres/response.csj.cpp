@@ -102,10 +102,10 @@ namespace {
         fostlib::http::server::request &req
     ) {
         auto data = m.arguments.size()
-            ? fostgres::sql(config,
+            ? fostgres::sql(config, req,
                 fostlib::coerce<fostlib::string>(m.configuration["GET"]),
                 m.arguments)
-            : fostgres::sql(config,
+            : fostgres::sql(config, req,
                 fostlib::coerce<fostlib::string>(m.configuration["GET"]));
         return std::make_pair(
             boost::shared_ptr<fostlib::mime>(
@@ -124,7 +124,7 @@ namespace {
         std::size_t records{};
 
         // We're going to need these items later
-        fostlib::pg::connection cnx{config};
+        fostlib::pg::connection cnx{fostgres::connection(config, req)};
         fostlib::json_string_parser json_string_p;
         fostlib::json_parser json_p;
         fostlib::string relation = fostlib::coerce<fostlib::string>(m.configuration["PATCH"]["table"]);

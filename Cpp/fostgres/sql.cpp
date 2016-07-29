@@ -25,6 +25,37 @@ namespace {
 }
 
 
+fostlib::pg::connection fostgres::connection(
+    fostlib::json config, const fostlib::http::server::request &req
+) {
+    auto do_lookup = [&config, &req](const auto loc) {
+            auto cfgvalue = config[loc];
+            if ( cfgvalue.isarray() ) {
+                auto lookup = fostlib::coerce<fostlib::jcursor>(cfgvalue);
+                if ( lookup.size() && lookup[0] == "request" ) {
+                    auto lookedup = req[fostlib::jcursor(++lookup.begin(), lookup.end())];
+                    if ( lookedup.isnull() ) {
+                        loc.del_key(config);
+                    } else {
+                        loc.replace(config, lookedup.value());
+                    }
+                } else {
+                    throw fostlib::exceptions::not_implemented(__func__,
+                        "Can't look up this position for the connection detail",
+                        lookup);
+                }
+            }
+        };
+    static const fostlib::jcursor dbnameloc("dbname");
+    do_lookup(dbnameloc);
+    static const fostlib::jcursor hostloc("host");
+    do_lookup(hostloc);
+    static const fostlib::jcursor userloc("user");
+    do_lookup(userloc);
+    return fostlib::pg::connection(config);
+}
+
+
 std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::column_names(
     fostlib::pg::recordset && rs
 ) {
@@ -49,14 +80,15 @@ std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
 
 
 std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
-    const fostlib::json &dsn, const fostlib::string &cmd
+    const fostlib::json &dsn, const fostlib::http::server::request &req,
+    const fostlib::string &cmd
 ) {
     auto logger = fostlib::log::debug(c_fostgres);
     logger("", "Executing SQL command")
         ("command", cmd);
 
     /// Execute the SQL we've been given
-    fostlib::pg::connection cnx(dsn);
+    fostlib::pg::connection cnx(connection(dsn, req));
     logger("dsn", cnx.configuration());
     auto rs = cnx.exec(fostlib::coerce<fostlib::utf8_string>(cmd));
 
@@ -84,7 +116,7 @@ std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
 
 
 std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
-    const fostlib::json &dsn,
+    const fostlib::json &dsn, const fostlib::http::server::request &req,
     const fostlib::string &cmd,
     const std::vector<fostlib::string> &args
 ) {
@@ -94,7 +126,7 @@ std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
         ("args", args);
 
     /// Execute the SQL we've been given
-    fostlib::pg::connection cnx(dsn);
+    fostlib::pg::connection cnx(connection(dsn, req));
     logger("dsn", cnx.configuration());
     auto sp = cnx.procedure(fostlib::coerce<fostlib::utf8_string>(cmd));
     auto rs = sp.exec(args);

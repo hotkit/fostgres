@@ -1,5 +1,8 @@
+2016-07-29  Kirit Saelensminde  <kirit@felspar.com>
+ Add a connection factory function that can read some values from the request.
+
 2016-03-25  Kirit Saelensminde  <kirit@felspar.com>
  Basic implementation of CSJ and JSON options for views that fetch data from the database.
 
- 2015-09-23  Kirit Saelensminde  <kirit@felspar.com>
+2015-09-23  Kirit Saelensminde  <kirit@felspar.com>
  Added ChangeLog

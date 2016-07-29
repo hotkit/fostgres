@@ -145,7 +145,7 @@ namespace {
         const fostlib::json &config, const fostgres::match &m,
         fostlib::http::server::request &req
     ) {
-        fostlib::pg::connection cnx{config};
+        fostlib::pg::connection cnx(fostgres::connection(config, req));
         if ( req.method() == "GET" or req.method() == "HEAD" ) {
             return get(cnx, config, m, req);
         } else if ( req.method() == "PATCH" ) {
