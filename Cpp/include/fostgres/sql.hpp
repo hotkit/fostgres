@@ -39,6 +39,9 @@ namespace fostgres {
     /// Execute the command with arguments and return the column names and data
     std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> sql(
         fostlib::pg::connection &, const fostlib::string &cmd, const std::vector<fostlib::string> &args);
+    /// Execute the command with arguments and return the column names and data
+    std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> sql(
+        fostlib::pg::connection &, const fostlib::string &cmd, const std::vector<fostlib::json> &args);
 
 
 }
