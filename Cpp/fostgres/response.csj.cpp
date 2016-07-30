@@ -206,7 +206,7 @@ namespace {
             logger("row", records, row);
             fostlib::json keys, values;
             for ( auto &col_def : col_defs ) {
-                auto data = fostgres::datum(col_def.first, col_def.second, m.arguments, row);
+                auto data = fostgres::datum(col_def.first, col_def.second, m.arguments, row, req);
                 if ( col_def.second["key"].get(false) ) {
                     // Key column
                     if ( not data.isnull() ) {

@@ -53,10 +53,26 @@ namespace {
         const fostlib::json &config, const fostgres::match &m,
         fostlib::http::server::request &req
     ) {
-        return get(cnx,
-            fostgres::sql(cnx, fostlib::coerce<fostlib::string>(m.configuration["GET"]),
-                m.arguments),
-            config, m, req);
+        auto sql = m.configuration["GET"];
+        if ( sql.isobject() ) {
+            std::vector<fostlib::json> arguments;
+            for ( const auto &arg : sql["arguments"] ) {
+                try {
+                    arguments.push_back(fostgres::datum(
+                        arg, m.arguments, fostlib::json(), req).value(fostlib::json()));
+                } catch ( fostlib::exceptions::exception &e ) {
+                    insert(e.data(), "datum", arg);
+                    throw;
+                }
+            }
+            return get(cnx,
+                fostgres::sql(cnx, fostlib::coerce<fostlib::string>(sql["command"]), arguments),
+                config, m, req);
+        } else {
+            return get(cnx,
+                fostgres::sql(cnx, fostlib::coerce<fostlib::string>(sql), m.arguments),
+                config, m, req);
+        }
     }
 
     fostlib::json calc_keys(const fostgres::match &m, const fostlib::json &config) {
@@ -108,7 +124,7 @@ namespace {
         fostlib::json values;
         for ( auto col_def = col_config.begin(); col_def != col_config.end(); ++col_def ) {
             const auto name = fostlib::coerce<fostlib::string>(col_def.key());
-            const auto data = fostgres::datum(name, *col_def, m.arguments, body);
+            const auto data = fostgres::datum(name, *col_def, m.arguments, body, req);
             if ( not data.isnull() ) {
                 fostlib::insert(values, name, data.value());
             }
