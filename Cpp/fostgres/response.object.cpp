@@ -32,6 +32,8 @@ namespace {
         }
         auto record = *row;
         for ( std::size_t index{0}; index < record.size(); ++index ) {
+            if ( data.first[index].endswith("__tableoid") )
+                continue;
             const auto parts = fostlib::split(data.first[index], "__");
             fostlib::jcursor pos;
             for ( const auto &p : parts ) pos /= p;
