@@ -1,0 +1,12 @@
+include $(TOP)/../fost-base/fost.jam ;
+using testing ;
+
+fost-exe fostgres-test
+    :
+        ../../../fost-base/Cpp/fost-cli
+        ../../../fost-base/Cpp/fost-core
+        ../../../fost-base/Cpp/fost-datetime
+        ../../../fost-internet/Cpp/fost-inet
+        fostgres-test.cpp
+    ;
+
