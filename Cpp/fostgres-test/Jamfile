@@ -7,6 +7,16 @@ fost-exe fostgres-test
         ../../../fost-base/Cpp/fost-core
         ../../../fost-base/Cpp/fost-datetime
         ../../../fost-internet/Cpp/fost-inet
+        ../../../fost-postgres/Cpp/fost-postgres
         fostgres-test.cpp
+    ;
+
+run fostgres-test :
+        fostgres-test-base
+        ../../Example/schema/base.sql
+    :
+    :
+    :
+        fostgres-test-base
     ;
 
