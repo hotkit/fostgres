@@ -12,8 +12,8 @@ fost-exe fostgres-test
     ;
 
 run fostgres-test :
-        fostgres-test-base
-        ../../Example/schema/base.sql
+        fostgres-test-http
+        ../fostgres/Example/schema/films.tables.sql
     :
     :
     :

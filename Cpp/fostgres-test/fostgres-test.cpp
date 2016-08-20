@@ -6,6 +6,7 @@
 */
 
 
+#include <fost/file>
 #include <fost/main>
 #include <fost/postgres>
 
@@ -66,6 +67,19 @@ FSL_MAIN(
         auto cnx = pg::connection(cnxconfig);
 
         /// Loop through the remaining tasks and run SQL packages or requests
+        for ( std::size_t argn{2}; argn < args.size(); ++argn ) {
+            const auto filename = coerce<boost::filesystem::path>(args[argn].value());
+            const auto extension = filename.extension();
+            if ( extension == ".sql" ) {
+                o << "Executing SQL " << filename << std::endl;
+                auto sql = coerce<utf8_string>(utf::load_file(filename));
+                cnx.exec(sql);
+                cnx.commit();
+            } else {
+                o << "Unknown script type for " << filename << std::endl;
+                return 3;
+            }
+        }
 
         /// When done and everything was OK, return OK
         return 128;
