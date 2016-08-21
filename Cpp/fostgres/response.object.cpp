@@ -206,6 +206,20 @@ namespace {
     }
 
 
+    std::pair<boost::shared_ptr<fostlib::mime>, int>  del(
+        fostlib::pg::connection &cnx,
+        const fostlib::json &config, const fostgres::match &m,
+        fostlib::http::server::request &req
+    ) {
+        auto get_result = get(cnx, config, m, req);
+        auto sql = fostlib::coerce<fostlib::string>(m.configuration["DELETE"]);
+        auto sp = cnx.procedure(fostlib::coerce<fostlib::utf8_string>(sql));
+        sp.exec(m.arguments);
+        cnx.commit();
+        return get_result;;
+    }
+
+
     std::pair<boost::shared_ptr<fostlib::mime>, int>  response_object(
         const fostlib::json &config, const fostgres::match &m,
         fostlib::http::server::request &req
@@ -219,6 +233,8 @@ namespace {
             return post(cnx, config, m, req);
         } else if ( req.method() == "PUT" ) {
             return put(cnx, config, m, req);
+        } else if ( req.method() == "DELETE" ) {
+            return del(cnx, config, m, req);
         } else {
             throw fostlib::exceptions::not_implemented(__FUNCTION__,
                 "Invalid HTTP method -- should return 405");
