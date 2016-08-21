@@ -30,3 +30,13 @@ alias fostgres :
         ../fost-web//fost
         Cpp/fostgres
     ;
+
+alias test :
+        ../fost-base//tests
+        ../fost-internet//tests
+        ../fost-orm//tests
+        ../fost-postgres//tests
+        fostgres
+        Cpp/fostgres-test
+    ;
+explicit test ;

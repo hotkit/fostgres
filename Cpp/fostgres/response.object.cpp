@@ -23,13 +23,17 @@ namespace {
         const fostlib::json &config, const fostgres::match &m,
         fostlib::http::server::request &req
     ) {
-        fostlib::json result;
+        const bool pretty = fostlib::coerce<fostlib::nullable<bool>>(config["pretty"]).value(true);
         auto row = data.second.begin();
         if ( row == data.second.end() ) {
-            // TODO Return proper 404
-            throw fostlib::exceptions::not_implemented(__FUNCTION__,
-                "No rows returned");
+            fostlib::json result;
+            insert(result, "error", "Not found");
+            boost::shared_ptr<fostlib::mime> response(
+                    new fostlib::text_body(fostlib::json::unparse(result, pretty),
+                        fostlib::mime::mime_headers(), L"application/json"));
+            return std::make_pair(response, 404);
         }
+        fostlib::json result;
         auto record = *row;
         for ( std::size_t index{0}; index < record.size(); ++index ) {
             if ( data.first[index].endswith("__tableoid") )
@@ -41,10 +45,9 @@ namespace {
         }
         if ( ++row != data.second.end() ) {
             // TODO Return proper error
-            throw fostlib::exceptions::not_implemented(__FUNCTION__,
+            throw fostlib::exceptions::not_implemented(__func__,
                 "Too many rows returned");
         }
-        const bool pretty = fostlib::coerce<fostlib::nullable<bool>>(config["pretty"]).value(true);
         boost::shared_ptr<fostlib::mime> response(
                 new fostlib::text_body(fostlib::json::unparse(result, pretty),
                     fostlib::mime::mime_headers(), L"application/json"));
@@ -106,10 +109,32 @@ namespace {
             fostlib::json::parse(
                 fostlib::coerce<fostlib::string>(
                     fostlib::coerce<fostlib::utf8_string>(req.data()->data())))};
-        fostlib::json keys(calc_keys(m, m.configuration["PUT"]["keys"]));
-        fostlib::json values(calc_values(body, m.configuration["PUT"]["attributes"]));
         fostlib::string relation = fostlib::coerce<fostlib::string>(m.configuration["PUT"]["table"]);
-        cnx.upsert(relation.c_str(), keys, values).commit();
+        if ( m.configuration["PUT"].has_key("columns") ) {
+            fostlib::json keys, values, col_config = m.configuration["PUT"]["columns"];
+            for ( auto col_def = col_config.begin(); col_def != col_config.end(); ++col_def ) {
+                auto key = fostlib::coerce<fostlib::string>(col_def.key());
+                auto data = fostgres::datum(key, *col_def, m.arguments, body, req);
+                if ( (*col_def)["key"].get(false) ) {
+                    // Key column
+                    if ( not data.isnull() ) {
+                        fostlib::insert(keys, key, data.value());
+                    } else {
+                        throw fostlib::exceptions::not_implemented(__func__,
+                            "Key column doesn't have a value", key);
+                    }
+                } else if ( not data.isnull() ) {
+                    // Value column
+                    fostlib::insert(values, key, data.value());
+                }
+            }
+            cnx.upsert(relation.c_str(), keys, values);
+            cnx.commit();
+        } else {
+            fostlib::json keys(calc_keys(m, m.configuration["PUT"]["keys"]));
+            fostlib::json values(calc_values(body, m.configuration["PUT"]["attributes"]));
+            cnx.upsert(relation.c_str(), keys, values).commit();
+        }
         return get(cnx, config, m, req);
     }
     std::pair<boost::shared_ptr<fostlib::mime>, int> post(
@@ -184,6 +209,20 @@ namespace {
     }
 
 
+    std::pair<boost::shared_ptr<fostlib::mime>, int>  del(
+        fostlib::pg::connection &cnx,
+        const fostlib::json &config, const fostgres::match &m,
+        fostlib::http::server::request &req
+    ) {
+        auto get_result = get(cnx, config, m, req);
+        auto sql = fostlib::coerce<fostlib::string>(m.configuration["DELETE"]);
+        auto sp = cnx.procedure(fostlib::coerce<fostlib::utf8_string>(sql));
+        sp.exec(m.arguments);
+        cnx.commit();
+        return get_result;;
+    }
+
+
     std::pair<boost::shared_ptr<fostlib::mime>, int>  response_object(
         const fostlib::json &config, const fostgres::match &m,
         fostlib::http::server::request &req
@@ -197,6 +236,8 @@ namespace {
             return post(cnx, config, m, req);
         } else if ( req.method() == "PUT" ) {
             return put(cnx, config, m, req);
+        } else if ( req.method() == "DELETE" ) {
+            return del(cnx, config, m, req);
         } else {
             throw fostlib::exceptions::not_implemented(__FUNCTION__,
                 "Invalid HTTP method -- should return 405");
@@ -204,7 +245,7 @@ namespace {
     }
 
 
-    const fostgres::responder c_csj("object", response_object);
+    const fostgres::responder c_object("object", response_object);
 
 
 }

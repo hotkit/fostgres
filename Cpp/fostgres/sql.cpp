@@ -7,7 +7,6 @@
 
 
 #include <fost/log>
-#include <fost/pg/stored-procedure.hpp>
 #include <fostgres/fostgres.hpp>
 #include <fostgres/sql.hpp>
 
