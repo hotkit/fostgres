@@ -106,10 +106,32 @@ namespace {
             fostlib::json::parse(
                 fostlib::coerce<fostlib::string>(
                     fostlib::coerce<fostlib::utf8_string>(req.data()->data())))};
-        fostlib::json keys(calc_keys(m, m.configuration["PUT"]["keys"]));
-        fostlib::json values(calc_values(body, m.configuration["PUT"]["attributes"]));
         fostlib::string relation = fostlib::coerce<fostlib::string>(m.configuration["PUT"]["table"]);
-        cnx.upsert(relation.c_str(), keys, values).commit();
+        if ( m.configuration["PUT"].has_key("columns") ) {
+            fostlib::json keys, values, col_config = m.configuration["PUT"]["columns"];
+            for ( auto col_def = col_config.begin(); col_def != col_config.end(); ++col_def ) {
+                auto key = fostlib::coerce<fostlib::string>(col_def.key());
+                auto data = fostgres::datum(key, *col_def, m.arguments, body, req);
+                if ( (*col_def)["key"].get(false) ) {
+                    // Key column
+                    if ( not data.isnull() ) {
+                        fostlib::insert(keys, key, data.value());
+                    } else {
+                        throw fostlib::exceptions::not_implemented(__func__,
+                            "Key column doesn't have a value", key);
+                    }
+                } else if ( not data.isnull() ) {
+                    // Value column
+                    fostlib::insert(values, key, data.value());
+                }
+            }
+            cnx.upsert(relation.c_str(), keys, values);
+            cnx.commit();
+        } else {
+            fostlib::json keys(calc_keys(m, m.configuration["PUT"]["keys"]));
+            fostlib::json values(calc_values(body, m.configuration["PUT"]["attributes"]));
+            cnx.upsert(relation.c_str(), keys, values).commit();
+        }
         return get(cnx, config, m, req);
     }
     std::pair<boost::shared_ptr<fostlib::mime>, int> post(
