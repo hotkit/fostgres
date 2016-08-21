@@ -12,6 +12,7 @@
 
 
 using namespace fostlib;
+namespace filesystem = boost::filesystem;
 
 
 namespace {
@@ -37,13 +38,13 @@ FSL_MAIN(
     L"Fostgres testing environment\nCopyright (C) 2016, Felspar Co. Ltd."
 )( fostlib::ostream &o, fostlib::arguments &args ) {
     if ( args.size() < 2 ) {
-        o << "\nRun with:\n\n    fostgres-test dbname [script1 [script2 ...]]\n\n"
-                "Scripts are either .sql or .json files. SQL files describe database set up, or\n"
-                "checks. JSON is used to describe a request together with the server\n"
-                "configuration for that request."
+        o << "\nRun with:\n\n    fostgres-test dbname ...\n\n"
             << std::endl;
         return 2;
     }
+    /// State used by the testing process as it runs
+    std::vector<settings> loaded_settings;
+    std::unique_ptr<fostlib::log::global_sink_configuration> loggers;
     try {
         /// Create the database
         json cnxconfig;
@@ -68,21 +69,31 @@ FSL_MAIN(
 
         /// Loop through the remaining tasks and run SQL packages or requests
         for ( std::size_t argn{2}; argn < args.size(); ++argn ) {
-            const auto filename = coerce<boost::filesystem::path>(args[argn].value());
-            const auto extension = filename.extension();
-            if ( extension == ".sql" ) {
-                o << "Executing SQL " << filename << std::endl;
-                auto sql = coerce<utf8_string>(utf::load_file(filename));
-                cnx.exec(sql);
-                cnx.commit();
+            const auto command = coerce<filesystem::path>(args[argn].value());
+            if ( command == "PUT" ) {
+                const auto view = args[++argn].value();
+                const auto path = args[++argn].value();
+                const auto body = utf::load_file(coerce<filesystem::path>(args[++argn].value()));
+                o << "PUT " << path << std::endl << body << std::endl;
             } else {
-                o << "Unknown script type for " << filename << std::endl;
-                return 3;
+                const auto extension = command.extension();
+                if ( extension == ".json" ) {
+                    o << "Loading configuration " << command << std::endl;
+                    loaded_settings.emplace_back(command);
+                } else if ( extension == ".sql" ) {
+                    o << "Executing SQL " << command << std::endl;
+                    auto sql = coerce<utf8_string>(utf::load_file(command));
+                    cnx.exec(sql);
+                    cnx.commit();
+                } else {
+                    o << "Unknown script type " << extension << " for " << command << std::endl;
+                    return 3;
+                }
             }
         }
 
         /// When done and everything was OK, return OK
-        return 128;
+        return 0;
     } catch ( std::exception &e ) {
         o << "Caught std::exception\n\n" << e.what() << std::endl;
     } catch ( ... ) {

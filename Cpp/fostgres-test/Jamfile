@@ -14,6 +14,8 @@ fost-exe fostgres-test
 run fostgres-test :
         fostgres-test-http
         ../fostgres/Example/schema/films.tables.sql
+        ../fostgres/Example/config/view.film-slug.json
+#         PUT film.slug t1 ../fostgres/Example/t1.json
     :
     :
     :
