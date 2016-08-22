@@ -1,0 +1,71 @@
+{
+    "webserver" : {
+        "views/film.slug": {
+            "view": "fostgres.sql",
+            "configuration": {
+                "dbname": "test",
+                "sql": [
+                    {
+                        "return": "object",
+                        "path": [1],
+                        "GET": "SELECT * FROM films_view WHERE slug=$1",
+                        "PUT": {
+                            "table": "films",
+                            "keys": ["slug"],
+                            "attributes": ["title", "released", "length_minutes"]
+                        }
+                    },
+                    {
+                        "path": [1, "/tags"],
+                        "GET": "SELECT slug as tag FROM film_tags WHERE film_slug=$1",
+                        "PATCH": {
+                            "table": "film_tags",
+                            "columns": {
+                                "film_slug": {
+                                    "key": true,
+                                    "source": 1
+                                },
+                                "slug": {
+                                    "key": true,
+                                    "source": "tag"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "return": "object",
+                        "path": [1, "/watched"],
+                        "POST": {
+                            "table": "film_watched",
+                            "columns": {
+                                "film_slug": {
+                                    "source": 1
+                                },
+                                "who": {}
+                            },
+                            "returning": ["watched"]
+                        }
+                    },
+                    {
+                        "path": [],
+                        "GET": "SELECT
+                                slug, title, released, length_minutes, created, watched__last, watched__times
+                            FROM films_view ORDER BY slug",
+                        "PATCH": {
+                            "table": "films",
+                            "columns": {
+                                "slug": {
+                                    "key": true
+                                },
+                                "title": {},
+                                "released": {},
+                                "length_minutes": {}
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
+

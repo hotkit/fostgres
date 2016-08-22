@@ -1,0 +1,24 @@
+include $(TOP)/../fost-base/fost.jam ;
+using testing ;
+
+fost-exe fostgres-test
+    :
+        ../../../fost-base/Cpp/fost-cli
+        ../../../fost-base/Cpp/fost-core
+        ../../../fost-base/Cpp/fost-datetime
+        ../../../fost-internet/Cpp/fost-inet
+        ../../../fost-postgres/Cpp/fost-postgres
+        fostgres-test.cpp
+    ;
+
+run fostgres-test :
+        fostgres-test-http
+        ../fostgres/Example/schema/films.tables.sql
+        ../fostgres/Example/config/view.film-slug.json
+#         PUT film.slug t1 ../fostgres/Example/t1.json
+    :
+    :
+    :
+        fostgres-test-base
+    ;
+

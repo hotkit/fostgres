@@ -1,0 +1,9 @@
+
+fost-lib-autotest fostgres
+    : Cpp/fostgres
+    :
+        ../../../fost-internet/Cpp/fost-inet
+        ../../../fost-postgres/Cpp/fost-postgres
+        ../../../fost-postgres/Cpp/fost-pqxx
+        ../../../fost-web/Cpp/fost-urlhandler
+    ;
