@@ -19,9 +19,23 @@ namespace fg {
     fostlib::json parse(const boost::filesystem::path &);
 
 
+    class frame {
+    public:
+        using builtin = std::function<fostlib::json(fostlib::json)>;
+
+        std::shared_ptr<frame> parent;
+        std::map<fostlib::string, builtin> native;
+        fostlib::json symbols;
+    };
+
+
+    std::shared_ptr<frame> builtins();
+
+
     class program {
         boost::filesystem::path filename;
         fostlib::json code;
+        std::shared_ptr<frame> root;
     public:
         /// Construct an empty program that errors when run
         program();

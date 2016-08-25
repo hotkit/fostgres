@@ -14,12 +14,13 @@
  */
 
 
-fg::program::program() {
+fg::program::program()
+: root(builtins()) {
 }
 
 
 fg::program::program(boost::filesystem::path fn)
-: filename(std::move(fn)), code(parse(fn)) {
+: root(builtins()), filename(std::move(fn)), code(parse(fn)) {
 }
 
 
