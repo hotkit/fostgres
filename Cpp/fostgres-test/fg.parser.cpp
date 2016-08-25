@@ -9,21 +9,7 @@
 #include "fg.hpp"
 
 
-/*
-    fg::program
- */
-
-
-fg::program::program() {
-}
-
-
-fg::program::program(boost::filesystem::path fn)
-: filename(std::move(fn)), code(parse(fn)) {
-}
-
-
-void fg::program::operator () () const {
+fostlib::json fg::parse(const boost::filesystem::path &filename) {
     throw fostlib::exceptions::not_implemented(__func__);
 }
 

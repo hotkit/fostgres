@@ -15,12 +15,18 @@
 namespace fg {
 
 
+    /// Parse an fg script and return its JSON representation
+    fostlib::json parse(const boost::filesystem::path &);
+
+
     class program {
+        boost::filesystem::path filename;
+        fostlib::json code;
     public:
         /// Construct an empty program that errors when run
         program();
         /// Parse the requested program
-        explicit program(const boost::filesystem::path &);
+        explicit program(boost::filesystem::path);
 
         /// Execute this program
         void operator () () const;

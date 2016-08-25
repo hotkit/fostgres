@@ -9,6 +9,7 @@ fost-exe fostgres-test
         ../../../fost-internet/Cpp/fost-inet
         ../../../fost-postgres/Cpp/fost-postgres
         fg.cpp
+        fg.parser.cpp
         fostgres-test.cpp
     ;
 
