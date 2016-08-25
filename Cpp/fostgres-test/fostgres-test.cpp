@@ -6,7 +6,7 @@
 */
 
 
-#include <fost/file>
+#include "fg.hpp"
 #include <fost/main>
 #include <fost/postgres>
 
@@ -45,6 +45,7 @@ FSL_MAIN(
     /// State used by the testing process as it runs
     std::vector<settings> loaded_settings;
     std::unique_ptr<fostlib::log::global_sink_configuration> loggers;
+    fg::program script;
     try {
         /// Create the database
         json cnxconfig;
@@ -69,31 +70,31 @@ FSL_MAIN(
 
         /// Loop through the remaining tasks and run SQL packages or requests
         for ( std::size_t argn{2}; argn < args.size(); ++argn ) {
-            const auto command = coerce<filesystem::path>(args[argn].value());
-            if ( command == "PUT" ) {
-                const auto view = args[++argn].value();
-                const auto path = args[++argn].value();
-                const auto body = utf::load_file(coerce<filesystem::path>(args[++argn].value()));
-                o << "PUT " << path << std::endl << body << std::endl;
+            const auto filename = coerce<filesystem::path>(args[argn].value());
+            const auto extension = filename.extension();
+            if ( extension == ".fg" ) {
+                o << "Loading script " << filename << std::endl;
+                script = fg::program(filename);
+            } else if ( extension == ".json" ) {
+                o << "Loading configuration " << filename << std::endl;
+                loaded_settings.emplace_back(filename);
+            } else if ( extension == ".sql" ) {
+                o << "Executing SQL " << filename << std::endl;
+                auto sql = coerce<utf8_string>(utf::load_file(filename));
+                cnx.exec(sql);
+                cnx.commit();
             } else {
-                const auto extension = command.extension();
-                if ( extension == ".json" ) {
-                    o << "Loading configuration " << command << std::endl;
-                    loaded_settings.emplace_back(command);
-                } else if ( extension == ".sql" ) {
-                    o << "Executing SQL " << command << std::endl;
-                    auto sql = coerce<utf8_string>(utf::load_file(command));
-                    cnx.exec(sql);
-                    cnx.commit();
-                } else {
-                    o << "Unknown script type " << extension << " for " << command << std::endl;
-                    return 3;
-                }
+                o << "Unknown script type " << extension << " for " << filename << std::endl;
+                return 3;
             }
         }
 
+        script();
+
         /// When done and everything was OK, return OK
         return 0;
+    } catch ( fostlib::exceptions::exception &e ) {
+        o << e << std::endl;
     } catch ( std::exception &e ) {
         o << "Caught std::exception\n\n" << e.what() << std::endl;
     } catch ( ... ) {
