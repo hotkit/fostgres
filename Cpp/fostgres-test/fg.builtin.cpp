@@ -15,7 +15,6 @@ namespace {
     ) {
         int64_t executed = 0u;
         for ( ; pos != end; ++ pos ) {
-            o << *pos << std::endl;
             call(o, stack, *pos);
         }
         return fg::json(executed);
