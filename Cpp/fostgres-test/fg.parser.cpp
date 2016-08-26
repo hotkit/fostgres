@@ -41,22 +41,21 @@ fostlib::json fg::parse(const boost::filesystem::path &filename) {
                             [([&line, &script, &symbol](auto j) {
                                 fostlib::push_back(script, line, j);
                             })]
-                        | string_p
+                        | (string_p
                             [([&line, &script, &symbol](auto b, auto e) {
                                 fostlib::push_back(script, line, fostlib::string(b, e));
-                            })] >> *space_p
+                            })] >> *space_p)
                     )
-                ) >> newline_p
-                    [([&line, &script](auto) {
-                        ++line;
-                    })]
+                ) >> (*newline_p)
             )
+                [([&line, &script](auto, auto) {
+                    ++line;
+                })]
         ).full )
     {
         throw fostlib::exceptions::not_implemented(__func__,
             "Parse error", script);
     }
-    throw fostlib::exceptions::not_implemented(__func__,
-        "Not got this far", script);
+    return script;
 }
 

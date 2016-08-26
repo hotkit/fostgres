@@ -24,7 +24,18 @@ fg::program::program(boost::filesystem::path fn)
 }
 
 
-void fg::program::operator () () const {
+void fg::program::operator () (fostlib::ostream &o) const {
+    if ( code.size() == 0 ) {
+        throw fostlib::exceptions::not_implemented(__func__,
+            "No script has loaded, or the script was empty");
+    } else if ( not code.isarray() ) {
+            throw fostlib::exceptions::not_implemented(__func__,
+                "The script is not a JSON array for some reason", code);
+    } else {
+        for ( const auto &line : code ) {
+            o << line << std::endl;
+        }
+    }
     throw fostlib::exceptions::not_implemented(__func__);
 }
 

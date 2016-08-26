@@ -14,12 +14,22 @@ fost-exe fostgres-test
         fostgres-test.cpp
     ;
 
+run-fail fostgres-test :
+        fostgres-test-noscript
+    :
+        ../../Example/config/view.film-slug.json
+        ../../Example/schema/films.tables.sql
+    :
+    :
+        fostgres-test-noscript
+    ;
+
 run fostgres-test :
         fostgres-test-http
-        ../fostgres/Example/schema/films.tables.sql
-        ../fostgres/Example/config/view.film-slug.json
-        ../fostgres/Example/tests/films.fg
     :
+        ../../Example/config/view.film-slug.json
+        ../../Example/schema/films.tables.sql
+        ../../Example/tests/films.fg
     :
     :
         fostgres-test-base
