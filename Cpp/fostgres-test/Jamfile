@@ -17,11 +17,18 @@ fost-exe fostgres-test
 run-fail fostgres-test :
         fostgres-test-noscript
     :
-        ../../Example/config/view.film-slug.json
-        ../../Example/schema/films.tables.sql
     :
     :
         fostgres-test-noscript
+    ;
+
+run-fail fostgres-test :
+        fostgres-test-empty
+    :
+        empty.fg
+    :
+    :
+        fostgres-test-empty
     ;
 
 run fostgres-test :

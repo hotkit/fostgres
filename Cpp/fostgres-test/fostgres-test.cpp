@@ -92,7 +92,7 @@ FSL_MAIN(
         script(o);
 
         /// When done and everything was OK, return OK
-        return 0;
+        return 128;
     } catch ( fostlib::exceptions::exception &e ) {
         o << e << std::endl;
     } catch ( std::exception &e ) {

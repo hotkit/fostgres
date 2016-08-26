@@ -18,8 +18,8 @@ namespace {
 fostlib::json fg::parse(const boost::filesystem::path &filename) {
     fostlib::string code(fostlib::utf::load_file(filename));
     fostlib::json script;
-    std::size_t line = 0u;
-    fostlib::string symbol;
+    fostlib::push_back(script, "progn");
+    std::size_t line = 1u;
 
     auto space_p = boost::spirit::chlit<wchar_t>(L' ');
     auto newline_p = boost::spirit::chlit<wchar_t>(L'\n');
@@ -29,20 +29,21 @@ fostlib::json fg::parse(const boost::filesystem::path &filename) {
 
     fostlib::parser_lock lock;
     if ( not fostlib::parse(lock, code.c_str(),
-            +(
+            *newline_p
+            >> +(
                 string_p
-                    [([&line, &script, &symbol](auto b, auto e) {
+                    [([&line, &script](auto b, auto e) {
                         fostlib::push_back(script, line, fostlib::string(b, e));
                     })]
                 >> *boost::spirit::chlit<wchar_t>(L' ')
                 >> *(
                     (
                         json_p
-                            [([&line, &script, &symbol](auto j) {
+                            [([&line, &script](auto j) {
                                 fostlib::push_back(script, line, j);
                             })]
                         | (string_p
-                            [([&line, &script, &symbol](auto b, auto e) {
+                            [([&line, &script](auto b, auto e) {
                                 fostlib::push_back(script, line, fostlib::string(b, e));
                             })] >> *space_p)
                     )

@@ -19,9 +19,10 @@ namespace fg {
     fostlib::json parse(const boost::filesystem::path &);
 
 
+    /// A stack frame
     class frame {
     public:
-        using builtin = std::function<fostlib::json(fostlib::json)>;
+        using builtin = std::function<fostlib::json(fostlib::ostream &, fostlib::json)>;
 
         std::shared_ptr<frame> parent;
         std::map<fostlib::string, builtin> native;
@@ -29,9 +30,11 @@ namespace fg {
     };
 
 
+    /// Return the builtin functions for the fg environment
     std::shared_ptr<frame> builtins();
 
 
+    /// A whole program
     class program {
         boost::filesystem::path filename;
         fostlib::json code;
@@ -44,6 +47,8 @@ namespace fg {
 
         /// Execute this program
         void operator () (fostlib::ostream &) const;
+
+        /// Call a JSON s-expr
     };
 
 
