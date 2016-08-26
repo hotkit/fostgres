@@ -19,12 +19,40 @@ fg::frame::frame(const frame *f)
 }
 
 
+fg::json fg::frame::argument(
+    const fostlib::string &name, json::const_iterator &pos, json::const_iterator end
+) {
+    if ( pos == end ) {
+        throw fostlib::exceptions::not_implemented(__func__,
+            "Argument not found", name);
+    } else {
+        auto result = *pos;
+        ++pos;
+        return result;
+    }
+}
+
+
 fostlib::string fg::frame::resolve_string(const json &code) const {
     if ( code.isatom() ) {
         return fostlib::coerce<fostlib::string>(code);
+    } else if ( code.isarray() ) {
+        std::stringstream ss;
+        frame stack(this);
+        return resolve_string(call(ss, stack, code));
     } else {
         throw fostlib::exceptions::not_implemented(__func__,
             "Can't resolve to a string", code);
+    }
+}
+
+
+int64_t fg::frame::resolve_int(const json &code) const {
+    if ( code.isatom() ) {
+        return fostlib::coerce<int64_t>(code);
+    } else {
+        throw fostlib::exceptions::not_implemented(__func__,
+            "Can't resolve to an int", code);
     }
 }
 

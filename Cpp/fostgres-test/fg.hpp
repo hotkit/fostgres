@@ -38,8 +38,13 @@ namespace fg {
         std::map<fostlib::string, builtin> native;
         json symbols;
 
-        /// Turn an expressin into a string
+        /// Pop an argument off the head of the args list
+        json argument(const fostlib::string &name, json::const_iterator &pos, json::const_iterator end);
+
+        /// Turn an expression into a string
         fostlib::string resolve_string(const json &) const;
+        /// Turn an expression into an integer
+        int64_t resolve_int(const json &) const;
         /// Resolve a function
         builtin resolve_function(const fostlib::string &name) const;
     };

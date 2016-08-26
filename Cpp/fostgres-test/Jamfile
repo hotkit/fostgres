@@ -8,12 +8,14 @@ fost-exe fostgres-test
         ../../../fost-base/Cpp/fost-datetime
         ../../../fost-internet/Cpp/fost-inet
         ../../../fost-postgres/Cpp/fost-postgres
+        ../../../fost-web/Cpp/fost-urlhandler
         fg.cpp
         fg.builtin.cpp
         fg.builtin.put.cpp
         fg.call.cpp
         fg.frame.cpp
         fg.parser.cpp
+        fg.testserver.cpp
         fostgres-test.cpp
     ;
 

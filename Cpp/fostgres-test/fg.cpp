@@ -32,6 +32,15 @@ void fg::program::operator () (fostlib::ostream &o) const {
             "The script was empty");
     } else {
         frame stack(builtins());
+        stack.native["module.path.join"] = [this](
+                fostlib::ostream &o, fg::frame &stack,
+                fg::json::const_iterator pos, fg::json::const_iterator end
+            ) {
+                auto path = fostlib::coerce<boost::filesystem::path>(
+                    stack.resolve_string(stack.argument("path", pos, end)));
+                auto result = fostlib::join_paths(filename.parent_path(), path);
+                return fostlib::coerce<fostlib::json>(result);
+            };
         call(o, stack, code);
     }
 }

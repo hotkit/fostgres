@@ -6,6 +6,38 @@
 */
 
 
-#include "fg.testsever.hpp"
+#include "fg.testserver.hpp"
+#include <fost/insert>
 
+
+namespace {
+    fg::json hconfig(const fostlib::string &view) {
+        fg::json hosts;
+        fostlib::insert(hosts, "", view);
+        return hosts;
+    }
+}
+
+
+fg::testserver::testserver(const fostlib::string &viewname)
+: host_config("fg.testserver.cpp", fostlib::urlhandler::c_hosts, hconfig(viewname)) {
+}
+
+
+std::pair<boost::shared_ptr<fostlib::mime>, int > fg::testserver::put(
+    frame &stack, const fostlib::string &path, const fostlib::json &data
+) {
+    std::unique_ptr<fostlib::binary_body> body;
+    if ( data.isatom() || data.isarray() ) {
+        auto filename = fostlib::coerce<boost::filesystem::path>(stack.resolve_string(data));
+        auto filedata = fostlib::utf::load_file(filename);
+        body.reset(new fostlib::binary_body(
+            filedata.std_str().c_str(), filedata.std_str().c_str() + filedata.std_str().length()));
+        body->headers().set("Content-Type", fostlib::urlhandler::mime_type(filename));
+    } else {
+        throw fostlib::exceptions::not_implemented(__func__,
+            "Got an object as the request body", data);
+    }
+    throw fostlib::exceptions::not_implemented(__func__, "Incomplete");
+}
 
