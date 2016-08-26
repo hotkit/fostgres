@@ -18,6 +18,7 @@ namespace fg {
 
     /// Can be used to check the result of running a request against a URL
     class testserver {
+        fostlib::string viewname;
         fostlib::setting<json> host_config;
 
     public:

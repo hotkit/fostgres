@@ -19,8 +19,8 @@ namespace {
 }
 
 
-fg::testserver::testserver(const fostlib::string &viewname)
-: host_config("fg.testserver.cpp", fostlib::urlhandler::c_hosts, hconfig(viewname)) {
+fg::testserver::testserver(const fostlib::string &vn)
+: viewname(vn), host_config("fg.testserver.cpp", fostlib::urlhandler::c_hosts, hconfig(viewname)) {
 }
 
 
@@ -38,6 +38,8 @@ std::pair<boost::shared_ptr<fostlib::mime>, int > fg::testserver::put(
         throw fostlib::exceptions::not_implemented(__func__,
             "Got an object as the request body", data);
     }
-    throw fostlib::exceptions::not_implemented(__func__, "Incomplete");
+    fostlib::http::server::request request("PUT",
+        fostlib::coerce<fostlib::url::filepath_string>(path), std::move(body));
+    return fostlib::urlhandler::router(fostlib::host("localhost"), viewname, request);
 }
 

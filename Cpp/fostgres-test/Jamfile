@@ -45,6 +45,7 @@ run fostgres-test :
         ../../Example/config/view.film-slug.json
         ../../Example/schema/films.tables.sql
         ../../Example/tests/films.fg
+        ../fostgres//fostgres
     :
     :
         test-films

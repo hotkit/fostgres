@@ -7,6 +7,7 @@
 
 
 #include "fg.hpp"
+#include <fost/dynlib>
 #include <fost/main>
 #include <fost/postgres>
 
@@ -44,7 +45,7 @@ FSL_MAIN(
     }
     /// State used by the testing process as it runs
     std::vector<settings> loaded_settings;
-    std::unique_ptr<fostlib::log::global_sink_configuration> loggers;
+    std::vector<std::unique_ptr<fostlib::dynlib>> dynlibs;
     fg::program script;
     try {
         /// Create the database
@@ -78,6 +79,9 @@ FSL_MAIN(
             } else if ( extension == ".json" ) {
                 o << "Loading configuration " << filename << std::endl;
                 loaded_settings.emplace_back(filename);
+            } else if ( extension == ".so" ) {
+                o << "Loading library " << filename << std::endl;
+                dynlibs.emplace_back(std::make_unique<fostlib::dynlib>(args[argn].value()));
             } else if ( extension == ".sql" ) {
                 o << "Executing SQL " << filename << std::endl;
                 auto sql = coerce<utf8_string>(utf::load_file(filename));
