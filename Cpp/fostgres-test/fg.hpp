@@ -15,30 +15,41 @@
 namespace fg {
 
 
+    using json = fostlib::json;
+
+
     /// Parse an fg script and return its JSON representation
-    fostlib::json parse(const boost::filesystem::path &);
+    json parse(const boost::filesystem::path &);
+
+
+    class program;
 
 
     /// A stack frame
     class frame {
     public:
-        using builtin = std::function<fostlib::json(fostlib::ostream &, fostlib::json)>;
+        using builtin = std::function<json(fostlib::ostream &, json)>;
 
-        std::shared_ptr<frame> parent;
+        frame(const frame *parent);
+
+        const frame *parent;
         std::map<fostlib::string, builtin> native;
-        fostlib::json symbols;
+        json symbols;
+
+        /// Resolve a function
+        builtin resolve_function(const fostlib::string &name) const;
     };
 
 
     /// Return the builtin functions for the fg environment
-    std::shared_ptr<frame> builtins();
+    frame builtins();
 
 
     /// A whole program
     class program {
         boost::filesystem::path filename;
-        fostlib::json code;
-        std::shared_ptr<frame> root;
+        json code;
+        frame root;
     public:
         /// Construct an empty program that errors when run
         program();
@@ -49,6 +60,7 @@ namespace fg {
         void operator () (fostlib::ostream &) const;
 
         /// Call a JSON s-expr
+        json call(fostlib::ostream &o, const fostlib::string &name, const json &args) const;
     };
 
 

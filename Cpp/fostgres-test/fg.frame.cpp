@@ -9,8 +9,17 @@
 #include "fg.hpp"
 
 
-fg::frame fg::builtins() {
-    frame funcs{nullptr};
-    return funcs;
+/*
+    fg::program
+ */
+
+
+fg::frame::frame(const frame *f)
+: parent(f) {
 }
 
+
+fg::frame::builtin fg::frame::resolve_function(const fostlib::string &name) const {
+    throw fostlib::exceptions::not_implemented(__func__,
+        "Function not found", name);
+}

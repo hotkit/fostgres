@@ -10,6 +10,7 @@ fost-exe fostgres-test
         ../../../fost-postgres/Cpp/fost-postgres
         fg.cpp
         fg.builtin.cpp
+        fg.frame.cpp
         fg.parser.cpp
         fostgres-test.cpp
     ;
