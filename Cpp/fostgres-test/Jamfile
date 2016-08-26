@@ -9,6 +9,7 @@ fost-exe fostgres-test
         ../../../fost-internet/Cpp/fost-inet
         ../../../fost-postgres/Cpp/fost-postgres
         ../../../fost-web/Cpp/fost-urlhandler
+        ../fost-csj
         fg.cpp
         fg.builtin.cpp
         fg.builtin.put.cpp
