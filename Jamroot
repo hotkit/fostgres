@@ -38,5 +38,7 @@ alias test :
         ../fost-postgres//tests
         fostgres
         Cpp/fostgres-test
+        Example
     ;
 explicit test ;
+
