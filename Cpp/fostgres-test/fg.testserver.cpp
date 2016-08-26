@@ -35,8 +35,10 @@ std::pair<boost::shared_ptr<fostlib::mime>, int > fg::testserver::put(
             filedata.std_str().c_str(), filedata.std_str().c_str() + filedata.std_str().length()));
         body->headers().set("Content-Type", fostlib::urlhandler::mime_type(filename));
     } else {
-        throw fostlib::exceptions::not_implemented(__func__,
-            "Got an object as the request body", data);
+        auto bodydata = fostlib::json::unparse(data, false);
+        body.reset(new fostlib::binary_body(
+            bodydata.std_str().c_str(), bodydata.std_str().c_str() + bodydata.std_str().length()));
+        body->headers().set("Content-Type", "application/json");
     }
     fostlib::http::server::request request("PUT",
         fostlib::coerce<fostlib::url::filepath_string>(path), std::move(body));

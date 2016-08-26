@@ -34,6 +34,24 @@
                     },
                     {
                         "return": "object",
+                        "path": [1, "/tag", 2],
+                        "GET": "SELECT slug as tag FROM film_tags WHERE film_slug=$1 AND slug=$2",
+                        "PUT": {
+                            "table": "film_tags",
+                            "columns": {
+                                "film_slug": {
+                                    "key": true,
+                                    "source": 1
+                                },
+                                "slug": {
+                                    "key": true,
+                                    "source": 2
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "return": "object",
                         "path": [1, "/watched"],
                         "POST": {
                             "table": "film_watched",
