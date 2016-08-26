@@ -20,7 +20,7 @@ fg::program::program()
 
 
 fg::program::program(boost::filesystem::path fn)
-: root(builtins()), filename(std::move(fn)), code(parse(fn)) {
+: filename(std::move(fn)), code(parse(filename)), root(builtins()) {
 }
 
 

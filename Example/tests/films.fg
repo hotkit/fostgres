@@ -1,1 +1,2 @@
-PUT film.slug /t1 ../t1.json 200 contains ../t1.json
+PUT film.slug /t1 ../t1.json 200 ../t1.json
+PUT film.slug /t1/tag/action {} 200 {"tag": "action"}
