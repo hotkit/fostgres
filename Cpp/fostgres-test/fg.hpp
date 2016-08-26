@@ -28,7 +28,9 @@ namespace fg {
     /// A stack frame
     class frame {
     public:
-        using builtin = std::function<json(fostlib::ostream &, json)>;
+        using builtin = std::function<json(
+                fostlib::ostream &, frame &, json::const_iterator, json::const_iterator
+            )>;
 
         frame(const frame *parent);
 
@@ -36,6 +38,8 @@ namespace fg {
         std::map<fostlib::string, builtin> native;
         json symbols;
 
+        /// Turn an expressin into a string
+        fostlib::string resolve_string(const json &) const;
         /// Resolve a function
         builtin resolve_function(const fostlib::string &name) const;
     };
@@ -58,10 +62,12 @@ namespace fg {
 
         /// Execute this program
         void operator () (fostlib::ostream &) const;
-
-        /// Call a JSON s-expr
-        json call(fostlib::ostream &o, const fostlib::string &name, const json &args) const;
     };
+
+
+    /// Call a named function
+    json call(fostlib::ostream &o, const frame &parent,
+        const fostlib::string &name, json::const_iterator begin, json::const_iterator end);
 
 
 }

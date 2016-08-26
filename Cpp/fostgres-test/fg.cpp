@@ -32,30 +32,7 @@ void fg::program::operator () (fostlib::ostream &o) const {
         throw fostlib::exceptions::not_implemented(__func__,
             "The script was empty");
     } else {
-        call(o, "progn", code);
+        call(o, root, root.resolve_string(*code.begin()), ++code.begin(), code.end());
     }
-}
-
-
-namespace {
-
-
-    fg::json call(
-        fostlib::ostream &o, const fg::frame &parent,
-        const fostlib::string &name, fg::json::const_iterator begin, fg::json::const_iterator end
-    ) {
-        fg::frame stack(&parent);
-        fg::frame::builtin function(stack.resolve_function(name));
-        throw fostlib::exceptions::not_implemented(__func__);
-    }
-
-
-}
-
-
-fg::json fg::program::call(
-    fostlib::ostream &o, const fostlib::string &name, const json &args
-) const {
-    return ::call(o, root, name, args.begin(), args.end());
 }
 

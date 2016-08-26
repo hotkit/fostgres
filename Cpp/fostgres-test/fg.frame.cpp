@@ -19,7 +19,27 @@ fg::frame::frame(const frame *f)
 }
 
 
-fg::frame::builtin fg::frame::resolve_function(const fostlib::string &name) const {
-    throw fostlib::exceptions::not_implemented(__func__,
-        "Function not found", name);
+fostlib::string fg::frame::resolve_string(const json &code) const {
+    if ( code.isatom() ) {
+        return fostlib::coerce<fostlib::string>(code);
+    } else {
+        throw fostlib::exceptions::not_implemented(__func__,
+            "Can't resolve to a string", code);
+    }
 }
+
+
+fg::frame::builtin fg::frame::resolve_function(const fostlib::string &name) const {
+    auto fnp = native.find(name);
+    if ( fnp == native.end() ) {
+        if ( parent ) {
+            return parent->resolve_function(name);
+        } else {
+            throw fostlib::exceptions::not_implemented(__func__,
+                "Function not found", name);
+        }
+    } else {
+        return fnp->second;
+    }
+}
+
