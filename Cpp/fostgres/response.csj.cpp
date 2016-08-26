@@ -232,6 +232,20 @@ namespace {
     }
 
 
+    std::pair<boost::shared_ptr<fostlib::mime>, int>  del(
+        const fostlib::json &config, const fostgres::match &m,
+        fostlib::http::server::request &req
+    ) {
+        fostlib::pg::connection cnx{fostgres::connection(config, req)};
+        auto sql = fostlib::coerce<fostlib::string>(m.configuration["DELETE"]);
+        auto sp = cnx.procedure(fostlib::coerce<fostlib::utf8_string>(sql));
+        sp.exec(m.arguments);
+        cnx.commit();
+        boost::shared_ptr<fostlib::mime> response(new fostlib::text_body(L""));
+        return std::make_pair(response, 200);
+    }
+
+
 }
 
 
@@ -243,9 +257,11 @@ std::pair<boost::shared_ptr<fostlib::mime>, int>  fostgres::response_csj(
         return get(config, m, req);
     } else if ( req.method() == "PATCH" ) {
         return patch(config, m, req);
+    } else if ( req.method() == "DELETE" ) {
+        return del(config, m, req);
     } else {
         throw fostlib::exceptions::not_implemented(__FUNCTION__,
-            "Must use GET, HEAD or PATCH");
+            "Must use GET, HEAD, DELETE or PATCH");
     }
 }
 
