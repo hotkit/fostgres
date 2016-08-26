@@ -7,6 +7,7 @@
 
 
 #include "fg.hpp"
+#include "fg.testserver.hpp"
 
 
 namespace {
