@@ -14,13 +14,12 @@
  */
 
 
-fg::program::program()
-: root(builtins()) {
+fg::program::program() {
 }
 
 
 fg::program::program(boost::filesystem::path fn)
-: filename(std::move(fn)), code(parse(filename)), root(builtins()) {
+: filename(std::move(fn)), code(parse(filename)) {
 }
 
 
@@ -32,7 +31,8 @@ void fg::program::operator () (fostlib::ostream &o) const {
         throw fostlib::exceptions::not_implemented(__func__,
             "The script was empty");
     } else {
-        call(o, root, code);
+        frame stack(builtins());
+        call(o, stack, code);
     }
 }
 

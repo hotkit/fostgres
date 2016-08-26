@@ -53,7 +53,6 @@ namespace fg {
     class program {
         boost::filesystem::path filename;
         json code;
-        frame root;
     public:
         /// Construct an empty program that errors when run
         program();
@@ -66,9 +65,9 @@ namespace fg {
 
 
     /// Call a JSON s-expr
-    json call(fostlib::ostream &o, const frame &parent, const fostlib::json &sexpr);
+    json call(fostlib::ostream &o, frame &parent, const fostlib::json &sexpr);
     /// Call a named function
-    json call(fostlib::ostream &o, const frame &parent,
+    json call(fostlib::ostream &o, frame &parent,
         const fostlib::string &name, json::const_iterator begin, json::const_iterator end);
 
 
