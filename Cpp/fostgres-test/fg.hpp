@@ -72,5 +72,10 @@ namespace fg {
         const fostlib::string &name, json::const_iterator begin, json::const_iterator end);
 
 
+    namespace lib {
+        extern frame::builtin put;
+    }
+
+
 }
 

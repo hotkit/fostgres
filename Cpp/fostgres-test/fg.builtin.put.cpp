@@ -10,22 +10,13 @@
 
 
 namespace {
-    fg::json progn(
+    fg::json put(
         fostlib::ostream &o, fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end
     ) {
-        int64_t executed = 0u;
-        for ( ; pos != end; ++ pos ) {
-            call(o, stack, *pos);
-        }
-        return fg::json(executed);
+        throw fostlib::exceptions::not_implemented(__func__);
     }
 }
 
 
-fg::frame fg::builtins() {
-    frame funcs{nullptr};
-    funcs.native["progn"] = progn;
-    funcs.native["PUT"] = lib::put;
-    return funcs;
-}
+fg::frame::builtin fg::lib::put = ::put;
 
