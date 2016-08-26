@@ -89,7 +89,7 @@ FSL_MAIN(
             }
         }
 
-        script(o);
+        script();
 
         /// When done and everything was OK, return OK
         return 128;

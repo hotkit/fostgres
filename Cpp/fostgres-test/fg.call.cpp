@@ -9,7 +9,7 @@
 #include "fg.hpp"
 
 
-fg::json fg::call(fostlib::ostream &o, frame &stack, const json &sexpr) {
+fg::json fg::call(frame &stack, const json &sexpr) {
     if ( not sexpr.isarray() ) {
             throw fostlib::exceptions::not_implemented(__func__,
                 "Script isn't an array/s-expression", sexpr);
@@ -17,16 +17,16 @@ fg::json fg::call(fostlib::ostream &o, frame &stack, const json &sexpr) {
         throw fostlib::exceptions::not_implemented(__func__,
             "The script was empty");
     } else {
-        return call(o, stack, stack.resolve_string(*sexpr.begin()), ++sexpr.begin(), sexpr.end());
+        return call(stack, stack.resolve_string(*sexpr.begin()), ++sexpr.begin(), sexpr.end());
     }
 }
 
 
 fg::json fg::call(
-    fostlib::ostream &o, frame &stack,
+    frame &stack,
     const fostlib::string &name, json::const_iterator begin, json::const_iterator end
 ) {
     frame::builtin function(stack.resolve_function(name));
-    return function(o, stack, begin, end);
+    return function(stack, begin, end);
 }
 

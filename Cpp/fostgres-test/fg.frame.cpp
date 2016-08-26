@@ -37,9 +37,8 @@ fostlib::string fg::frame::resolve_string(const json &code) const {
     if ( code.isatom() ) {
         return fostlib::coerce<fostlib::string>(code);
     } else if ( code.isarray() ) {
-        std::stringstream ss;
         frame stack(this);
-        return resolve_string(call(ss, stack, code));
+        return resolve_string(call(stack, code));
     } else {
         throw fostlib::exceptions::not_implemented(__func__,
             "Can't resolve to a string", code);

@@ -12,7 +12,7 @@
 
 namespace {
     fg::json put(
-        fostlib::ostream &o, fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end
+        fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end
     ) {
         auto viewname = stack.resolve_string(stack.argument("view", pos, end));
         auto path = stack.resolve_string(stack.argument("path", pos, end));

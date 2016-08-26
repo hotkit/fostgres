@@ -28,9 +28,7 @@ namespace fg {
     /// A stack frame
     class frame {
     public:
-        using builtin = std::function<json(
-                fostlib::ostream &, frame &, json::const_iterator, json::const_iterator
-            )>;
+        using builtin = std::function<json(frame &, json::const_iterator, json::const_iterator)>;
 
         frame(const frame *parent);
 
@@ -65,15 +63,15 @@ namespace fg {
         explicit program(boost::filesystem::path);
 
         /// Execute this program
-        void operator () (fostlib::ostream &) const;
+        void operator () () const;
     };
 
 
     /// Call a JSON s-expr
-    json call(fostlib::ostream &o, frame &parent, const fostlib::json &sexpr);
+    json call(frame &parent, const fostlib::json &sexpr);
     /// Call a named function
-    json call(fostlib::ostream &o, frame &parent,
-        const fostlib::string &name, json::const_iterator begin, json::const_iterator end);
+    json call(frame &parent, const fostlib::string &name,
+        json::const_iterator begin, json::const_iterator end);
 
 
     namespace lib {

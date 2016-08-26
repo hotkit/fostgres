@@ -23,7 +23,7 @@ fg::program::program(boost::filesystem::path fn)
 }
 
 
-void fg::program::operator () (fostlib::ostream &o) const {
+void fg::program::operator () () const {
     if ( not code.isarray() ) {
             throw fostlib::exceptions::not_implemented(__func__,
                 "No script has been loaded", code);
@@ -33,7 +33,7 @@ void fg::program::operator () (fostlib::ostream &o) const {
     } else {
         frame stack(builtins());
         stack.native["module.path.join"] = [this](
-                fostlib::ostream &o, fg::frame &stack,
+                fg::frame &stack,
                 fg::json::const_iterator pos, fg::json::const_iterator end
             ) {
                 auto path = fostlib::coerce<boost::filesystem::path>(
@@ -41,7 +41,7 @@ void fg::program::operator () (fostlib::ostream &o) const {
                 auto result = fostlib::join_paths(filename.parent_path(), path);
                 return fostlib::coerce<fostlib::json>(result);
             };
-        call(o, stack, code);
+        call(stack, code);
     }
 }
 

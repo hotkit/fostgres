@@ -11,11 +11,11 @@
 
 namespace {
     fg::json progn(
-        fostlib::ostream &o, fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end
+        fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end
     ) {
         int64_t executed = 0u;
         for ( ; pos != end; ++ pos ) {
-            call(o, stack, *pos);
+            call(stack, *pos);
         }
         return fg::json(executed);
     }
