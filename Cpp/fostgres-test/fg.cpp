@@ -27,12 +27,12 @@ fg::program::program(boost::filesystem::path fn)
 void fg::program::operator () (fostlib::ostream &o) const {
     if ( not code.isarray() ) {
             throw fostlib::exceptions::not_implemented(__func__,
-                "No script has been loaded");
-    } else if ( code.size() == 1 ) {
+                "No script has been loaded", code);
+    } else if ( code.size() <= 1 ) {
         throw fostlib::exceptions::not_implemented(__func__,
             "The script was empty");
     } else {
-        call(o, root, root.resolve_string(*code.begin()), ++code.begin(), code.end());
+        call(o, root, code);
     }
 }
 

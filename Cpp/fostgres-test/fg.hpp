@@ -65,6 +65,8 @@ namespace fg {
     };
 
 
+    /// Call a JSON s-expr
+    json call(fostlib::ostream &o, const frame &parent, const fostlib::json &sexpr);
     /// Call a named function
     json call(fostlib::ostream &o, const frame &parent,
         const fostlib::string &name, json::const_iterator begin, json::const_iterator end);
