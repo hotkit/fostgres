@@ -27,33 +27,31 @@ fostlib::json fg::parse(const boost::filesystem::path &filename) {
     fostlib::json_string_parser json_string_p;
     fostlib::json_parser json_p;
 
-    fostlib::parser_lock lock;
-    if ( not fostlib::parse(lock, code.c_str(),
-            *newline_p
-            >> +(
-                string_p
-                    [([&line, &script](auto b, auto e) {
-                        fostlib::push_back(script, line, fostlib::string(b, e));
-                    })]
-                >> *boost::spirit::chlit<wchar_t>(L' ')
-                >> *(
-                    (
-                        json_p
-                            [([&line, &script](auto j) {
-                                fostlib::push_back(script, line, j);
-                            })]
-                        | (string_p
-                            [([&line, &script](auto b, auto e) {
-                                fostlib::push_back(script, line, fostlib::string(b, e));
-                            })] >> *space_p)
-                    )
-                ) >> (*newline_p)
-            )
-                [([&line, &script](auto, auto) {
-                    ++line;
+    auto result = boost::spirit::parse(code.c_str(),
+        *newline_p
+        >> *(
+            string_p
+                [([&line, &script](auto b, auto e) {
+                    fostlib::push_back(script, line, fostlib::string(b, e));
                 })]
-        ).full )
-    {
+            >> *boost::spirit::chlit<wchar_t>(L' ')
+            >> *(
+                (
+                    json_p
+                        [([&line, &script](auto j) {
+                            fostlib::push_back(script, line, j);
+                        })]
+                    | (string_p
+                        [([&line, &script](auto b, auto e) {
+                            fostlib::push_back(script, line, fostlib::string(b, e));
+                        })] >> *space_p)
+                )
+            ) >> (*newline_p)
+        )
+            [([&line, &script](auto, auto) {
+                ++line;
+            })]);
+    if ( not result.full ) {
         throw fostlib::exceptions::not_implemented(__func__,
             "Parse error", script);
     }
