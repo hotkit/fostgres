@@ -63,7 +63,7 @@ namespace fg {
         explicit program(boost::filesystem::path);
 
         /// Execute this program
-        void operator () () const;
+        void operator () (frame &) const;
     };
 
 

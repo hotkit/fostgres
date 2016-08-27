@@ -23,7 +23,7 @@ fg::program::program(boost::filesystem::path fn)
 }
 
 
-void fg::program::operator () () const {
+void fg::program::operator () (frame &stack) const {
     if ( not code.isarray() ) {
             throw fostlib::exceptions::not_implemented(__func__,
                 "No script has been loaded", code);
@@ -31,7 +31,6 @@ void fg::program::operator () () const {
         throw fostlib::exceptions::not_implemented(__func__,
             "The script was empty");
     } else {
-        frame stack(builtins());
         stack.native["module.path.join"] = [this](
                 fg::frame &stack,
                 fg::json::const_iterator pos, fg::json::const_iterator end

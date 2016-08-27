@@ -93,7 +93,8 @@ FSL_MAIN(
             }
         }
 
-        script();
+        fg::frame stack(fg::builtins());
+        script(stack);
 
         /// When done and everything was OK, return OK
         return 0;
