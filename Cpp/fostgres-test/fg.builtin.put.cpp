@@ -16,9 +16,9 @@ namespace {
     ) {
         auto viewname = stack.resolve_string(stack.argument("view", pos, end));
         auto path = stack.resolve_string(stack.argument("path", pos, end));
-        auto body = stack.argument("bodyfile", pos, end);
+        auto body = stack.argument("body", pos, end);
         auto status = stack.resolve_int(stack.argument("status", pos, end));
-        auto response = stack.argument("responsefile", pos, end);
+        auto response = stack.argument("response", pos, end);
         fg::testserver server(viewname);
         auto actual = server.put(stack, path, body);
         if ( actual.second != status ) {
