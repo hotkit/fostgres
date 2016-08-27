@@ -29,6 +29,15 @@ run-fail fostgres-test :
     ;
 
 run fostgres-test :
+        fostgres-test-comment
+    :
+        comment.fg
+    :
+    :
+        fostgres-test-comment
+    ;
+
+run fostgres-test :
         fostgres-test-empty
     :
         empty.fg

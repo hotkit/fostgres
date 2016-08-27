@@ -24,13 +24,15 @@ fostlib::json fg::parse(const boost::filesystem::path &filename) {
     auto space_p = boost::spirit::chlit<wchar_t>(L' ');
     auto newline_p = boost::spirit::chlit<wchar_t>(L'\n');
     auto string_p = +(boost::spirit::anychar_p - space_p - newline_p);
+    auto comment_p = *space_p >> boost::spirit::chlit<wchar_t>(L'#')
+        >> *(boost::spirit::anychar_p - newline_p);
     fostlib::json_string_parser json_string_p;
     fostlib::json_parser json_p;
 
-    auto result = boost::spirit::parse(code.c_str(),
-        *newline_p
-        >> *(
-            string_p
+    auto result = boost::spirit::parse(code.c_str(), *(
+        newline_p
+        | comment_p
+        | (string_p
                 [([&line, &script](auto b, auto e) {
                     fostlib::push_back(script, line, fostlib::string(b, e));
                 })]
@@ -46,11 +48,11 @@ fostlib::json fg::parse(const boost::filesystem::path &filename) {
                             fostlib::push_back(script, line, fostlib::string(b, e));
                         })] >> *space_p)
                 )
-            ) >> (*newline_p)
-        )
+            ))
             [([&line, &script](auto, auto) {
                 ++line;
-            })]);
+            })]
+        ));
     if ( not result.full ) {
         throw fostlib::exceptions::not_implemented(__func__,
             "Parse error", script);
