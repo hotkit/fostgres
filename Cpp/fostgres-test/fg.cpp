@@ -25,8 +25,7 @@ fg::program::program(boost::filesystem::path fn)
 
 void fg::program::operator () (frame &stack) const {
     if ( not code.isarray() ) {
-            throw fostlib::exceptions::not_implemented(__func__,
-                "No script has been loaded", code);
+        throw nothing_loaded();
     } else if ( code.size() <= 1 ) {
         throw fostlib::exceptions::not_implemented(__func__,
             "The script was empty");
@@ -42,5 +41,19 @@ void fg::program::operator () (frame &stack) const {
             };
         call(stack, code);
     }
+}
+
+
+/*
+    fg::program::nothing_loaded
+ */
+
+
+fg::program::nothing_loaded::nothing_loaded() noexcept {
+}
+
+
+fostlib::wliteral const fg::program::nothing_loaded::message() const {
+    return L"No script has been loaded";
 }
 

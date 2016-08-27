@@ -65,6 +65,14 @@ namespace fg {
 
         /// Execute this program
         void operator () (frame &) const;
+
+        /// Script not loaded
+        class nothing_loaded : public fostlib::exceptions::exception {
+        public:
+            nothing_loaded() noexcept;
+
+            fostlib::wliteral const message() const;
+        };
     };
 
 
