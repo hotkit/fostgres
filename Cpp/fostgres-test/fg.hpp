@@ -73,6 +73,13 @@ namespace fg {
 
             fostlib::wliteral const message() const;
         };
+        /// Exception for an empty script
+        class empty_script : public fostlib::exceptions::exception {
+        public:
+            empty_script() noexcept;
+
+            fostlib::wliteral const message() const;
+        };
     };
 
 

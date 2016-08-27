@@ -28,7 +28,7 @@ run-fail fostgres-test :
         fostgres-test-noscript
     ;
 
-run-fail fostgres-test :
+run fostgres-test :
         fostgres-test-empty
     :
         empty.fg

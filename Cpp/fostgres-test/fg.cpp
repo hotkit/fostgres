@@ -27,8 +27,7 @@ void fg::program::operator () (frame &stack) const {
     if ( not code.isarray() ) {
         throw nothing_loaded();
     } else if ( code.size() <= 1 ) {
-        throw fostlib::exceptions::not_implemented(__func__,
-            "The script was empty");
+        throw empty_script();
     } else {
         stack.native["module.path.join"] = [this](
                 fg::frame &stack,
@@ -41,6 +40,20 @@ void fg::program::operator () (frame &stack) const {
             };
         call(stack, code);
     }
+}
+
+
+/*
+    fg::program::empty_script
+ */
+
+
+fg::program::empty_script::empty_script() noexcept {
+}
+
+
+fostlib::wliteral const fg::program::empty_script::message() const {
+    return L"Empty script";
 }
 
 

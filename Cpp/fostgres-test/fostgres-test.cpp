@@ -98,6 +98,9 @@ FSL_MAIN(
 
         /// When done and everything was OK, return OK
         return 0;
+    } catch ( fg::program::empty_script & ) {
+        o << "No commands were found in the script" << std::endl;
+        return 0;
     } catch ( fg::program::nothing_loaded & ) {
         o << "No script was specified on the command line" << std::endl;
         return 4;
