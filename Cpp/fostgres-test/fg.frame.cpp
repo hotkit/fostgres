@@ -56,11 +56,12 @@ int64_t fg::frame::resolve_int(const json &code) const {
 }
 
 
-fg::frame::builtin fg::frame::resolve_function(const fostlib::string &name) const {
+/// This is dynamic rather than lexical scoping, which is.... not great
+fg::frame::builtin fg::frame::lookup_function(const fostlib::string &name) const {
     auto fnp = native.find(name);
     if ( fnp == native.end() ) {
         if ( parent ) {
-            return parent->resolve_function(name);
+            return parent->lookup_function(name);
         } else {
             throw fostlib::exceptions::not_implemented(__func__,
                 "Function not found", name);

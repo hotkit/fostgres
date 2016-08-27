@@ -26,7 +26,7 @@ fg::json fg::call(
     frame &stack,
     const fostlib::string &name, json::const_iterator begin, json::const_iterator end
 ) {
-    frame::builtin function(stack.resolve_function(name));
+    frame::builtin function(stack.lookup_function(name));
     return function(stack, begin, end);
 }
 

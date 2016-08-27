@@ -43,8 +43,9 @@ namespace fg {
         fostlib::string resolve_string(const json &) const;
         /// Turn an expression into an integer
         int64_t resolve_int(const json &) const;
+
         /// Resolve a function
-        builtin resolve_function(const fostlib::string &name) const;
+        builtin lookup_function(const fostlib::string &name) const;
     };
 
 
