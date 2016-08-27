@@ -14,7 +14,9 @@
 namespace {
     const auto space_p = boost::spirit::chlit<wchar_t>(L' ');
     const auto newline_p = boost::spirit::chlit<wchar_t>(L'\n');
-    const auto string_p = +(boost::spirit::anychar_p - space_p - newline_p);
+    const auto open_p = boost::spirit::chlit<wchar_t>(L'(');
+    const auto close_p = boost::spirit::chlit<wchar_t>(L')');
+    const auto string_p = +(boost::spirit::anychar_p - open_p - close_p - space_p - newline_p);
     const auto comment_p = *space_p >> boost::spirit::chlit<wchar_t>(L'#')
         >> *(boost::spirit::anychar_p - newline_p);
     const fostlib::json_string_parser json_string_p;
@@ -33,16 +35,26 @@ namespace {
         template< typename scanner_t >
         struct definition {
             definition(sexpr_parser const& self) {
-                top =
-                        expr[fostlib::parsers::push_back(self.value, phoenix::arg1)]
+                top = sexpr[self.value = phoenix::arg1];
+
+                sexpr =
+                        expr[fostlib::parsers::push_back(sexpr.value, phoenix::arg1)]
                         >> *(*space_p
-                            >> expr[fostlib::parsers::push_back(self.value, phoenix::arg1)]);
+                            >> expr[fostlib::parsers::push_back(sexpr.value, phoenix::arg1)]);
 
                 expr =
                     json_ep[expr.value = phoenix::arg1]
+                    | embedded[expr.value = phoenix::arg1]
                     | string_p[expr.value = phoenix::construct_<fostlib::string>(phoenix::arg1, phoenix::arg2)];
+
+                embedded =
+                    open_p
+                    >> *space_p
+                    >> sexpr[embedded.value = phoenix::arg1]
+                    >> *space_p
+                    >> close_p;
             }
-            boost::spirit::rule<scanner_t, sexpr_closure::context_t> expr;
+            boost::spirit::rule<scanner_t, sexpr_closure::context_t> sexpr, expr, embedded;
             boost::spirit::rule<scanner_t> top;
 
             boost::spirit::rule<scanner_t> const &start() const { return top; }
