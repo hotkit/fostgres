@@ -6,9 +6,9 @@
 */
 
 
-#include "mime.hpp"
-#include "fg.hpp"
-#include "fg.testserver.hpp"
+#include <fostgres/fg/mime.hpp>
+#include <fostgres/fg/fg.hpp>
+#include <fostgres/fg/fg.testserver.hpp>
 
 
 namespace {

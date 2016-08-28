@@ -4,22 +4,9 @@ using testing ;
 fost-exe fostgres-test
     :
         ../../../fost-base/Cpp/fost-cli
-        ../../../fost-base/Cpp/fost-core
-        ../../../fost-base/Cpp/fost-datetime
-        ../../../fost-internet/Cpp/fost-inet
         ../../../fost-postgres/Cpp/fost-postgres
-        ../../../fost-web/Cpp/fost-urlhandler
-        ../fost-csj
-        contains.cpp
-        fg.cpp
-        fg.builtin.cpp
-        fg.builtin.put.cpp
-        fg.call.cpp
-        fg.frame.cpp
-        fg.parser.cpp
-        fg.testserver.cpp
+        ../fostgres-fg
         fostgres-test.cpp
-        mime.cpp
     ;
 
 run-fail fostgres-test :

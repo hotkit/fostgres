@@ -6,7 +6,7 @@
 */
 
 
-#include "fg.hpp"
+#include <fostgres/fg/fg.hpp>
 
 
 namespace {

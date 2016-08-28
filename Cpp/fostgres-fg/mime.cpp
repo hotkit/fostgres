@@ -6,8 +6,8 @@
 */
 
 
-#include "contains.hpp"
-#include "mime.hpp"
+#include <fostgres/fg/contains.hpp>
+#include <fostgres/fg/mime.hpp>
 #include <fost/insert>
 
 
