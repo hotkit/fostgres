@@ -25,6 +25,7 @@ namespace {
 fg::frame fg::builtins() {
     frame funcs{nullptr};
     funcs.native["progn"] = progn;
+    funcs.native["DELETE"] = lib::del;
     funcs.native["GET"] = lib::get;
     funcs.native["PUT"] = lib::put;
     return funcs;

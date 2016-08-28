@@ -5,3 +5,7 @@ PUT film.slug /t1/tag/action {} 200 {"tag": "action"}
 # Check that the film output is correct
 GET film.slug /t1 200 (module.path.join ../t1.json)
 
+# DELETE it make sure it is gone, and the DELETE also behaves properly
+DELETE film.slug /t1 200 (module.path.join ../t1.json)
+GET film.slug /t1 404
+DELETE film.slug /t1 404

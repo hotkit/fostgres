@@ -12,14 +12,14 @@
 
 
 namespace {
-    fg::json get(
+    fg::json del(
         fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end
     ) {
         auto viewname = stack.resolve_string(stack.argument("view", pos, end));
         auto path = stack.resolve_string(stack.argument("path", pos, end));
         auto status = stack.resolve_int(stack.argument("status", pos, end));
         fg::testserver server(viewname);
-        auto actual = server.get(stack, path);
+        auto actual = server.del(stack, path);
         if ( actual.second != status ) {
             throw fostlib::exceptions::not_implemented(__func__,
                 "Actual resopnse status isn't what was epected", actual.second);
@@ -33,5 +33,5 @@ namespace {
 }
 
 
-fg::frame::builtin fg::lib::get = ::get;
+fg::frame::builtin fg::lib::del = ::del;
 

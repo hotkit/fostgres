@@ -13,7 +13,8 @@
                             "table": "films",
                             "keys": ["slug"],
                             "attributes": ["title", "released", "length_minutes"]
-                        }
+                        },
+                        "DELETE": "DELETE FROM films WHERE slug=$1"
                     },
                     {
                         "path": [1, "/tags"],

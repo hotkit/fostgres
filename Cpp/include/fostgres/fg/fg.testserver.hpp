@@ -30,6 +30,9 @@ namespace fg {
         /// Return the result of the POST request
         std::pair<boost::shared_ptr<fostlib::mime>, int > put(
             frame &stack, const fostlib::string &path, const fostlib::json &data);
+        /// Return the result of the DELETE request
+        std::pair<boost::shared_ptr<fostlib::mime>, int > del(
+            frame &stack, const fostlib::string &path);
     };
 
 

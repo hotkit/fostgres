@@ -48,3 +48,12 @@ std::pair<boost::shared_ptr<fostlib::mime>, int > fg::testserver::put(
     return fostlib::urlhandler::router(fostlib::host("localhost"), viewname, request);
 }
 
+
+std::pair<boost::shared_ptr<fostlib::mime>, int > fg::testserver::del(
+    frame &stack, const fostlib::string &path
+) {
+    fostlib::http::server::request request("DELETE",
+        fostlib::coerce<fostlib::url::filepath_string>(path));
+    return fostlib::urlhandler::router(fostlib::host("localhost"), viewname, request);
+}
+
