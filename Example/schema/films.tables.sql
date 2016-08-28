@@ -34,8 +34,11 @@ CREATE VIEW films_view AS
     SELECT films.*,
             max(film_watched.watched) AS watched__last,
             count(film_watched.film_slug) AS watched__times,
-            array_to_json(array_remove(array_agg(film_tags.slug), NULL)) AS tags
+            array_to_json(ARRAY
+                    (SELECT slug FROM film_tags
+                        WHERE film_tags.film_slug=films.slug
+                        ORDER BY slug)
+                ) AS tags
         FROM films
         LEFT JOIN film_watched ON film_watched.film_slug=films.slug
-        LEFT JOIN film_tags ON film_tags.film_slug=films.slug
         GROUP BY films.slug;

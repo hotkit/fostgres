@@ -6,7 +6,16 @@ PUT film.slug /t1/tag/action {} 200 {"tag": "action"}
 PATCH film.slug /t1/tags (module.path.join ../tags.csj) 200 {"records": 6}
 
 # Check that the film output is correct
-GET film.slug /t1 200 (module.path.join ../t1.json)
+GET film.slug /t1 200 {
+        "watched": {"times": 0, "last": null},
+        "tags": [
+            "action",
+            "adventure",
+            "dystopian",
+            "robots",
+            "sci-fi",
+            "time-travel"
+        ]}
 
 # DELETE it make sure it is gone, and the DELETE also behaves properly
 DELETE film.slug /t1 200 (module.path.join ../t1.json)
