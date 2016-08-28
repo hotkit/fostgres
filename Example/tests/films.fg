@@ -1,0 +1,2 @@
+# Add some films
+PATCH film.slug / (module.path.join ../films.csj) 200 {"records": 2}

@@ -27,6 +27,7 @@ fg::frame fg::builtins() {
     funcs.native["progn"] = progn;
     funcs.native["DELETE"] = lib::del;
     funcs.native["GET"] = lib::get;
+    funcs.native["PATCH"] = lib::patch;
     funcs.native["PUT"] = lib::put;
     return funcs;
 }

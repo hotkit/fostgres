@@ -91,7 +91,7 @@ namespace fg {
 
 
     namespace lib {
-        extern frame::builtin del, get, put;
+        extern frame::builtin del, get, patch, put;
     }
 
 
