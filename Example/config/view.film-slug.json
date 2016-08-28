@@ -31,7 +31,8 @@
                                     "source": "tag"
                                 }
                             }
-                        }
+                        },
+                        "DELETE": "DELETE FROM film_tags WHERE film_slug=$1"
                     },
                     {
                         "return": "object",
