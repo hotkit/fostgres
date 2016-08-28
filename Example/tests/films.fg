@@ -3,3 +3,5 @@ PUT film.slug /t1 (module.path.join ../t1.json) 200 (module.path.join ../t1.json
 PUT film.slug /t1/tag/action {} 200 {"tag": "action"}
 
 # Check that the film output is correct
+GET film.slug /t1 200 (module.path.join ../t1.json)
+

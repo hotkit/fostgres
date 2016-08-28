@@ -30,6 +30,15 @@ fg::testserver::testserver(const fostlib::string &vn)
 }
 
 
+std::pair<boost::shared_ptr<fostlib::mime>, int > fg::testserver::get(
+    frame &stack, const fostlib::string &path
+) {
+    fostlib::http::server::request request("GET",
+        fostlib::coerce<fostlib::url::filepath_string>(path));
+    return fostlib::urlhandler::router(fostlib::host("localhost"), viewname, request);
+}
+
+
 std::pair<boost::shared_ptr<fostlib::mime>, int > fg::testserver::put(
     frame &stack, const fostlib::string &path, const fostlib::json &data
 ) {
