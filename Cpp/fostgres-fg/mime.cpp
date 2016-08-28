@@ -9,6 +9,7 @@
 #include <fostgres/fg/contains.hpp>
 #include <fostgres/fg/mime.hpp>
 #include <fost/insert>
+#include <fost/test>
 
 
 namespace {
@@ -58,8 +59,13 @@ void fg::assert_comparable(const fostlib::mime &actual, const fostlib::mime &exp
         auto expected_body = mime_to_json(expected);
         auto contains = fg::contains(actual_body, expected_body);
         if ( not contains.isnull() ) {
-            throw fostlib::exceptions::not_implemented(__func__,
-                "The expected response is not a sub-set of the returned response", contains.value());
+            fostlib::exceptions::test_failure error("Mismatched response body", __FILE__, __LINE__);
+            fostlib::insert(error.data(), "expected", expected_body);
+            fostlib::insert(error.data(), "actual", actual_body);
+            fostlib::insert(error.data(), "mismatch", "path", contains.value());
+            fostlib::insert(error.data(), "mismatch", "expected", expected_body[contains.value()]);
+            fostlib::insert(error.data(), "mismatch", "actual", actual_body[contains.value()]);
+            throw error;
         }
     } else {
         throw fostlib::exceptions::not_implemented(__func__,

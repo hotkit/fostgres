@@ -2,6 +2,7 @@
 fost-lib-autotest fostgres-fg
     : Cpp/fostgres-fg
     :
+        ../../../fost-base/Cpp/fost-test
         ../../../fost-web/Cpp/fost-urlhandler
         ../fost-csj
     ;
