@@ -13,7 +13,7 @@ namespace {
     fostlib::nullable<fostlib::jcursor> walk(
         fostlib::jcursor &path, const fostlib::json &super, const fostlib::json &sub
     ) {
-        if ( sub.isatom() ) {
+        if ( sub.isatom() || sub.isarray() ) {
             if ( super[path] == sub ) {
                 return fostlib::null;
             } else {
