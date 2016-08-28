@@ -3,7 +3,7 @@
         "views/film.slug": {
             "view": "fostgres.sql",
             "configuration": {
-                "dbname": "fostgres-test-films",
+                "dbname": ["request", "headers", "__pgdsn", "dbname"],
                 "sql": [
                     {
                         "return": "object",

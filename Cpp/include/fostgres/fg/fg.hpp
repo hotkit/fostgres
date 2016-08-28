@@ -34,7 +34,7 @@ namespace fg {
 
         const frame *parent;
         std::map<fostlib::string, builtin> native;
-        json symbols;
+        std::map<fostlib::string, json> symbols;
 
         /// Pop an argument off the head of the args list
         json argument(const fostlib::string &name, json::const_iterator &pos, json::const_iterator end);
@@ -44,6 +44,8 @@ namespace fg {
         /// Turn an expression into an integer
         int64_t resolve_int(const json &) const;
 
+        /// Lookup a symbol
+        json lookup(const fostlib::string &name) const;
         /// Resolve a function
         builtin lookup_function(const fostlib::string &name) const;
     };

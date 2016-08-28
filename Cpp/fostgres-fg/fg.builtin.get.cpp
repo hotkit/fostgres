@@ -18,7 +18,7 @@ namespace {
         auto viewname = stack.resolve_string(stack.argument("view", pos, end));
         auto path = stack.resolve_string(stack.argument("path", pos, end));
         auto status = stack.resolve_int(stack.argument("status", pos, end));
-        fg::testserver server(viewname);
+        fg::testserver server(stack, viewname);
         auto actual = server.get(stack, path);
         if ( actual.second != status ) {
             throw fostlib::exceptions::not_implemented(__func__,

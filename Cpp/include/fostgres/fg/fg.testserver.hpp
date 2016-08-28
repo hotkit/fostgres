@@ -19,10 +19,10 @@ namespace fg {
     /// Can be used to check the result of running a request against a URL
     class testserver {
         fostlib::string viewname;
-        fostlib::setting<json> host_config;
+        fostlib::setting<json> host_config, view_config;
 
     public:
-        testserver(const fostlib::string &viewname);
+        testserver(const fg::frame &, const fostlib::string &viewname);
 
         /// Return the result of the GET request
         std::pair<boost::shared_ptr<fostlib::mime>, int > get(

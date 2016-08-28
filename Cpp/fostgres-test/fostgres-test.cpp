@@ -6,7 +6,7 @@
 */
 
 
-#include "fg.hpp"
+#include <fostgres/fg/fg.hpp>
 #include <fost/dynlib>
 #include <fost/main>
 #include <fost/postgres>
@@ -94,6 +94,7 @@ FSL_MAIN(
         }
 
         fg::frame stack(fg::builtins());
+        stack.symbols["pg.dsn"] = cnxconfig;
         script(stack);
 
         /// When done and everything was OK, return OK

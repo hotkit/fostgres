@@ -57,6 +57,22 @@ int64_t fg::frame::resolve_int(const json &code) const {
 
 
 /// This is dynamic rather than lexical scoping, which is.... not great
+fg::json fg::frame::lookup(const fostlib::string &name) const {
+    auto fnp = symbols.find(name);
+    if ( fnp == symbols.end() ) {
+        if ( parent ) {
+            return parent->lookup(name);
+        } else {
+            throw fostlib::exceptions::not_implemented(__func__,
+                "Sumbol not found", name);
+        }
+    } else {
+        return fnp->second;
+    }
+}
+
+
+/// This is dynamic rather than lexical scoping, which is.... not great
 fg::frame::builtin fg::frame::lookup_function(const fostlib::string &name) const {
     auto fnp = native.find(name);
     if ( fnp == native.end() ) {

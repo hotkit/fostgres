@@ -20,7 +20,7 @@ namespace {
         auto body = stack.argument("body", pos, end);
         auto status = stack.resolve_int(stack.argument("status", pos, end));
         auto response = fg::mime_from_argument(stack, stack.argument("response", pos, end));
-        fg::testserver server(viewname);
+        fg::testserver server(stack, viewname);
         auto actual = server.patch(stack, path, body);
         if ( actual.second != status ) {
             throw fostlib::exceptions::not_implemented(__func__,
