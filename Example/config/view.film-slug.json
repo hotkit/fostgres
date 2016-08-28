@@ -14,6 +14,18 @@
                             "keys": ["slug"],
                             "attributes": ["title", "released", "length_minutes"]
                         },
+                        "PATCH": {
+                            "table": "films",
+                            "columns": {
+                                "slug": {
+                                    "key":  true,
+                                    "source": 1
+                                },
+                                "title": {},
+                                "released": {},
+                                "length_minutes": {}
+                            }
+                        },
                         "DELETE": "DELETE FROM films WHERE slug=$1"
                     },
                     {
