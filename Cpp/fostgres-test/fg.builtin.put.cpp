@@ -6,6 +6,7 @@
 */
 
 
+#include "mime.hpp"
 #include "fg.hpp"
 #include "fg.testserver.hpp"
 
@@ -18,13 +19,14 @@ namespace {
         auto path = stack.resolve_string(stack.argument("path", pos, end));
         auto body = stack.argument("body", pos, end);
         auto status = stack.resolve_int(stack.argument("status", pos, end));
-        auto response = stack.argument("response", pos, end);
+        auto response = fg::mime_from_argument(stack, stack.argument("response", pos, end));
         fg::testserver server(viewname);
         auto actual = server.put(stack, path, body);
         if ( actual.second != status ) {
             throw fostlib::exceptions::not_implemented(__func__,
                 "Actual resopnse status isn't what was epected", actual.second);
         }
+        fg::assert_comparable(*actual.first, *response);
         return fostlib::json();
     }
 }

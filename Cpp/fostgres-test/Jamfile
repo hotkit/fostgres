@@ -10,6 +10,7 @@ fost-exe fostgres-test
         ../../../fost-postgres/Cpp/fost-postgres
         ../../../fost-web/Cpp/fost-urlhandler
         ../fost-csj
+        contains.cpp
         fg.cpp
         fg.builtin.cpp
         fg.builtin.put.cpp
@@ -18,6 +19,7 @@ fost-exe fostgres-test
         fg.parser.cpp
         fg.testserver.cpp
         fostgres-test.cpp
+        mime.cpp
     ;
 
 run-fail fostgres-test :
