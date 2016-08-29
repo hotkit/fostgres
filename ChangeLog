@@ -1,4 +1,7 @@
 2016-08-28  Kirit Saelensminde  <kirit@felspar.com>
+ Object PUT support can now have confiugrations for multiple tables.
+
+2016-08-28  Kirit Saelensminde  <kirit@felspar.com>
  Add DELETE support and a scripting language for testing the views.
 
 2016-08-14  Kirit Saelensminde  <kirit@felspar.com>
