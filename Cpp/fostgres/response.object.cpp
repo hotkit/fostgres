@@ -100,18 +100,15 @@ namespace {
     }
 
 
-    std::pair<boost::shared_ptr<fostlib::mime>, int>  put(
+    void proc_put(
         fostlib::pg::connection &cnx,
         const fostlib::json &config, const fostgres::match &m,
-        fostlib::http::server::request &req
+        fostlib::http::server::request &req,
+        const fostlib::json &put_config, const fostlib::json &body
     ) {
-        fostlib::json body{
-            fostlib::json::parse(
-                fostlib::coerce<fostlib::string>(
-                    fostlib::coerce<fostlib::utf8_string>(req.data()->data())))};
-        fostlib::string relation = fostlib::coerce<fostlib::string>(m.configuration["PUT"]["table"]);
-        if ( m.configuration["PUT"].has_key("columns") ) {
-            fostlib::json keys, values, col_config = m.configuration["PUT"]["columns"];
+        fostlib::string relation = fostlib::coerce<fostlib::string>(put_config["table"]);
+        if ( put_config.has_key("columns") ) {
+            fostlib::json keys, values, col_config = put_config["columns"];
             for ( auto col_def = col_config.begin(); col_def != col_config.end(); ++col_def ) {
                 auto key = fostlib::coerce<fostlib::string>(col_def.key());
                 auto data = fostgres::datum(key, *col_def, m.arguments, body, req);
@@ -129,12 +126,30 @@ namespace {
                 }
             }
             cnx.upsert(relation.c_str(), keys, values);
-            cnx.commit();
         } else {
-            fostlib::json keys(calc_keys(m, m.configuration["PUT"]["keys"]));
-            fostlib::json values(calc_values(body, m.configuration["PUT"]["attributes"]));
-            cnx.upsert(relation.c_str(), keys, values).commit();
+            fostlib::json keys(calc_keys(m, put_config["keys"]));
+            fostlib::json values(calc_values(body, put_config["attributes"]));
+            cnx.upsert(relation.c_str(), keys, values);
         }
+    }
+    std::pair<boost::shared_ptr<fostlib::mime>, int>  put(
+        fostlib::pg::connection &cnx,
+        const fostlib::json &config, const fostgres::match &m,
+        fostlib::http::server::request &req
+    ) {
+        fostlib::json body{
+            fostlib::json::parse(
+                fostlib::coerce<fostlib::string>(
+                    fostlib::coerce<fostlib::utf8_string>(req.data()->data())))};
+        auto put_config = m.configuration["PUT"];
+        if ( put_config.isobject() ) {
+            proc_put(cnx, config, m, req, put_config, body);
+        } else if ( put_config.isarray() ) {
+            for ( const auto &cfg : put_config ) {
+                proc_put(cnx, config, m, req, cfg, body);
+            }
+        }
+        cnx.commit();
         return get(cnx, config, m, req);
     }
     std::pair<boost::shared_ptr<fostlib::mime>, int> post(

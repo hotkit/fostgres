@@ -1,7 +1,7 @@
 # Add a user with a password
 PUT users /test-user {
         "email": "test@example.com",
-        "password": "l8hGztvkFceKl+nVTXsYXC3Bo43venuo",
+        "hashed": "l8hGztvkFceKl+nVTXsYXC3Bo43venuo",
         "salt": "I9kv4rSE"
     } 200 {
         "username": "test-user",
@@ -9,11 +9,11 @@ PUT users /test-user {
     }
 GET users /test-user/password 200 {
         "username": "test-user",
-        "password": "l8hGztvkFceKl+nVTXsYXC3Bo43venuo",
+        "hashed": "l8hGztvkFceKl+nVTXsYXC3Bo43venuo",
         "salt": "I9kv4rSE"
     }
 
 # Add a user without a password
-PUT users /another-user {"email": "another@example.com"} 200
-GET users /another-user/password 404
+#PUT users /another-user {"email": "another@example.com"} 200
+#GET users /another-user/password 404
 
