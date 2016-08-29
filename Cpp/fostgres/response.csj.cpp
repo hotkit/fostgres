@@ -138,20 +138,18 @@ namespace {
         // Interpret body as UTF8 and split into lines. Ensure it's not empty
         auto body = fostlib::coerce<fostlib::string>(
             fostlib::coerce<fostlib::utf8_string>(req.data()->data()));
-        logger("body", body);
         auto lines = fostlib::split(body, "\n");
         auto line = lines.begin();
         if ( line == lines.end() ) {
             throw fostlib::exceptions::not_implemented(__FUNCTION__,
                     "Empty body send to PATCH handler");
         }
-        logger("lines", lines.size());
 
         // Parse the first line and turn it into the column name structure
         std::vector<fostlib::string> header;
         auto append_header = [&header](auto v) {
-            header.push_back(std::move(v));
-        };
+                header.push_back(std::move(v));
+            };
         {
             fostlib::parser_lock lock;
             if ( not fostlib::parse(lock, (line++)->c_str(),
