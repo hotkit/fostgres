@@ -18,8 +18,20 @@ namespace fostlib {
     namespace csj {
 
 
-        /// Iterate over a CSJ source to produce JSON objects
-        class const_iterator {
+        /// Iterate over a file of CSJ like data
+        class line_iterator {
+            std::vector<fostlib::json> line;
+        public:
+            /// End iterator
+            line_iterator();
+
+            /// Initialise from a string
+            line_iterator(const utf8_string &);
+
+            /// Return the current line
+            const std::vector<json> operator * () const {
+                return line;
+            }
         };
 
 

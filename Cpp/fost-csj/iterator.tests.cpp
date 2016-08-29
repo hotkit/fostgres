@@ -7,8 +7,14 @@
 
 
 #include <fost/csj.iterator.hpp>
+#include <fost/test>
 
 
-fostlib::csj::line_iterator::line_iterator(const utf8_string &) {
+FSL_TEST_SUITE(csj_iterator);
+
+
+FSL_TEST_FUNCTION(one_line) {
+    fostlib::csj::line_iterator iter("1,2,3,4,5\n");
+    auto line = *iter;
 }
 

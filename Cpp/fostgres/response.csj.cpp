@@ -173,8 +173,8 @@ namespace {
         for ( std::size_t line_number{1}; line != lines.end(); ++line, ++line_number ) {
             std::vector<fostlib::json> columns;
             auto append_column = [&columns](auto v) {
-                columns.push_back(v);
-            };
+                    columns.push_back(v);
+                };
             {
                 fostlib::parser_lock lock;
                 if ( not fostlib::parse(lock, line->c_str(),
