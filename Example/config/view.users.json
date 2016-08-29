@@ -1,0 +1,47 @@
+{
+    "webserver" : {
+        "views/users": {
+            "view": "fostgres.sql",
+            "configuration": {
+                "dbname": ["request", "headers", "__pgdsn", "dbname"],
+                "sql": [
+                    {
+                        "return": "object",
+                        "path": [1],
+                        "GET": "SELECT * FROM users WHERE slug=$1",
+                        "PUT": [
+                            {
+                                "table": "users",
+                                "columns": {
+                                    "username": {
+                                        "key": true,
+                                        "source": 1
+                                    },
+                                    "email": {
+                                        "required": true
+                                    }
+                                }
+                            },
+                            {
+                                "table": "passwords",
+                                "columns": {
+                                    "username": {
+                                        "key": true,
+                                        "source": 1
+                                    },
+                                    "hashed": {
+                                        "required": true
+                                    },
+                                    "salt": {
+                                        "required": true
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+}
+

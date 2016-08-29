@@ -62,3 +62,15 @@ run fostgres-test :
         test-films
     ;
 
+run fostgres-test :
+        fostgres-test-users
+    :
+        ../../Example/config/view.users.json
+        ../../Example/schema/users.tables.sql
+        ../../Example/tests/user.add.fg
+        ../fostgres//fostgres
+    :
+    :
+        test-users
+    ;
+
