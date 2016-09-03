@@ -6,10 +6,16 @@
 */
 
 
-#include <fostgres/fg/fg.hpp>
+#include <fostgres/fg/fg.extension.hpp>
+#include <f5/threading/set.hpp>
 
 
 namespace {
+
+
+    f5::tsset<fg::register_builtins*> g_registrations;
+
+
     fg::json progn(
         fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end
     ) {
@@ -19,6 +25,8 @@ namespace {
         }
         return fg::json(executed);
     }
+
+
 }
 
 
@@ -30,6 +38,27 @@ fg::frame fg::builtins() {
     funcs.native["PATCH"] = lib::patch;
     funcs.native["POST"] = lib::post;
     funcs.native["PUT"] = lib::put;
+    funcs.native["sql.file"] = lib::sql_file;
+    g_registrations.for_each(
+        [&funcs](auto *f) {
+                (*f)(funcs);
+            });
     return funcs;
+}
+
+
+/*
+    fg::register_builtins
+*/
+
+
+fg::register_builtins::register_builtins(std::function<void(frame &)> lambda)
+: lambda(lambda) {
+    g_registrations.insert_if_not_found(this);
+}
+
+
+void fg::register_builtins::operator () (frame &f) const {
+    lambda(f);
 }
 
