@@ -69,6 +69,16 @@ std::pair<boost::shared_ptr<fostlib::mime>, int > fg::testserver::put(
 }
 
 
+std::pair<boost::shared_ptr<fostlib::mime>, int > fg::testserver::post(
+    frame &stack, const fostlib::string &path, const fostlib::json &data
+) {
+    std::unique_ptr<fostlib::binary_body> body(mime_from_argument(stack, data));;
+    fostlib::http::server::request request("POST",
+        fostlib::coerce<fostlib::url::filepath_string>(path), std::move(body));
+    return fostlib::urlhandler::router(fostlib::host("localhost"), "fg.test", request);
+}
+
+
 std::pair<boost::shared_ptr<fostlib::mime>, int > fg::testserver::del(
     frame &stack, const fostlib::string &path
 ) {

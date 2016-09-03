@@ -74,6 +74,11 @@ namespace {
     ) {
         return withbody(&fg::testserver::patch, stack, pos, end);
     }
+    fg::json post(
+        fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end
+    ) {
+        return withbody(&fg::testserver::post, stack, pos, end);
+    }
     fg::json del(
         fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end
     ) {
@@ -87,5 +92,6 @@ namespace {
 fg::frame::builtin fg::lib::get = ::get;
 fg::frame::builtin fg::lib::put = ::put;
 fg::frame::builtin fg::lib::patch = ::patch;
+fg::frame::builtin fg::lib::post = ::post;
 fg::frame::builtin fg::lib::del = ::del;
 
