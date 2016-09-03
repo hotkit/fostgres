@@ -17,11 +17,15 @@
 
 
 namespace {
+
+
     fg::json hconfig() {
         fg::json hosts;
         fostlib::insert(hosts, "", "fg.test");
         return hosts;
     }
+
+
     fg::json vconfig(const fg::frame &stack, const fostlib::string &view) {
         fg::json views;
         fostlib::insert(views, "view", "fost.middleware.request");
@@ -29,6 +33,20 @@ namespace {
         fostlib::insert(views, "configuration", "view", view);
         return views;
     }
+
+
+    std::pair<boost::shared_ptr<fostlib::mime>, int > perform(
+        fostlib::http::server::request &req, const fostlib::string &path
+    ) {
+        fostlib::host h("localhost");
+        try {
+            return fostlib::urlhandler::router(h, "fg.test", req);
+        } catch ( fostlib::exceptions::not_implemented &e ) {
+            return fostlib::urlhandler::response_501(fg::json(), path, req, h);
+        }
+    }
+
+
 }
 
 
@@ -45,7 +63,7 @@ std::pair<boost::shared_ptr<fostlib::mime>, int > fg::testserver::get(
 ) {
     fostlib::http::server::request request("GET",
         fostlib::coerce<fostlib::url::filepath_string>(path));
-    return fostlib::urlhandler::router(fostlib::host("localhost"), "fg.test", request);
+    return perform(request, path);
 }
 
 
@@ -55,7 +73,7 @@ std::pair<boost::shared_ptr<fostlib::mime>, int > fg::testserver::patch(
     std::unique_ptr<fostlib::binary_body> body(mime_from_argument(stack, data));;
     fostlib::http::server::request request("PATCH",
         fostlib::coerce<fostlib::url::filepath_string>(path), std::move(body));
-    return fostlib::urlhandler::router(fostlib::host("localhost"), "fg.test", request);
+    return perform(request, path);
 }
 
 
@@ -65,7 +83,7 @@ std::pair<boost::shared_ptr<fostlib::mime>, int > fg::testserver::put(
     std::unique_ptr<fostlib::binary_body> body(mime_from_argument(stack, data));;
     fostlib::http::server::request request("PUT",
         fostlib::coerce<fostlib::url::filepath_string>(path), std::move(body));
-    return fostlib::urlhandler::router(fostlib::host("localhost"), "fg.test", request);
+    return perform(request, path);
 }
 
 
@@ -75,7 +93,7 @@ std::pair<boost::shared_ptr<fostlib::mime>, int > fg::testserver::post(
     std::unique_ptr<fostlib::binary_body> body(mime_from_argument(stack, data));;
     fostlib::http::server::request request("POST",
         fostlib::coerce<fostlib::url::filepath_string>(path), std::move(body));
-    return fostlib::urlhandler::router(fostlib::host("localhost"), "fg.test", request);
+    return perform(request, path);
 }
 
 
@@ -84,6 +102,6 @@ std::pair<boost::shared_ptr<fostlib::mime>, int > fg::testserver::del(
 ) {
     fostlib::http::server::request request("DELETE",
         fostlib::coerce<fostlib::url::filepath_string>(path));
-    return fostlib::urlhandler::router(fostlib::host("localhost"), "fg.test", request);
+    return perform(request, path);
 }
 
