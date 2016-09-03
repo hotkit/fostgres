@@ -7,6 +7,7 @@
 
 
 #include <fostgres/fg/fg.hpp>
+#include <fost/push_back>
 
 
 fg::json fg::call(frame &stack, const json &sexpr) {
@@ -26,7 +27,19 @@ fg::json fg::call(
     frame &stack,
     const fostlib::string &name, json::const_iterator begin, json::const_iterator end
 ) {
-    frame::builtin function(stack.lookup_function(name));
-    return function(stack, begin, end);
+    try {
+        frame::builtin function(stack.lookup_function(name));
+        return function(stack, begin, end);
+    } catch ( fostlib::exceptions::exception &e ) {
+        // Built a stack frame
+        fg::json sf;
+        fostlib::push_back(sf, name);
+        for ( auto iter = begin; iter != end; ++iter ) {
+            fostlib::push_back(sf, *iter);
+        }
+        // Add to the back trace
+        fostlib::push_back(e.data(), "fg", "backtrace", sf);
+        throw;
+    }
 }
 
