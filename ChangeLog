@@ -1,4 +1,5 @@
 2016-09-03  Kirit Saelensminde  <kirit@felspar.com>
+ * Add a command for running SQL from a file.
  * Add a language extension mechanism.
 
 2016-08-28  Kirit Saelensminde  <kirit@felspar.com>
