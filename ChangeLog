@@ -1,3 +1,6 @@
+2016-09-04  Kirit Saelensminde  <kirit@felspar.com>
+ fostgres-test only turns `not_implemented` exceptions into 501s if that is the expected response.
+
 2016-09-03  Kirit Saelensminde  <kirit@felspar.com>
  * Add a command for running SQL from a file.
  * Add a language extension mechanism.

@@ -36,13 +36,17 @@ namespace {
 
 
     std::pair<boost::shared_ptr<fostlib::mime>, int > perform(
-        fostlib::http::server::request &req, const fostlib::string &path
+        fostlib::http::server::request &req, const fostlib::string &path, int expected_status
     ) {
         fostlib::host h("localhost");
         try {
             return fostlib::urlhandler::router(h, "fg.test", req);
-        } catch ( fostlib::exceptions::not_implemented &e ) {
-            return fostlib::urlhandler::response_501(fg::json(), path, req, h);
+        } catch ( fostlib::exceptions::not_implemented & ) {
+            if ( expected_status == 501 ) {
+                return fostlib::urlhandler::response_501(fg::json(), path, req, h);
+            } else {
+                throw;
+            }
         }
     }
 
@@ -59,49 +63,49 @@ fg::testserver::testserver(const fg::frame &stack, const fostlib::string &vn)
 
 
 std::pair<boost::shared_ptr<fostlib::mime>, int > fg::testserver::get(
-    frame &stack, const fostlib::string &path
+    frame &stack, const fostlib::string &path, int expected_status
 ) {
     fostlib::http::server::request request("GET",
         fostlib::coerce<fostlib::url::filepath_string>(path));
-    return perform(request, path);
+    return perform(request, path, expected_status);
 }
 
 
 std::pair<boost::shared_ptr<fostlib::mime>, int > fg::testserver::patch(
-    frame &stack, const fostlib::string &path, const fostlib::json &data
+    frame &stack, const fostlib::string &path, const fostlib::json &data, int expected_status
 ) {
     std::unique_ptr<fostlib::binary_body> body(mime_from_argument(stack, data));;
     fostlib::http::server::request request("PATCH",
         fostlib::coerce<fostlib::url::filepath_string>(path), std::move(body));
-    return perform(request, path);
+    return perform(request, path, expected_status);
 }
 
 
 std::pair<boost::shared_ptr<fostlib::mime>, int > fg::testserver::put(
-    frame &stack, const fostlib::string &path, const fostlib::json &data
+    frame &stack, const fostlib::string &path, const fostlib::json &data, int expected_status
 ) {
     std::unique_ptr<fostlib::binary_body> body(mime_from_argument(stack, data));;
     fostlib::http::server::request request("PUT",
         fostlib::coerce<fostlib::url::filepath_string>(path), std::move(body));
-    return perform(request, path);
+    return perform(request, path, expected_status);
 }
 
 
 std::pair<boost::shared_ptr<fostlib::mime>, int > fg::testserver::post(
-    frame &stack, const fostlib::string &path, const fostlib::json &data
+    frame &stack, const fostlib::string &path, const fostlib::json &data, int expected_status
 ) {
     std::unique_ptr<fostlib::binary_body> body(mime_from_argument(stack, data));;
     fostlib::http::server::request request("POST",
         fostlib::coerce<fostlib::url::filepath_string>(path), std::move(body));
-    return perform(request, path);
+    return perform(request, path, expected_status);
 }
 
 
 std::pair<boost::shared_ptr<fostlib::mime>, int > fg::testserver::del(
-    frame &stack, const fostlib::string &path
+    frame &stack, const fostlib::string &path, int expected_status
 ) {
     fostlib::http::server::request request("DELETE",
         fostlib::coerce<fostlib::url::filepath_string>(path));
-    return perform(request, path);
+    return perform(request, path, expected_status);
 }
 

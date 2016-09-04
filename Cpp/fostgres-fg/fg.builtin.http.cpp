@@ -14,17 +14,15 @@
 namespace {
 
 
+    template<typename O> inline
     fg::json nobody(
-        std::function<
-            std::pair<boost::shared_ptr<fostlib::mime>, int>(
-                fg::testserver&, fg::frame&, const fostlib::string &)> op,
-        fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end
+        O op, fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end
     ) {
         auto viewname = stack.resolve_string(stack.argument("view", pos, end));
         auto path = stack.resolve_string(stack.argument("path", pos, end));
         auto status = stack.resolve_int(stack.argument("status", pos, end));
         fg::testserver server(stack, viewname);
-        auto actual = op(server, stack, path);
+        auto actual = (server.*op)(stack, path, status);
         if ( actual.second != status ) {
             throw fostlib::exceptions::not_implemented(__func__,
                 "Actual resopnse status isn't what was epected", actual.second);
@@ -35,18 +33,16 @@ namespace {
         }
         return fostlib::json();
     }
+    template<typename O> inline
     fg::json withbody(
-        std::function<
-            std::pair<boost::shared_ptr<fostlib::mime>, int>(
-                fg::testserver&, fg::frame&, const fostlib::string &, const fg::json &)> op,
-        fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end
+        O op, fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end
     ) {
         auto viewname = stack.resolve_string(stack.argument("view", pos, end));
         auto path = stack.resolve_string(stack.argument("path", pos, end));
         auto body = stack.argument("body", pos, end);
         auto status = stack.resolve_int(stack.argument("status", pos, end));
         fg::testserver server(stack, viewname);
-        auto actual = op(server, stack, path, body);
+        auto actual = (server.*op)(stack, path, body, status);
         if ( actual.second != status ) {
             throw fostlib::exceptions::not_implemented(__func__,
                 "Actual resopnse status isn't what was epected", actual.second);
