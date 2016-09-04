@@ -5,7 +5,7 @@ using testing ;
 install examples :
         [ glob-tree *.*  ]
     :
-        <location>$(PREFIX)/usr/share/fostgres/examples
+        <location>$(PREFIX)/share/fostgres/examples
         <install-source-root>$(TOP)/Example
     ;
 
