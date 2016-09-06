@@ -27,7 +27,7 @@ namespace {
         "fostgres-test", "Load", json::array_t());
 
     const setting<json> c_logger("fostgres-test.cpp",
-        "fostgres-test", "logging", fostlib::json(), true);
+        "webserver", "logging", fostlib::json(), true);
     // Take out the Fost logger configuration so we don't end up with both
     const setting<json> c_fost_logger("fostgres-test.cpp",
         "fostgres-test", "Logging sinks", fostlib::json::parse("{\"sinks\":[]}"));
@@ -93,6 +93,15 @@ FSL_MAIN(
             }
         }
 
+
+        // Set up the logging options
+        std::unique_ptr<fostlib::log::global_sink_configuration> loggers;
+        if ( not c_logger.value().isnull() && c_logger.value().has_key("sinks") ) {
+            loggers =
+                std::make_unique<fostlib::log::global_sink_configuration>(c_logger.value());
+        }
+
+        // Run the script
         fg::frame stack(fg::builtins());
         stack.symbols["pg.dsn"] = cnxconfig;
         script(stack);
