@@ -1,3 +1,6 @@
+2016-09-06  Kirit Saelensminde  <kirit@felspar.com>
+ * The fostgres-test testserver can now be given header values to use for all requests.
+
 2016-09-04  Kirit Saelensminde  <kirit@felspar.com>
  fostgres-test only turns `not_implemented` exceptions into 501s if that is the expected response.
 

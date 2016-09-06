@@ -32,6 +32,9 @@ namespace {
 
 fg::frame fg::builtins() {
     frame funcs{nullptr};
+
+    funcs.symbols["testserver.headers"] = fg::json::object_t();
+
     funcs.native["progn"] = progn;
     funcs.native["DELETE"] = lib::del;
     funcs.native["GET"] = lib::get;
@@ -39,10 +42,12 @@ fg::frame fg::builtins() {
     funcs.native["POST"] = lib::post;
     funcs.native["PUT"] = lib::put;
     funcs.native["sql.file"] = lib::sql_file;
+
     g_registrations.for_each(
         [&funcs](auto *f) {
                 (*f)(funcs);
             });
+
     return funcs;
 }
 
