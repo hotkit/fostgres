@@ -5,6 +5,7 @@ fost-exe fostgres-test
     :
         ../../../fost-base/Cpp/fost-cli
         ../../../fost-postgres/Cpp/fost-postgres
+        ../fostgres-core
         ../fostgres-fg
         fostgres-test.cpp
     ;

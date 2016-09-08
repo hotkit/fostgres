@@ -6,6 +6,7 @@
 */
 
 
+#include <fostgres/db.hpp>
 #include <fostgres/fg/fg.hpp>
 #include <fost/dynlib>
 #include <fost/main>
@@ -54,7 +55,7 @@ FSL_MAIN(
         {
             o << "Going to be using database " << dbname << std::endl;
             const std::vector<string> dbparam(1, dbname);
-            auto cnxdb = pg::connection(cnxconfig);
+            auto cnxdb = fostgres::connection(cnxconfig);
             auto dbcheck = cnxdb.procedure("SELECT COUNT(datname) FROM pg_database "
                 "WHERE datistemplate = false AND datname=$1").exec(dbparam);
             if ( coerce<int64_t>((*dbcheck.begin())[0]) ) {
@@ -67,7 +68,7 @@ FSL_MAIN(
             insert(cnxconfig, "dbname", dbname);
         }
         o << "Creating database " << dbname << std::endl;
-        auto cnx = pg::connection(cnxconfig);
+        auto cnx = fostgres::connection(cnxconfig);
 
         /// Loop through the remaining tasks and run SQL packages or requests
         for ( std::size_t argn{2}; argn < args.size(); ++argn ) {

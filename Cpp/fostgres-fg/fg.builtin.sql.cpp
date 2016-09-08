@@ -6,6 +6,7 @@
 */
 
 
+#include <fostgres/db.hpp>
 #include <fostgres/fg/fg.hpp>
 #include <fost/postgres>
 
@@ -20,7 +21,7 @@ namespace {
             fostlib::utf::load_file(
                 fostlib::coerce<boost::filesystem::path>(
                     stack.resolve_string(stack.argument("filename", pos, end)))));
-        fostlib::pg::connection cnx(stack.lookup("pg.dsn"));
+        fostlib::pg::connection cnx(fostgres::connection(stack.lookup("pg.dsn")));
         cnx.exec(sql);
         cnx.commit();
         return fostlib::json();
