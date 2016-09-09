@@ -1,3 +1,6 @@
+2016-09-09  Kirit Saelensminde  <kirit@felspar.com>
+ Can configure a zone info on the view to control which time zone to use.
+
 2016-09-06  Kirit Saelensminde  <kirit@felspar.com>
  * Logging options can be set for fostgres-test.
  * The fostgres-test testserver can now be given header values to use for all requests.

@@ -11,10 +11,13 @@
 
 fostlib::pg::connection fostgres::connection(
     const fostlib::json &config,
-    const fostlib::nullable<fostlib::string> &/*zoneinfo*/,
+    const fostlib::nullable<fostlib::string> &zoneinfo,
     const fostlib::nullable<fostlib::string> &/*subrole*/
 ) {
     fostlib::pg::connection cnx(config);
+    if ( not zoneinfo.isnull() ) {
+        cnx.zoneinfo(zoneinfo.value());
+    }
     return cnx;
 }
 
