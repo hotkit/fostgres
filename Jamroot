@@ -29,6 +29,7 @@ alias fostgres :
         ../fost-postgres//fost
         ../fost-web//fost
         Cpp/fost-csj
+        Cpp/fostgres-core
         Cpp/fostgres
     ;
 

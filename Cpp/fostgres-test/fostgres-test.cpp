@@ -6,6 +6,7 @@
 */
 
 
+#include <fostgres/db.hpp>
 #include <fostgres/fg/fg.hpp>
 #include <fost/dynlib>
 #include <fost/main>
@@ -31,6 +32,9 @@ namespace {
     // Take out the Fost logger configuration so we don't end up with both
     const setting<json> c_fost_logger("fostgres-test.cpp",
         "fostgres-test", "Logging sinks", fostlib::json::parse("{\"sinks\":[]}"));
+
+    const setting<nullable<string>> c_zoneinfo("fostgres-test.cpp",
+        "fostgres-test", "Zone info", fostlib::null, true);
 }
 
 
@@ -54,7 +58,7 @@ FSL_MAIN(
         {
             o << "Going to be using database " << dbname << std::endl;
             const std::vector<string> dbparam(1, dbname);
-            auto cnxdb = pg::connection(cnxconfig);
+            auto cnxdb = fostgres::connection(cnxconfig, c_zoneinfo.value());
             auto dbcheck = cnxdb.procedure("SELECT COUNT(datname) FROM pg_database "
                 "WHERE datistemplate = false AND datname=$1").exec(dbparam);
             if ( coerce<int64_t>((*dbcheck.begin())[0]) ) {
@@ -67,7 +71,7 @@ FSL_MAIN(
             insert(cnxconfig, "dbname", dbname);
         }
         o << "Creating database " << dbname << std::endl;
-        auto cnx = pg::connection(cnxconfig);
+        auto cnx = fostgres::connection(cnxconfig, c_zoneinfo.value());
 
         /// Loop through the remaining tasks and run SQL packages or requests
         for ( std::size_t argn{2}; argn < args.size(); ++argn ) {
@@ -104,6 +108,7 @@ FSL_MAIN(
         // Run the script
         fg::frame stack(fg::builtins());
         stack.symbols["pg.dsn"] = cnxconfig;
+        stack.symbols["pg.zoneinfo"] = c_zoneinfo.value();
         script(stack);
 
         /// When done and everything was OK, return OK

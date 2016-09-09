@@ -15,7 +15,7 @@
     fg::testserver
 */
 
-
+#include <iostream>
 namespace {
 
 
@@ -29,7 +29,13 @@ namespace {
     fg::json vconfig(const fg::frame &stack, const fostlib::string &view) {
         fg::json views;
         fostlib::insert(views, "view", "fost.middleware.request");
-        fostlib::insert(views, "configuration", "headers", "__pgdsn", stack.lookup("pg.dsn"));
+        fostlib::insert(views, "configuration", "headers",
+            "__pgdsn", stack.lookup("pg.dsn"));
+        auto zi = stack.lookup("pg.zoneinfo");
+        if ( not zi.isnull() ) {
+            fostlib::insert(views, "configuration", "headers",
+                "__pgzoneinfo", fostlib::coerce<fostlib::string>(zi));
+        }
         fostlib::insert(views, "configuration", "view", view);
         return views;
     }
