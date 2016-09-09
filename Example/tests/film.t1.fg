@@ -42,7 +42,7 @@ GET film.slug /t1 200 {
     }
 set pg.zoneinfo America/New_York
 GET film.slug /t1 200 {
-        "watched": {"times": 1, "last": "2016-06-04 19:43:34+04"}
+        "watched": {"times": 1, "last": "2016-06-04 19:43:34-04"}
     }
 
 
