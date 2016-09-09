@@ -27,6 +27,16 @@ namespace {
     }
 
 
+    fg::json set(
+        fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end
+    ) {
+        auto name = stack.resolve_string(stack.argument("varname", pos, end));
+        auto value = stack.argument("value", pos, end);
+        stack.symbols[name] = value;
+        return value;
+    }
+
+
 }
 
 
@@ -35,13 +45,15 @@ fg::frame fg::builtins() {
 
     funcs.symbols["testserver.headers"] = fg::json::object_t();
 
-    funcs.native["progn"] = progn;
+    funcs.native["progn"] = ::progn;
     funcs.native["DELETE"] = lib::del;
     funcs.native["GET"] = lib::get;
     funcs.native["PATCH"] = lib::patch;
     funcs.native["POST"] = lib::post;
     funcs.native["PUT"] = lib::put;
+    funcs.native["set"] = ::set;
     funcs.native["sql.file"] = lib::sql_file;
+    funcs.native["sql.insert"] = lib::sql_insert;
 
     g_registrations.for_each(
         [&funcs](auto *f) {
