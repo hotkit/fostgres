@@ -28,6 +28,11 @@ namespace fostlib {
             /// Initialise from a string
             parser(utf::u8_view);
 
+            /// Return the header column names
+            const auto &header() const {
+                return headers;
+            }
+
             class const_iterator {
                 friend class parser;
                 const parser &owner;
@@ -40,6 +45,8 @@ namespace fostlib {
                 const std::vector<json> &operator * () const {
                     return line;
                 }
+                /// Return the current line as JSON
+                json as_json() const;
 
                 /// Move to the next line
                 const_iterator &operator ++ ();
