@@ -18,26 +18,6 @@ namespace fostlib {
     namespace csj {
 
 
-        /// Iterate over a file of CSJ like data
-        class line_iterator {
-            using line_iter_t = splitter_result<utf::u8_view, utf::u8_view>;
-            line_iter_t line_iter;
-            line_iter_t::const_iterator pos, end;
-            std::vector<fostlib::json> line;
-        public:
-            /// End iterator
-            line_iterator();
-
-            /// Initialise from a string
-            line_iterator(utf::u8_view);
-
-            /// Return the current line
-            const std::vector<json> &operator * () const {
-                return line;
-            }
-        };
-
-
     }
 
 
