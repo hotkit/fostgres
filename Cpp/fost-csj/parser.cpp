@@ -35,6 +35,7 @@ namespace {
                 throw fostlib::exceptions::not_implemented(__func__,
                         "Could not parse row", *pos);
             }
+            ++pos;
         }
     }
 }
@@ -47,15 +48,18 @@ namespace {
 
 fostlib::csj::parser::parser(utf::u8_view str)
 : line_iter(splitter(str, '\n')),
-    pos(line_iter.begin()),
-    end(line_iter.end())
+    li_pos(line_iter.begin()),
+    li_end(line_iter.end())
 {
-    parseline(fostlib::json_string_parser(), pos, end, headers);
+    parseline(fostlib::json_string_parser(), li_pos, li_end, headers);
 }
 
 
 fostlib::csj::parser::const_iterator fostlib::csj::parser::begin() const {
-    return fostlib::csj::parser::const_iterator(*this, pos);
+    return fostlib::csj::parser::const_iterator(*this, li_pos);
+}
+fostlib::csj::parser::const_iterator fostlib::csj::parser::end() const {
+    return fostlib::csj::parser::const_iterator(*this, li_end);
 }
 
 
@@ -67,6 +71,12 @@ fostlib::csj::parser::const_iterator fostlib::csj::parser::begin() const {
 fostlib::csj::parser::const_iterator::const_iterator(
     const parser &o, line_iter_t::const_iterator p
 ) : owner(o), pos(p) {
-    parseline(fostlib::json_p, pos, owner.end, line);
+    parseline(fostlib::json_p, pos, owner.li_end, line);
+}
+
+
+fostlib::csj::parser::const_iterator &fostlib::csj::parser::const_iterator::operator ++ () {
+    parseline(fostlib::json_p, pos, owner.li_end, line);
+    return *this;
 }
 
