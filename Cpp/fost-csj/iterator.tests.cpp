@@ -14,7 +14,10 @@ FSL_TEST_SUITE(csj_iterator);
 
 
 FSL_TEST_FUNCTION(one_line) {
-    fostlib::csj::line_iterator iter("1,2,3,4,5\n");
+    fostlib::utf8_string str("1,2,3,4,5");
+    fostlib::csj::line_iterator iter(str);
     auto line = *iter;
+    FSL_CHECK_EQ(line.size(), 5u);
+    FSL_CHECK_EQ(*line.begin(), fostlib::json(1));
 }
 
