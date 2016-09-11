@@ -1,3 +1,6 @@
+2016-09-11  Kirit Saelensminde  <kirit@felspar.com>
+ The test script can now check CSJ results are what is expected.
+
 2016-09-09  Kirit Saelensminde  <kirit@felspar.com>
  Can configure a zone info on the view to control which time zone to use.
 
