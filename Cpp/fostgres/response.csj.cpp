@@ -102,16 +102,36 @@ namespace {
         const fostlib::json &config, const fostgres::match &m,
         fostlib::http::server::request &req
     ) {
-        auto data = m.arguments.size()
-            ? fostgres::sql(config, req,
-                fostlib::coerce<fostlib::string>(m.configuration["GET"]),
-                m.arguments)
-            : fostgres::sql(config, req,
-                fostlib::coerce<fostlib::string>(m.configuration["GET"]));
-        return std::make_pair(
-            boost::shared_ptr<fostlib::mime>(
-                new csj_mime(std::move(data.first), std::move(data.second))),
-            200);
+        auto sql = m.configuration["GET"];
+        if ( sql.isobject() ) {
+            std::vector<fostlib::json> arguments;
+            for ( const auto &arg : sql["arguments"] ) {
+                try {
+                    arguments.push_back(fostgres::datum(
+                        arg, m.arguments, fostlib::json(), req).value(fostlib::json()));
+                } catch ( fostlib::exceptions::exception &e ) {
+                    insert(e.data(), "datum", arg);
+                    throw;
+                }
+            }
+            fostlib::pg::connection cnx(fostgres::connection(config, req));
+            auto data = fostgres::sql(cnx, fostlib::coerce<fostlib::string>(sql["command"]), arguments);
+            return std::make_pair(
+                boost::shared_ptr<fostlib::mime>(
+                    new csj_mime(std::move(data.first), std::move(data.second))),
+                200);
+        } else {
+            auto data = m.arguments.size()
+                ? fostgres::sql(config, req,
+                    fostlib::coerce<fostlib::string>(m.configuration["GET"]),
+                    m.arguments)
+                : fostgres::sql(config, req,
+                    fostlib::coerce<fostlib::string>(m.configuration["GET"]));
+            return std::make_pair(
+                boost::shared_ptr<fostlib::mime>(
+                    new csj_mime(std::move(data.first), std::move(data.second))),
+                200);
+        }
     }
 
 
