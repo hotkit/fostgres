@@ -7,8 +7,3 @@
 
 
 #include <fost/csj.iterator.hpp>
-
-
-fostlib::csj::line_iterator::line_iterator(const utf8_string &) {
-}
-

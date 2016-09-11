@@ -22,6 +22,8 @@ GET film.slug /t1 200 {
             "sci-fi",
             "time-travel"
         ]}
+GET film.slug /t1/tags 200 {"columns": ["tag"],
+    "rows": [["action"], ["adventure"], ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"]]}
 
 # Mark the film as watched and perform some checks for that. Don't
 # use the HTTP interface yet because we want to be able to check

@@ -30,7 +30,7 @@
                     },
                     {
                         "path": [1, "/tags"],
-                        "GET": "SELECT slug as tag FROM film_tags WHERE film_slug=$1",
+                        "GET": "SELECT slug as tag FROM film_tags WHERE film_slug=$1 ORDER BY tag",
                         "PATCH": {
                             "table": "film_tags",
                             "columns": {

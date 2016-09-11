@@ -6,7 +6,7 @@
 */
 
 
-#include <fost/csj.iterator.hpp>
+#include <fost/csj.parser.hpp>
 #include <fost/test>
 
 
@@ -14,7 +14,5 @@ FSL_TEST_SUITE(csj_iterator);
 
 
 FSL_TEST_FUNCTION(one_line) {
-    fostlib::csj::line_iterator iter("1,2,3,4,5\n");
-    auto line = *iter;
 }
 
