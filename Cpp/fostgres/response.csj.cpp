@@ -11,6 +11,7 @@
 #include <fostgres/response.hpp>
 #include <fostgres/sql.hpp>
 
+#include <fost/csj.parser.hpp>
 #include <fost/log>
 #include <fost/parse/json.hpp>
 #include <fost/push_back>
@@ -101,16 +102,36 @@ namespace {
         const fostlib::json &config, const fostgres::match &m,
         fostlib::http::server::request &req
     ) {
-        auto data = m.arguments.size()
-            ? fostgres::sql(config, req,
-                fostlib::coerce<fostlib::string>(m.configuration["GET"]),
-                m.arguments)
-            : fostgres::sql(config, req,
-                fostlib::coerce<fostlib::string>(m.configuration["GET"]));
-        return std::make_pair(
-            boost::shared_ptr<fostlib::mime>(
-                new csj_mime(std::move(data.first), std::move(data.second))),
-            200);
+        auto sql = m.configuration["GET"];
+        if ( sql.isobject() ) {
+            std::vector<fostlib::json> arguments;
+            for ( const auto &arg : sql["arguments"] ) {
+                try {
+                    arguments.push_back(fostgres::datum(
+                        arg, m.arguments, fostlib::json(), req).value(fostlib::json()));
+                } catch ( fostlib::exceptions::exception &e ) {
+                    insert(e.data(), "datum", arg);
+                    throw;
+                }
+            }
+            fostlib::pg::connection cnx(fostgres::connection(config, req));
+            auto data = fostgres::sql(cnx, fostlib::coerce<fostlib::string>(sql["command"]), arguments);
+            return std::make_pair(
+                boost::shared_ptr<fostlib::mime>(
+                    new csj_mime(std::move(data.first), std::move(data.second))),
+                200);
+        } else {
+            auto data = m.arguments.size()
+                ? fostgres::sql(config, req,
+                    fostlib::coerce<fostlib::string>(m.configuration["GET"]),
+                    m.arguments)
+                : fostgres::sql(config, req,
+                    fostlib::coerce<fostlib::string>(m.configuration["GET"]));
+            return std::make_pair(
+                boost::shared_ptr<fostlib::mime>(
+                    new csj_mime(std::move(data.first), std::move(data.second))),
+                200);
+        }
     }
 
 
@@ -136,74 +157,12 @@ namespace {
         }
 
         // Interpret body as UTF8 and split into lines. Ensure it's not empty
-        auto body = fostlib::coerce<fostlib::string>(
-            fostlib::coerce<fostlib::utf8_string>(req.data()->data()));
-        logger("body", body);
-        auto lines = fostlib::split(body, "\n");
-        auto line = lines.begin();
-        if ( line == lines.end() ) {
-            throw fostlib::exceptions::not_implemented(__FUNCTION__,
-                    "Empty body send to PATCH handler");
-        }
-        logger("lines", lines.size());
-
-        // Parse the first line and turn it into the column name structure
-        std::vector<fostlib::string> header;
-        auto append_header = [&header](auto v) {
-            header.push_back(std::move(v));
-        };
-        {
-            fostlib::parser_lock lock;
-            if ( not fostlib::parse(lock, (line++)->c_str(),
-                    *boost::spirit::space_p
-                    >> json_string_p[append_header]
-                    >> *(
-                        *boost::spirit::space_p
-                        >> boost::spirit::chlit< wchar_t >( L',' )
-                        >> *boost::spirit::space_p
-                        >> json_string_p[append_header])
-                    >> *boost::spirit::space_p
-                ).full )
-            {
-                throw fostlib::exceptions::not_implemented(__FUNCTION__,
-                        "Could not parse the columns headers row");
-            }
-            logger("header", header);
-        }
+        fostlib::csj::parser data(fostlib::utf::u8_view(req.data()->data()));
+        logger("header", data.header());
 
         // Parse each line and send it to the database
-        for ( std::size_t line_number{1}; line != lines.end(); ++line, ++line_number ) {
-            std::vector<fostlib::json> columns;
-            auto append_column = [&columns](auto v) {
-                columns.push_back(v);
-            };
-            {
-                fostlib::parser_lock lock;
-                if ( not fostlib::parse(lock, line->c_str(),
-                        *boost::spirit::space_p
-                        >> json_p[append_column]
-                        >> *(
-                        *boost::spirit::space_p
-                        >> boost::spirit::chlit< wchar_t >( L',' )
-                        >> *boost::spirit::space_p
-                        >> json_p[append_column])
-                        >> *boost::spirit::space_p
-                    ).full )
-                {
-                    throw fostlib::exceptions::not_implemented(__FUNCTION__,
-                            "Could not parse row " + std::to_string(line_number));
-                }
-            }
-            if ( columns.size() != header.size() ) {
-                throw fostlib::exceptions::not_implemented(__FUNCTION__,
-                        "Number of columns didn't match number of headers in  row " +
-                        std::to_string(line_number));
-            }
-            fostlib::json row;
-            for ( std::size_t c{}; c != header.size(); ++c ) {
-                fostlib::insert(row, header[c], columns[c]);
-            }
-            logger("row", records, row);
+        for ( auto line(data.begin()), e(data.end()); line != e; ++line ) {
+            fostlib::json row = line.as_json();
             fostlib::json keys, values;
             for ( auto &col_def : col_defs ) {
                 auto data = fostgres::datum(col_def.first, col_def.second, m.arguments, row, req);

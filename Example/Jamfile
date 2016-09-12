@@ -1,0 +1,48 @@
+include $(TOP)/../fost-base/fost.jam ;
+using testing ;
+
+
+install examples :
+        [ glob-tree *.*  ]
+    :
+        <location>$(PREFIX)/share/fostgres/examples
+        <install-source-root>$(TOP)/Example
+    ;
+
+
+run ../Cpp/fostgres-test//fostgres-test :
+        fostgres-test-film-t1
+    :
+        ../Cpp/fostgres//fostgres
+        config/view.film-slug.json
+        schema/films.tables.sql
+        tests/film.t1.fg
+    :
+    :
+        test-film-t1
+    ;
+
+run ../Cpp/fostgres-test//fostgres-test :
+        fostgres-test-films
+    :
+        ../Cpp/fostgres//fostgres
+        config/view.film-slug.json
+        schema/films.tables.sql
+        tests/films.fg
+    :
+    :
+        test-films
+    ;
+
+run ../Cpp/fostgres-test//fostgres-test :
+        fostgres-test-users
+    :
+        ../Cpp/fostgres//fostgres
+        config/view.users.json
+        schema/users.tables.sql
+        tests/user.add.fg
+    :
+    :
+        test-users
+    ;
+

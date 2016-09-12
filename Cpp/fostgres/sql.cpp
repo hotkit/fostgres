@@ -7,6 +7,7 @@
 
 
 #include <fost/log>
+#include <fostgres/db.hpp>
 #include <fostgres/fostgres.hpp>
 #include <fostgres/sql.hpp>
 
@@ -51,7 +52,10 @@ fostlib::pg::connection fostgres::connection(
     do_lookup(hostloc);
     static const fostlib::jcursor userloc("user");
     do_lookup(userloc);
-    return fostlib::pg::connection(config);
+    static const fostlib::jcursor ziloc("headers", "__pgzoneinfo");
+    auto zoneinfo = req[ziloc];
+    return fostgres::connection(config,
+        fostlib::coerce<fostlib::nullable<fostlib::string>>(zoneinfo));
 }
 
 

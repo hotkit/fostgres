@@ -6,4 +6,6 @@ fost-lib-autotest fostgres
         ../../../fost-postgres/Cpp/fost-postgres
         ../../../fost-postgres/Cpp/fost-pqxx
         ../../../fost-web/Cpp/fost-urlhandler
+        ../fost-csj
+        ../fostgres-core
     ;

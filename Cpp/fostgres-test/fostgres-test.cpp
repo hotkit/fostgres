@@ -6,7 +6,9 @@
 */
 
 
-#include <fost/file>
+#include <fostgres/db.hpp>
+#include <fostgres/fg/fg.hpp>
+#include <fost/dynlib>
 #include <fost/main>
 #include <fost/postgres>
 
@@ -26,10 +28,13 @@ namespace {
         "fostgres-test", "Load", json::array_t());
 
     const setting<json> c_logger("fostgres-test.cpp",
-        "fostgres-test", "logging", fostlib::json(), true);
+        "webserver", "logging", fostlib::json(), true);
     // Take out the Fost logger configuration so we don't end up with both
     const setting<json> c_fost_logger("fostgres-test.cpp",
         "fostgres-test", "Logging sinks", fostlib::json::parse("{\"sinks\":[]}"));
+
+    const setting<nullable<string>> c_zoneinfo("fostgres-test.cpp",
+        "fostgres-test", "Zone info", fostlib::null, true);
 }
 
 
@@ -44,7 +49,8 @@ FSL_MAIN(
     }
     /// State used by the testing process as it runs
     std::vector<settings> loaded_settings;
-    std::unique_ptr<fostlib::log::global_sink_configuration> loggers;
+    std::vector<std::unique_ptr<fostlib::dynlib>> dynlibs;
+    fg::program script;
     try {
         /// Create the database
         json cnxconfig;
@@ -52,7 +58,7 @@ FSL_MAIN(
         {
             o << "Going to be using database " << dbname << std::endl;
             const std::vector<string> dbparam(1, dbname);
-            auto cnxdb = pg::connection(cnxconfig);
+            auto cnxdb = fostgres::connection(cnxconfig, c_zoneinfo.value());
             auto dbcheck = cnxdb.procedure("SELECT COUNT(datname) FROM pg_database "
                 "WHERE datistemplate = false AND datname=$1").exec(dbparam);
             if ( coerce<int64_t>((*dbcheck.begin())[0]) ) {
@@ -65,35 +71,56 @@ FSL_MAIN(
             insert(cnxconfig, "dbname", dbname);
         }
         o << "Creating database " << dbname << std::endl;
-        auto cnx = pg::connection(cnxconfig);
+        auto cnx = fostgres::connection(cnxconfig, c_zoneinfo.value());
 
         /// Loop through the remaining tasks and run SQL packages or requests
         for ( std::size_t argn{2}; argn < args.size(); ++argn ) {
-            const auto command = coerce<filesystem::path>(args[argn].value());
-            if ( command == "PUT" ) {
-                const auto view = args[++argn].value();
-                const auto path = args[++argn].value();
-                const auto body = utf::load_file(coerce<filesystem::path>(args[++argn].value()));
-                o << "PUT " << path << std::endl << body << std::endl;
+            const auto filename = coerce<filesystem::path>(args[argn].value());
+            const auto extension = filename.extension();
+            if ( extension == ".fg" ) {
+                o << "Loading script " << filename << std::endl;
+                script = fg::program(filename);
+            } else if ( extension == ".json" ) {
+                o << "Loading configuration " << filename << std::endl;
+                loaded_settings.emplace_back(filename);
+            } else if ( extension == ".so" ) {
+                o << "Loading library " << filename << std::endl;
+                dynlibs.emplace_back(std::make_unique<fostlib::dynlib>(args[argn].value()));
+            } else if ( extension == ".sql" ) {
+                o << "Executing SQL " << filename << std::endl;
+                auto sql = coerce<utf8_string>(utf::load_file(filename));
+                cnx.exec(sql);
+                cnx.commit();
             } else {
-                const auto extension = command.extension();
-                if ( extension == ".json" ) {
-                    o << "Loading configuration " << command << std::endl;
-                    loaded_settings.emplace_back(command);
-                } else if ( extension == ".sql" ) {
-                    o << "Executing SQL " << command << std::endl;
-                    auto sql = coerce<utf8_string>(utf::load_file(command));
-                    cnx.exec(sql);
-                    cnx.commit();
-                } else {
-                    o << "Unknown script type " << extension << " for " << command << std::endl;
-                    return 3;
-                }
+                o << "Unknown script type " << extension << " for " << filename << std::endl;
+                return 3;
             }
         }
 
+
+        // Set up the logging options
+        std::unique_ptr<fostlib::log::global_sink_configuration> loggers;
+        if ( not c_logger.value().isnull() && c_logger.value().has_key("sinks") ) {
+            loggers =
+                std::make_unique<fostlib::log::global_sink_configuration>(c_logger.value());
+        }
+
+        // Run the script
+        fg::frame stack(fg::builtins());
+        stack.symbols["pg.dsn"] = cnxconfig;
+        stack.symbols["pg.zoneinfo"] = c_zoneinfo.value();
+        script(stack);
+
         /// When done and everything was OK, return OK
         return 0;
+    } catch ( fg::program::empty_script & ) {
+        o << "No commands were found in the script" << std::endl;
+        return 0;
+    } catch ( fg::program::nothing_loaded & ) {
+        o << "No script was specified on the command line" << std::endl;
+        return 4;
+    } catch ( fostlib::exceptions::exception &e ) {
+        o << e << std::endl;
     } catch ( std::exception &e ) {
         o << "Caught std::exception\n\n" << e.what() << std::endl;
     } catch ( ... ) {

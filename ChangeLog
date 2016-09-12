@@ -1,3 +1,26 @@
+2016-09-11  Kirit Saelensminde  <kirit@felspar.com>
+ The test script can now check CSJ results are what is expected.
+
+2016-09-09  Kirit Saelensminde  <kirit@felspar.com>
+ Can configure a zone info on the view to control which time zone to use.
+
+2016-09-06  Kirit Saelensminde  <kirit@felspar.com>
+ * Logging options can be set for fostgres-test.
+ * The fostgres-test testserver can now be given header values to use for all requests.
+
+2016-09-04  Kirit Saelensminde  <kirit@felspar.com>
+ fostgres-test only turns `not_implemented` exceptions into 501s if that is the expected response.
+
+2016-09-03  Kirit Saelensminde  <kirit@felspar.com>
+ * Add a command for running SQL from a file.
+ * Add a language extension mechanism.
+
+2016-08-28  Kirit Saelensminde  <kirit@felspar.com>
+ Object PUT support can now have confiugrations for multiple tables.
+
+2016-08-28  Kirit Saelensminde  <kirit@felspar.com>
+ Add DELETE support and a scripting language for testing the views.
+
 2016-08-14  Kirit Saelensminde  <kirit@felspar.com>
  Deprecate the old configuration for JSON based PATCH.
 

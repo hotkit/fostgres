@@ -28,6 +28,8 @@ alias fostgres :
         ../fost-orm//fost
         ../fost-postgres//fost
         ../fost-web//fost
+        Cpp/fost-csj
+        Cpp/fostgres-core
         Cpp/fostgres
     ;
 
@@ -38,5 +40,7 @@ alias test :
         ../fost-postgres//tests
         fostgres
         Cpp/fostgres-test
+        Example
     ;
 explicit test ;
+

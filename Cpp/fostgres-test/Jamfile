@@ -4,21 +4,35 @@ using testing ;
 fost-exe fostgres-test
     :
         ../../../fost-base/Cpp/fost-cli
-        ../../../fost-base/Cpp/fost-core
-        ../../../fost-base/Cpp/fost-datetime
-        ../../../fost-internet/Cpp/fost-inet
         ../../../fost-postgres/Cpp/fost-postgres
+        ../fostgres-core
+        ../fostgres-fg
         fostgres-test.cpp
     ;
 
+run-fail fostgres-test :
+        fostgres-test-noscript
+    :
+    :
+    :
+        fostgres-test-noscript
+    ;
+
 run fostgres-test :
-        fostgres-test-http
-        ../fostgres/Example/schema/films.tables.sql
-        ../fostgres/Example/config/view.film-slug.json
-#         PUT film.slug t1 ../fostgres/Example/t1.json
+        fostgres-test-comment
+    :
+        comment.fg
     :
     :
+        fostgres-test-comment
+    ;
+
+run fostgres-test :
+        fostgres-test-empty
     :
-        fostgres-test-base
+        empty.fg
+    :
+    :
+        fostgres-test-empty
     ;
 

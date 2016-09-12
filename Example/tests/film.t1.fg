@@ -1,0 +1,58 @@
+# Add a film and tag it
+PUT film.slug /t1 (module.path.join ../t1.json) 200 (module.path.join ../t1.json)
+PUT film.slug /t1/tag/action {} 200 {"tag": "action"}
+
+# Check that the film output is correct
+GET film.slug /t1 200 {
+        "watched": {"times": 0, "last": null},
+        "tags": [
+            "action"
+        ]}
+
+# PATCH in more tags
+PATCH film.slug /t1/tags (module.path.join ../tags.csj) 200 {"records": 6}
+
+# Check that the film output is still correct
+GET film.slug /t1 200 {
+        "tags": [
+            "action",
+            "adventure",
+            "dystopian",
+            "robots",
+            "sci-fi",
+            "time-travel"
+        ]}
+GET film.slug /t1/tags 200 {"columns": ["tag"],
+    "rows": [["action"], ["adventure"], ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"]]}
+
+# Mark the film as watched and perform some checks for that. Don't
+# use the HTTP interface yet because we want to be able to check
+# the timestamp comes back correctly.
+sql.insert film_watched {
+        "film_slug": "t1",
+        "watched": "2016-06-04T23:43:34Z",
+        "who": "tester"
+    }
+
+set pg.zoneinfo Asia/Bangkok
+GET film.slug /t1 200 {
+        "watched": {"times": 1, "last": "2016-06-05 06:43:34+07"}
+    }
+set pg.zoneinfo Europe/London
+GET film.slug /t1 200 {
+        "watched": {"times": 1, "last": "2016-06-05 00:43:34+01"}
+    }
+set pg.zoneinfo America/New_York
+GET film.slug /t1 200 {
+        "watched": {"times": 1, "last": "2016-06-04 19:43:34-04"}
+    }
+
+
+# DELETE the tags and make sure we have the right output
+DELETE film.slug /t1/tags 200
+GET film.slug /t1 200 {"tags": []}
+
+# DELETE it make sure it is gone, and the DELETE also behaves properly
+DELETE film.slug /t1 200 (module.path.join ../t1.json)
+GET film.slug /t1 404
+DELETE film.slug /t1 404

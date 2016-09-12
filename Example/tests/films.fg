@@ -1,0 +1,4 @@
+# Add some films
+PATCH film.slug / (module.path.join ../films.csj) 200 {"records": 3}
+GET film.slug /iawl 200 {"title": "It's a Wonderful Life"}
+PATCH film.slug /iawl {"title": "It's a Wonder Life"} 200 {"title": "It's a Wonder Life"}
