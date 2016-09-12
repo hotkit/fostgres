@@ -146,8 +146,6 @@ namespace {
 
         // We're going to need these items later
         fostlib::pg::connection cnx{fostgres::connection(config, req)};
-        fostlib::json_string_parser json_string_p;
-        fostlib::json_parser json_p;
         fostlib::string relation = fostlib::coerce<fostlib::string>(m.configuration["PATCH"]["table"]);
         fostlib::json col_config = m.configuration["PATCH"]["columns"];
         std::vector<std::pair<fostlib::string, fostlib::json>> col_defs;
