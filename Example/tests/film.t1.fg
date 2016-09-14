@@ -25,6 +25,19 @@ GET film.slug /t1 200 {
 GET film.slug /t1/tags 200 {"columns": ["tag"],
     "rows": [["action"], ["adventure"], ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"]]}
 
+# PUT in a new tag and make sure it's there
+PUT film.slug /t1/tag/wrong {} 200 {"tag": "wrong"}
+GET film.slug /t1/tags 200 {"columns": ["tag"],
+    "rows": [["action"], ["adventure"], ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"], ["wrong"]]}
+# PATCH leaves the wrong tag in place
+PATCH film.slug /t1/tags (module.path.join ../tags.csj) 200 {"records": 6}
+GET film.slug /t1/tags 200 {"columns": ["tag"],
+    "rows": [["action"], ["adventure"], ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"], ["wrong"]]}
+# PUT removes the wrong tag in place
+#PUT film.slug /t1/tags (module.path.join ../tags.csj) 200 {"selected": 7, "records": 6, "deleted": 1}
+#GET film.slug /t1/tags 200 {"columns": ["tag"],
+#    "rows": [["action"], ["adventure"], ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"]]}
+
 # Mark the film as watched and perform some checks for that. Don't
 # use the HTTP interface yet because we want to be able to check
 # the timestamp comes back correctly.
