@@ -22,8 +22,9 @@ namespace {
             auto append_column = [&into](auto v) {
                     into.push_back(v);
                 };
-            auto parse_result = boost::spirit::parse(
-                linestr.begin(), linestr.end(),
+            fostlib::parser_lock lock;
+            auto parse_result = fostlib::parse(lock,
+                linestr.c_str(),
                     *boost::spirit::space_p
                     >> parser[append_column]
                     >> *(
