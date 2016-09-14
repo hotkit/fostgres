@@ -197,6 +197,7 @@ namespace {
         logger("", "CSJ PUT");
 
         fostlib::pg::connection cnx{fostgres::connection(config, req)};
+        fostlib::json work_done{fostlib::json::object_t()};
 
         // Work out the table and columns we're dealing with
         fostlib::string relation = fostlib::coerce<fostlib::string>(m.configuration["PUT"]["table"]);
@@ -212,7 +213,27 @@ namespace {
         }
 
         // Create a SELECT statement to collect all the associated keys
-        // in the database
+        // in the database. We need to SELECT across the keys not in
+        // the body data and store the keys that are in the body data
+        fostlib::json where;
+        std::vector<std::vector<fostlib::json>> dbkeys;
+        {
+            for ( const auto &jkey : m.configuration["PUT"]["where"] ) {
+                auto key = fostlib::coerce<fostlib::string>(jkey);
+                auto data = fostgres::datum(key, m.configuration["PUT"]["columns"][key],
+                    m.arguments, fostlib::json(), req);
+                fostlib::insert(where, key, data);
+            }
+            auto rs = cnx.select(relation.c_str(), where, m.configuration["PUT"]["order"]);
+            for ( const auto &row : rs ) {
+                std::vector<fostlib::json> keys;
+                for ( std::size_t index{}; index != row.size(); ++index ) {
+                    keys.push_back(row[index]);
+                }
+                dbkeys.push_back(keys);
+            }
+            fostlib::insert(work_done, "selected", dbkeys.size());
+        }
 
         // Process the incoming data and put it into the database. Also
         // record the keys seen
@@ -220,7 +241,6 @@ namespace {
         // Look through the initial keys to find any that weren't in the
         // incoming data so the rows can be deleted
 
-        fostlib::json work_done{fostlib::json::object_t()};
         throw fostlib::exceptions::not_implemented(__func__);
     }
 
