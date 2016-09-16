@@ -68,7 +68,8 @@ fostlib::json fg::parse(const boost::filesystem::path &filename) {
     fostlib::json script;
     fostlib::push_back(script, "progn");
 
-    auto result = boost::spirit::parse(code.c_str(), *(
+    fostlib::parser_lock lock;
+    auto result = fostlib::parse(lock, code.c_str(), *(
         newline_p
         | comment_p
         | sexpr_p
