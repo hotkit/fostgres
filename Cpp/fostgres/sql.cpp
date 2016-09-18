@@ -46,16 +46,22 @@ fostlib::pg::connection fostgres::connection(
                 }
             }
         };
+
     static const fostlib::jcursor dbnameloc("dbname");
     do_lookup(dbnameloc);
     static const fostlib::jcursor hostloc("host");
     do_lookup(hostloc);
     static const fostlib::jcursor userloc("user");
     do_lookup(userloc);
+
     static const fostlib::jcursor ziloc("headers", "__pgzoneinfo");
     auto zoneinfo = req[ziloc];
-    return fostgres::connection(config,
+    auto cnx = fostgres::connection(config,
         fostlib::coerce<fostlib::nullable<fostlib::string>>(zoneinfo));
+
+    cnx.set_session("fostgres.source_addr", req.remote_address().name());
+
+    return cnx;
 }
 
 

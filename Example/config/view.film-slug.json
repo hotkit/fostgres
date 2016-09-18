@@ -31,6 +31,21 @@
                     {
                         "path": [1, "/tags"],
                         "GET": "SELECT slug as tag FROM film_tags WHERE film_slug=$1 ORDER BY tag",
+                        "PUT": {
+                            "table": "film_tags",
+                            "where": ["film_slug"],
+                            "order": ["slug"],
+                            "columns": {
+                                "film_slug": {
+                                    "key": true,
+                                    "source": 1
+                                },
+                                "slug": {
+                                    "key": true,
+                                    "source": "tag"
+                                }
+                            }
+                        },
                         "PATCH": {
                             "table": "film_tags",
                             "columns": {
