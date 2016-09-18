@@ -59,12 +59,7 @@ fostlib::pg::connection fostgres::connection(
     auto cnx = fostgres::connection(config,
         fostlib::coerce<fostlib::nullable<fostlib::string>>(zoneinfo));
 
-    static const fostlib::jcursor sourceloc("headers", "X-Real-IP");
-    auto source_addr = req[sourceloc];
-    if ( not source_addr.isnull() ) {
-        cnx.set_session("fostgres.source_addr",
-            fostlib::coerce<fostlib::string>(source_addr.value()));
-    }
+    cnx.set_session("fostgres.source_addr", req.remote_address().name());
 
     return cnx;
 }

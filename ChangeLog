@@ -1,3 +1,6 @@
+2016-09-18  Kirit Saelensminde  <kirit@felspar.com>
+ Set the remote address as `fostgres.remote_addr` on the database connection.
+
 2016-09-14  Kirit Saelensminde  <kirit@felspar.com>
  Set source address on the network connection when possible.
 
