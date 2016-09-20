@@ -2,6 +2,12 @@
 
 *RESTful APIs for Postgres databases*
 
+Postgres is an incredibly powerful database system. It seems a shame to hide it behind a cripplingly bad O/RM just because you want to use it for your web APIs.
+
+Fostgres is a very small wrapper around the SQL interfaces already present in Postgres. Its intention is to enable as much of Postgres' power as possible to be delivered over an HTTP interface. To actually make you want to use it though it also needs to make those APIs great to consume.
+
+Yes, the Fostgres name is stupid. Once somebody suggests a better one it'll get changed.
+
 
 # Views and configuration
 
