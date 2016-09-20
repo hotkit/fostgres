@@ -47,7 +47,29 @@ This means:
 * The path just contains `/tags` and there are no parameters to the SQL.
 * The `SELECT` statement that will be run for the GET request.
 
-This should be enough to understand at least some of the [configuration](./tests/config/view.film-slug.json) found in the [films](./tests/schema/films.tables.sql) example.
+This should be enough to understand at least some of the [configuration](./Example/config/view.film-slug.json) found in the [films](./Example/schema/films.tables.sql) example. There is obviously a lot more going on in the configuration as well.
+
+
+## Testing your views ##
+
+Being able to write views is one thing, but we don't want to have to manually test that everything is working as we expect. Fostgres comes with a simple scripting language that knows enough about the database and the views to help you write tests that ensure that the APIs you build do what you expect.
+
+For example, you can make sure that the first configuration above (in a `film.slug` view) returns with a 200 and contains a "title" field in the output with the right value like this:
+
+    GET film.slug /film/terminator 200 {"title": "The Terminator"}
+
+And we can make sure we get a 404 from an unknown tag
+
+    GET film.slug /film/not-a-film 404
+
+The script can be run using `fostgres-test`:
+
+    fostgres-test test-dbname Example/schema/films.tables.sql \
+        Example/config/view.film-slug.json Example/tests/film.t1.fg
+
+The first argument is the name of the test database to use. This will be destroyed and re-created each time the tests are run so don't use a name you care about. The other arguments are one or more `.sql` files that set up the schema needed for testing, some `.json` file that contain the view configurations being tested and also a single `.fg` file that contains the test scripts.
+
+This should be enough that the [real test script](./Example/tests/film.t1.fg) makes some sort of sense.
 
 
 # Views and configuration
