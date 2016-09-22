@@ -23,24 +23,52 @@ namespace {
     const fostgres::responder c_csj("csj", fostgres::response_csj);
 
 
+    void csv_string(std::string &into, const fostlib::string &str) {
+        if ( str.find_first_of("\"\n,") != fostlib::string::npos ) {
+            into += '"';
+            for ( auto ch : str.std_str() ) {
+                switch ( ch ) {
+                case '"':
+                    into += ch; // Double up this one
+                default:
+                    into += ch;
+                }
+            }
+            into += '"';
+        } else {
+            into += str.std_str();
+        }
+    }
+
     struct csj_mime : public fostlib::mime {
+        enum class output { csj, csv } format;
         mutable bool done = false;
         mutable std::vector<fostlib::string> columns;
         mutable fostlib::pg::recordset rs;
 
         struct csj_iterator : public fostlib::mime::iterator_implementation {
+            const csj_mime::output format;
             fostlib::pg::recordset rs;
             fostlib::pg::recordset::const_iterator iter, end;
             std::string current;
             bool sent_first = false;
 
-            csj_iterator(std::vector<fostlib::string> &&columns, fostlib::pg::recordset &&r)
-            : rs(std::move(r)), iter(rs.begin()), end(rs.end()) {
+            csj_iterator(
+                csj_mime::output format,
+                std::vector<fostlib::string> &&columns,
+                fostlib::pg::recordset &&r)
+            : format(format), rs(std::move(r)), iter(rs.begin()), end(rs.end()) {
                 current.reserve(64 * 1024);
-                fostlib::json::unparse(current, columns[0]);
-                for ( std::size_t index{1}; index < columns.size(); ++index ) {
-                    current += ',';
-                    fostlib::json::unparse(current, columns[index]);
+                for ( std::size_t index{0}; index < columns.size(); ++index ) {
+                    if ( index ) current += ',';
+                    switch ( format ) {
+                    case csj_mime::output::csj:
+                        fostlib::json::unparse(current, columns[index]);
+                        break;
+                    case csj_mime::output::csv:
+                        csv_string(current, columns[index]);
+                        break;
+                    }
                 }
                 current += '\n';
                 if ( iter != end ) line();
@@ -49,10 +77,22 @@ namespace {
             void line() {
                 while ( iter != end && current.length() < 48 * 1024 ) {
                     auto record = *iter;
-                    fostlib::json::unparse(current, record[0], false);
-                    for ( std::size_t index{1}; index < record.size(); ++index ) {
-                        current += ',';
-                        fostlib::json::unparse(current, record[index], false);
+                    for ( std::size_t index{0}; index < record.size(); ++index ) {
+                        if ( index ) current += ',';
+                        switch ( format ) {
+                        case csj_mime::output::csj:
+                            fostlib::json::unparse(current, record[index], false);
+                            break;
+                        case csj_mime::output::csv:
+                            if ( record[index].isnull() ) {
+                                // Do nothing -- null is an empty entry
+                            } else if ( record[index].get<fostlib::string>().isnull() ) {
+                                csv_string(current, fostlib::json::unparse(record[index], false));
+                            } else {
+                                csv_string(current, fostlib::coerce<fostlib::string>(record[index]));
+                            }
+                            break;
+                        }
                     }
                     current += '\n';
                     ++iter;
@@ -75,18 +115,38 @@ namespace {
             }
         };
 
-        csj_mime(std::vector<fostlib::string> &&cols, fostlib::pg::recordset &&rs)
-        : mime(fostlib::mime::mime_headers(), "text/plain"),
-            columns(std::move(cols)), rs(std::move(rs))
+        fostlib::nliteral mime_type(const fostlib::string &accept) {
+            const auto csj_pos = accept.find("application/csj");
+            const auto csv_pos = accept.find("application/csv");
+            if ( csj_pos < csv_pos ) {
+                return "application/csj";
+            } else if ( csv_pos < csj_pos ) {
+                return "application/csv";
+            } else {
+                return "text/plain";
+            }
+        }
+
+        csj_mime(
+            const fostlib::string &accept,
+            std::vector<fostlib::string> &&cols,
+            fostlib::pg::recordset &&rs)
+        : mime(fostlib::mime::mime_headers(), mime_type(accept)),
+            format(output::csj), columns(std::move(cols)), rs(std::move(rs))
         {
+            if ( headers()["Content-Type"].value() == "application/csv" ) {
+                format = output::csv;
+            }
         }
 
         std::unique_ptr<iterator_implementation> iterator() const {
-            if ( done )
-                throw fostlib::exceptions::not_implemented(__FUNCTION__);
+            if ( done ) {
+                throw fostlib::exceptions::not_implemented(__func__,
+                    "The data can only be iterated over once");
+            }
             done = true;
             return std::unique_ptr<iterator_implementation>(
-                new csj_iterator(std::move(columns), std::move(rs)));
+                new csj_iterator(format, std::move(columns), std::move(rs)));
         }
 
         bool boundary_is_ok(const fostlib::string &) const {
@@ -118,7 +178,10 @@ namespace {
             auto data = fostgres::sql(cnx, fostlib::coerce<fostlib::string>(sql["command"]), arguments);
             return std::make_pair(
                 boost::shared_ptr<fostlib::mime>(
-                    new csj_mime(std::move(data.first), std::move(data.second))),
+                    new csj_mime(
+                        req.headers()["Accept"].value(),
+                        std::move(data.first),
+                        std::move(data.second))),
                 200);
         } else {
             auto data = m.arguments.size()
@@ -129,7 +192,10 @@ namespace {
                     fostlib::coerce<fostlib::string>(m.configuration["GET"]));
             return std::make_pair(
                 boost::shared_ptr<fostlib::mime>(
-                    new csj_mime(std::move(data.first), std::move(data.second))),
+                    new csj_mime(
+                        req.headers()["Accept"].value(),
+                        std::move(data.first),
+                        std::move(data.second))),
                 200);
         }
     }
