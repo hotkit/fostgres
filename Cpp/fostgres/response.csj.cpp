@@ -150,10 +150,10 @@ namespace {
         }
 
         bool boundary_is_ok(const fostlib::string &) const {
-            throw fostlib::exceptions::not_implemented(__FUNCTION__);
+            throw fostlib::exceptions::not_implemented(__func__);
         }
         std::ostream &print_on(std::ostream &) const {
-            throw fostlib::exceptions::not_implemented(__FUNCTION__);
+            throw fostlib::exceptions::not_implemented(__func__);
         }
     };
 
