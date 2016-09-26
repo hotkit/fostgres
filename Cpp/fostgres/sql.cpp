@@ -9,6 +9,8 @@
 #include <fost/log>
 #include <fostgres/db.hpp>
 #include <fostgres/fostgres.hpp>
+#include <fostgres/matcher.hpp>
+#include <fostgres/response.hpp>
 #include <fostgres/sql.hpp>
 
 
@@ -152,5 +154,39 @@ std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
     auto rs = sp.exec(args);
 
     return std::make_pair(columns(rs), std::move(rs));
+}
+
+
+std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::select_data(
+    fostlib::pg::connection &cnx, const fostlib::json &select,
+    const fostgres::match &m, const fostlib::http::server::request &req
+) {
+    if ( select.isobject() ) {
+        if ( select ["arguments"].isnull() ) {
+            throw fostlib::exceptions::not_implemented(__func__,
+                "SELECT configuration using an object must have a 'arguments' "
+                "key with the argument list in it", select);
+        }
+        std::vector<fostlib::json> arguments;
+        for ( const auto &arg : select["arguments"] ) {
+            try {
+                arguments.push_back(fostgres::datum(
+                    arg, m.arguments, fostlib::json(), req).value(fostlib::json()));
+            } catch ( fostlib::exceptions::exception &e ) {
+                insert(e.data(), "datum", arg);
+                throw;
+            }
+        }
+        if ( select ["command"].isnull() ) {
+            throw fostlib::exceptions::not_implemented(__func__,
+                "SELECT configuration using an object must have a 'command' "
+                "key with SQL in it", select);
+        }
+        return fostgres::sql(cnx, fostlib::coerce<fostlib::string>(select["command"]), arguments);
+    } else {
+        return m.arguments.size()
+            ? fostgres::sql(cnx, fostlib::coerce<fostlib::string>(select), m.arguments)
+            : fostgres::sql(cnx, fostlib::coerce<fostlib::string>(select));
+    }
 }
 

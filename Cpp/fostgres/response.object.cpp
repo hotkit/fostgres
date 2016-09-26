@@ -58,26 +58,7 @@ namespace {
         const fostlib::json &config, const fostgres::match &m,
         fostlib::http::server::request &req
     ) {
-        auto sql = m.configuration["GET"];
-        if ( sql.isobject() ) {
-            std::vector<fostlib::json> arguments;
-            for ( const auto &arg : sql["arguments"] ) {
-                try {
-                    arguments.push_back(fostgres::datum(
-                        arg, m.arguments, fostlib::json(), req).value(fostlib::json()));
-                } catch ( fostlib::exceptions::exception &e ) {
-                    insert(e.data(), "datum", arg);
-                    throw;
-                }
-            }
-            return get(cnx,
-                fostgres::sql(cnx, fostlib::coerce<fostlib::string>(sql["command"]), arguments),
-                config, m, req);
-        } else {
-            return get(cnx,
-                fostgres::sql(cnx, fostlib::coerce<fostlib::string>(sql), m.arguments),
-                config, m, req);
-        }
+        return get(cnx, select_data(cnx, m.configuration["GET"], m, req), config, m, req);
     }
 
     fostlib::json calc_keys(const fostgres::match &m, const fostlib::json &config) {
