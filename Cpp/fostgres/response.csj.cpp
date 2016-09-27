@@ -12,6 +12,7 @@
 #include <fostgres/sql.hpp>
 
 #include <fost/csj.parser.hpp>
+#include <fost/json>
 #include <fost/log>
 #include <fost/parse/json.hpp>
 #include <fost/push_back>
@@ -254,33 +255,107 @@ namespace {
         // Create a SELECT statement to collect all the associated keys
         // in the database. We need to SELECT across the keys not in
         // the body data and store the keys that are in the body data
-        fostlib::json where;
-        std::vector<std::vector<fostlib::json>> dbkeys;
+        /// The bool is set to true when the key has been seen. Those still
+        /// false by the end of the PUT need to be deleted.
+        std::vector<std::pair<std::vector<fostlib::json>, bool>> dbkeys;
+        std::vector<fostlib::string> key_names;
         {
-            for ( const auto &jkey : m.configuration["PUT"]["where"] ) {
-                auto key = fostlib::coerce<fostlib::string>(jkey);
-                auto data = fostgres::datum(key, m.configuration["PUT"]["columns"][key],
-                    m.arguments, fostlib::json(), req);
-                fostlib::insert(where, key, data);
-            }
-            auto rs = cnx.select(relation.c_str(), where, m.configuration["PUT"]["order"]);
-            for ( const auto &row : rs ) {
+            auto rs = select_data(cnx, m.configuration["PUT"]["existing"], m, req);
+            for ( const auto &row : rs.second ) {
                 std::vector<fostlib::json> keys;
                 for ( std::size_t index{}; index != row.size(); ++index ) {
                     keys.push_back(row[index]);
                 }
-                dbkeys.push_back(keys);
+                dbkeys.push_back(std::make_pair(std::move(keys), false));
             }
+            std::sort(dbkeys.begin(), dbkeys.end());
+            key_names = std::move(rs.first);
             fostlib::insert(work_done, "selected", dbkeys.size());
+            logger("selected", dbkeys.size());
         }
 
         // Process the incoming data and put it into the database. Also
         // record the keys seen
+        {
+            // Interpret body as UTF8 and split into lines. Ensure it's not empty
+            fostlib::csj::parser data(fostlib::utf::u8_view(req.data()->data()));
+            logger("header", data.header());
+            std::size_t records{0};
+            std::vector<fostlib::json> key_match;
+            key_match.reserve(key_names.size());
+
+            // Parse each line and send it to the database
+            for ( auto line(data.begin()), e(data.end()); line != e; ++line ) {
+                key_match.clear();
+                fostlib::json row = line.as_json();
+                fostlib::json keys, values;
+                for ( auto &col_def : col_defs ) {
+                    auto data = fostgres::datum(col_def.first, col_def.second, m.arguments, row, req);
+                    if ( col_def.second["key"].get(false) ) {
+                        // Key column
+                        if ( not data.isnull() ) {
+                            fostlib::insert(keys, col_def.first, data.value());
+                        } else {
+                            throw fostlib::exceptions::not_implemented(__FUNCTION__,
+                                "Key column doesn't have a value", col_def.first);
+                        }
+                    } else if ( not data.isnull() ) {
+                        // Value column
+                        fostlib::insert(values, col_def.first, data.value());
+                    }
+                }
+                for ( const auto &k : key_names ) {
+                    key_match.push_back(keys[k]);
+                }
+                auto found = std::lower_bound(
+                    dbkeys.begin(), dbkeys.end(), std::make_pair(key_match, false));
+                if ( found != dbkeys.end() && found->first == key_match ) {
+                    found->second = true;
+                }
+                cnx.upsert(relation.c_str(), keys, values);
+                ++records;
+            }
+            fostlib::insert(work_done, "records", records);
+            logger("records", records);
+        }
 
         // Look through the initial keys to find any that weren't in the
         // incoming data so the rows can be deleted
+        {
+            auto sql = fostlib::coerce<fostlib::string>(m.configuration["PUT"]["delete"]);
+            auto sp = cnx.procedure(fostlib::coerce<fostlib::utf8_string>(sql));
+            std::vector<fostlib::json> keys;
+            keys.reserve(m.arguments.size() + key_names.size());
+            std::size_t deleted{0};
+            for ( const auto &record : dbkeys ) {
+                if ( not record.second ) {
+                    // The record wasn't "seen" during the upload so we're
+                    // going to delete it.
+                    keys.clear();
+                    std::transform(m.arguments.begin(), m.arguments.end(),
+                        std::back_inserter(keys),
+                        [&](const auto &arg) {
+                            return fostlib::json(arg);
+                        });
+                    std::copy(record.first.begin(), record.first.end(),
+                        std::back_inserter(keys));
+                    sp.exec(keys);
+                    fostlib::log::warning(fostgres::c_fostgres)
+                        ("", "Deleted")
+                        ("keys", keys);
+                    ++deleted;
+                }
+            }
+            fostlib::insert(work_done, "deleted", deleted);
+            logger("deleted", deleted);
+        }
 
-        throw fostlib::exceptions::not_implemented(__func__);
+        cnx.commit();
+
+        boost::shared_ptr<fostlib::mime> response(
+                new fostlib::text_body(fostlib::json::unparse(work_done, true),
+                    fostlib::mime::mime_headers(), L"application/json"));
+        return std::make_pair(response, 200);
     }
 
 
