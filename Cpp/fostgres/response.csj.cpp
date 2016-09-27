@@ -213,16 +213,8 @@ namespace {
         logger("", "CSJ PUT");
 
         fostlib::pg::connection cnx{fostgres::connection(config, req)};
+        fostgres::updater handler(m.configuration["PUT"], cnx, m, req);
         fostlib::json work_done{fostlib::json::object_t()};
-
-        // Work out the table and columns we're dealing with
-        fostlib::string relation = fostlib::coerce<fostlib::string>(m.configuration["PUT"]["table"]);
-        fostlib::json col_config = m.configuration["PUT"]["columns"];
-        std::vector<std::pair<fostlib::string, fostlib::json>> col_defs;
-        for ( auto col_def = col_config.begin(); col_def != col_config.end(); ++col_def ) {
-            col_defs.push_back(std::make_pair(
-                fostlib::coerce<fostlib::string>(col_def.key()), *col_def));
-        }
 
         // Create a SELECT statement to collect all the associated keys
         // in the database. We need to SELECT across the keys not in
@@ -260,32 +252,18 @@ namespace {
             for ( auto line(data.begin()), e(data.end()); line != e; ++line ) {
                 key_match.clear();
                 fostlib::json row = line.as_json();
-                fostlib::json keys, values;
-                for ( auto &col_def : col_defs ) {
-                    auto data = fostgres::datum(col_def.first, col_def.second, m.arguments, row, req);
-                    if ( col_def.second["key"].get(false) ) {
-                        // Key column
-                        if ( not data.isnull() ) {
-                            fostlib::insert(keys, col_def.first, data.value());
-                        } else {
-                            throw fostlib::exceptions::not_implemented(__FUNCTION__,
-                                "Key column doesn't have a value", col_def.first);
-                        }
-                    } else if ( not data.isnull() ) {
-                        // Value column
-                        fostlib::insert(values, col_def.first, data.value());
-                    }
-                }
+                auto inserted = handler.write(row);
+                ++records;
+                // Look to see if we had this data in the database before
+                // and if so mark it as seen in the PUT body
                 for ( const auto &k : key_names ) {
-                    key_match.push_back(keys[k]);
+                    key_match.push_back(inserted.first[k]);
                 }
                 auto found = std::lower_bound(
                     dbkeys.begin(), dbkeys.end(), std::make_pair(key_match, false));
                 if ( found != dbkeys.end() && found->first == key_match ) {
                     found->second = true;
                 }
-                cnx.upsert(relation.c_str(), keys, values);
-                ++records;
             }
             fostlib::insert(work_done, "records", records);
             logger("records", records);
