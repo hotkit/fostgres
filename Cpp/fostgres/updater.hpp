@@ -26,11 +26,14 @@ namespace fostgres {
         const fostgres::match &m;
         fostlib::http::server::request &req;
 
+        std::pair<fostlib::json, fostlib::json> data(const fostlib::json &data);
+
     public:
         updater(const fostlib::json &config, fostlib::pg::connection &,
             const fostgres::match &, fostlib::http::server::request &);
 
-        std::pair<fostlib::json, fostlib::json> write(const fostlib::json &data);
+        std::pair<fostlib::json, fostlib::json> upsert(const fostlib::json &data);
+        std::pair<fostlib::json, fostlib::json> update(const fostlib::json &data);
     };
 
 
