@@ -6,10 +6,9 @@
 */
 
 
+#include "updater.hpp"
+
 #include <fostgres/fostgres.hpp>
-#include <fostgres/matcher.hpp>
-#include <fostgres/response.hpp>
-#include <fostgres/sql.hpp>
 
 #include <fost/csj.parser.hpp>
 #include <fost/json>
@@ -186,13 +185,7 @@ namespace {
 
         // We're going to need these items later
         fostlib::pg::connection cnx{fostgres::connection(config, req)};
-        fostlib::string relation = fostlib::coerce<fostlib::string>(m.configuration["PATCH"]["table"]);
-        fostlib::json col_config = m.configuration["PATCH"]["columns"];
-        std::vector<std::pair<fostlib::string, fostlib::json>> col_defs;
-        for ( auto col_def = col_config.begin(); col_def != col_config.end(); ++col_def ) {
-            col_defs.push_back(std::make_pair(
-                fostlib::coerce<fostlib::string>(col_def.key()), *col_def));
-        }
+        fostgres::updater handler(m.configuration["PATCH"], cnx, m, req);
 
         // Interpret body as UTF8 and split into lines. Ensure it's not empty
         fostlib::csj::parser data(fostlib::utf::u8_view(req.data()->data()));
@@ -200,24 +193,7 @@ namespace {
 
         // Parse each line and send it to the database
         for ( auto line(data.begin()), e(data.end()); line != e; ++line ) {
-            fostlib::json row = line.as_json();
-            fostlib::json keys, values;
-            for ( auto &col_def : col_defs ) {
-                auto data = fostgres::datum(col_def.first, col_def.second, m.arguments, row, req);
-                if ( col_def.second["key"].get(false) ) {
-                    // Key column
-                    if ( not data.isnull() ) {
-                        fostlib::insert(keys, col_def.first, data.value());
-                    } else {
-                        throw fostlib::exceptions::not_implemented(__FUNCTION__,
-                            "Key column doesn't have a value", col_def.first);
-                    }
-                } else if ( not data.isnull() ) {
-                    // Value column
-                    fostlib::insert(values, col_def.first, data.value());
-                }
-            }
-            cnx.upsert(relation.c_str(), keys, values);
+            handler.write(line.as_json());
             ++records;
         }
         cnx.commit();
@@ -242,14 +218,10 @@ namespace {
         // Work out the table and columns we're dealing with
         fostlib::string relation = fostlib::coerce<fostlib::string>(m.configuration["PUT"]["table"]);
         fostlib::json col_config = m.configuration["PUT"]["columns"];
-        std::vector<std::pair<fostlib::string, fostlib::json>> col_defs, key_defs;
+        std::vector<std::pair<fostlib::string, fostlib::json>> col_defs;
         for ( auto col_def = col_config.begin(); col_def != col_config.end(); ++col_def ) {
             col_defs.push_back(std::make_pair(
                 fostlib::coerce<fostlib::string>(col_def.key()), *col_def));
-            if ( (*col_def)["key"].get(false) ) {
-                key_defs.push_back(std::make_pair(
-                    fostlib::coerce<fostlib::string>(col_def.key()), *col_def));
-            }
         }
 
         // Create a SELECT statement to collect all the associated keys
