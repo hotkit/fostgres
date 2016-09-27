@@ -251,8 +251,7 @@ namespace {
             // Parse each line and send it to the database
             for ( auto line(data.begin()), e(data.end()); line != e; ++line ) {
                 key_match.clear();
-                fostlib::json row = line.as_json();
-                auto inserted = handler.write(row);
+                auto inserted = handler.write(line.as_json());
                 ++records;
                 // Look to see if we had this data in the database before
                 // and if so mark it as seen in the PUT body
