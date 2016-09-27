@@ -13,6 +13,7 @@ install examples :
 run ../Cpp/fostgres-test//fostgres-test :
         fostgres-test-film-t1
     :
+        ../../fost-web/Configuration/log-show-all.json
         ../Cpp/fostgres//fostgres
         config/view.film-slug.json
         schema/films.tables.sql
