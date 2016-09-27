@@ -30,7 +30,7 @@ namespace fostgres {
         updater(const fostlib::json &config, fostlib::pg::connection &,
             const fostgres::match &, fostlib::http::server::request &);
 
-        updater &write(const fostlib::json &data);
+        std::pair<fostlib::json, fostlib::json> write(const fostlib::json &data);
     };
 
 
