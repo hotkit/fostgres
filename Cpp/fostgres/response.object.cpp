@@ -6,12 +6,12 @@
 */
 
 
+#include "updater.hpp"
+
+#include <fostgres/fostgres.hpp>
+
 #include <fost/insert>
 #include <fost/log>
-#include <fostgres/fostgres.hpp>
-#include <fostgres/matcher.hpp>
-#include <fostgres/response.hpp>
-#include <fostgres/sql.hpp>
 
 
 namespace {
@@ -87,27 +87,10 @@ namespace {
         fostlib::http::server::request &req,
         const fostlib::json &put_config, const fostlib::json &body
     ) {
-        fostlib::string relation = fostlib::coerce<fostlib::string>(put_config["table"]);
         if ( put_config.has_key("columns") ) {
-            fostlib::json keys, values, col_config = put_config["columns"];
-            for ( auto col_def = col_config.begin(); col_def != col_config.end(); ++col_def ) {
-                auto key = fostlib::coerce<fostlib::string>(col_def.key());
-                auto data = fostgres::datum(key, *col_def, m.arguments, body, req);
-                if ( (*col_def)["key"].get(false) ) {
-                    // Key column
-                    if ( not data.isnull() ) {
-                        fostlib::insert(keys, key, data.value());
-                    } else {
-                        throw fostlib::exceptions::not_implemented(__func__,
-                            "Key column doesn't have a value", key);
-                    }
-                } else if ( not data.isnull() ) {
-                    // Value column
-                    fostlib::insert(values, key, data.value());
-                }
-            }
-            cnx.upsert(relation.c_str(), keys, values);
+            fostgres::updater(put_config, cnx, m, req).write(body);
         } else {
+            fostlib::string relation = fostlib::coerce<fostlib::string>(put_config["table"]);
             fostlib::json keys(calc_keys(m, put_config["keys"]));
             fostlib::json values(calc_values(body, put_config["attributes"]));
             cnx.upsert(relation.c_str(), keys, values);
