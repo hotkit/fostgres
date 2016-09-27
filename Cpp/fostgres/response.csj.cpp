@@ -340,9 +340,6 @@ namespace {
                     std::copy(record.first.begin(), record.first.end(),
                         std::back_inserter(keys));
                     sp.exec(keys);
-                    fostlib::log::warning(fostgres::c_fostgres)
-                        ("", "Deleted")
-                        ("keys", keys);
                     ++deleted;
                 }
             }
