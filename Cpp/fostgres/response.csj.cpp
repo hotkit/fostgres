@@ -324,21 +324,17 @@ namespace {
         {
             auto sql = fostlib::coerce<fostlib::string>(m.configuration["PUT"]["delete"]);
             auto sp = cnx.procedure(fostlib::coerce<fostlib::utf8_string>(sql));
-            std::vector<fostlib::json> keys;
-            keys.reserve(m.arguments.size() + key_names.size());
+            std::vector<fostlib::json> keys(m.arguments.size() + key_names.size());
+            std::transform(m.arguments.begin(), m.arguments.end(), keys.begin(),
+                [&](const auto &arg) {
+                    return fostlib::json(arg);
+                });
             std::size_t deleted{0};
             for ( const auto &record : dbkeys ) {
                 if ( not record.second ) {
                     // The record wasn't "seen" during the upload so we're
                     // going to delete it.
-                    keys.clear();
-                    std::transform(m.arguments.begin(), m.arguments.end(),
-                        std::back_inserter(keys),
-                        [&](const auto &arg) {
-                            return fostlib::json(arg);
-                        });
-                    std::copy(record.first.begin(), record.first.end(),
-                        std::back_inserter(keys));
+                    std::copy(record.first.begin(), record.first.end(), keys.begin() + m.arguments.size());
                     sp.exec(keys);
                     ++deleted;
                 }
