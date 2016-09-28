@@ -40,8 +40,8 @@
                         "GET": "SELECT slug as tag FROM film_tags WHERE film_slug=$1 ORDER BY tag",
                         "PUT": {
                             "table": "film_tags",
-                            "where": ["film_slug"],
-                            "order": ["slug"],
+                            "existing": "SELECT slug FROM film_tags WHERE film_slug=$1",
+                            "delete": "DELETE FROM film_tags WHERE film_slug=$1 AND slug=$2",
                             "columns": {
                                 "film_slug": {
                                     "key": true,

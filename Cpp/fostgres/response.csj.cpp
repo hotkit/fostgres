@@ -6,12 +6,12 @@
 */
 
 
+#include "updater.hpp"
+
 #include <fostgres/fostgres.hpp>
-#include <fostgres/matcher.hpp>
-#include <fostgres/response.hpp>
-#include <fostgres/sql.hpp>
 
 #include <fost/csj.parser.hpp>
+#include <fost/json>
 #include <fost/log>
 #include <fost/parse/json.hpp>
 #include <fost/push_back>
@@ -150,10 +150,10 @@ namespace {
         }
 
         bool boundary_is_ok(const fostlib::string &) const {
-            throw fostlib::exceptions::not_implemented(__FUNCTION__);
+            throw fostlib::exceptions::not_implemented(__func__);
         }
         std::ostream &print_on(std::ostream &) const {
-            throw fostlib::exceptions::not_implemented(__FUNCTION__);
+            throw fostlib::exceptions::not_implemented(__func__);
         }
     };
 
@@ -162,42 +162,15 @@ namespace {
         const fostlib::json &config, const fostgres::match &m,
         fostlib::http::server::request &req
     ) {
-        auto sql = m.configuration["GET"];
-        if ( sql.isobject() ) {
-            std::vector<fostlib::json> arguments;
-            for ( const auto &arg : sql["arguments"] ) {
-                try {
-                    arguments.push_back(fostgres::datum(
-                        arg, m.arguments, fostlib::json(), req).value(fostlib::json()));
-                } catch ( fostlib::exceptions::exception &e ) {
-                    insert(e.data(), "datum", arg);
-                    throw;
-                }
-            }
-            fostlib::pg::connection cnx(fostgres::connection(config, req));
-            auto data = fostgres::sql(cnx, fostlib::coerce<fostlib::string>(sql["command"]), arguments);
-            return std::make_pair(
-                boost::shared_ptr<fostlib::mime>(
-                    new csj_mime(
-                        req.headers()["Accept"].value(),
-                        std::move(data.first),
-                        std::move(data.second))),
-                200);
-        } else {
-            auto data = m.arguments.size()
-                ? fostgres::sql(config, req,
-                    fostlib::coerce<fostlib::string>(m.configuration["GET"]),
-                    m.arguments)
-                : fostgres::sql(config, req,
-                    fostlib::coerce<fostlib::string>(m.configuration["GET"]));
-            return std::make_pair(
-                boost::shared_ptr<fostlib::mime>(
-                    new csj_mime(
-                        req.headers()["Accept"].value(),
-                        std::move(data.first),
-                        std::move(data.second))),
-                200);
-        }
+        fostlib::pg::connection cnx(fostgres::connection(config, req));
+        auto data = fostgres::select_data(cnx, m.configuration["GET"], m, req);
+        return std::make_pair(
+            boost::shared_ptr<fostlib::mime>(
+                new csj_mime(
+                    req.headers()["Accept"].value(),
+                    std::move(data.first),
+                    std::move(data.second))),
+            200);
     }
 
 
@@ -212,13 +185,7 @@ namespace {
 
         // We're going to need these items later
         fostlib::pg::connection cnx{fostgres::connection(config, req)};
-        fostlib::string relation = fostlib::coerce<fostlib::string>(m.configuration["PATCH"]["table"]);
-        fostlib::json col_config = m.configuration["PATCH"]["columns"];
-        std::vector<std::pair<fostlib::string, fostlib::json>> col_defs;
-        for ( auto col_def = col_config.begin(); col_def != col_config.end(); ++col_def ) {
-            col_defs.push_back(std::make_pair(
-                fostlib::coerce<fostlib::string>(col_def.key()), *col_def));
-        }
+        fostgres::updater handler(m.configuration["PATCH"], cnx, m, req);
 
         // Interpret body as UTF8 and split into lines. Ensure it's not empty
         fostlib::csj::parser data(fostlib::utf::u8_view(req.data()->data()));
@@ -226,24 +193,7 @@ namespace {
 
         // Parse each line and send it to the database
         for ( auto line(data.begin()), e(data.end()); line != e; ++line ) {
-            fostlib::json row = line.as_json();
-            fostlib::json keys, values;
-            for ( auto &col_def : col_defs ) {
-                auto data = fostgres::datum(col_def.first, col_def.second, m.arguments, row, req);
-                if ( col_def.second["key"].get(false) ) {
-                    // Key column
-                    if ( not data.isnull() ) {
-                        fostlib::insert(keys, col_def.first, data.value());
-                    } else {
-                        throw fostlib::exceptions::not_implemented(__FUNCTION__,
-                            "Key column doesn't have a value", col_def.first);
-                    }
-                } else if ( not data.isnull() ) {
-                    // Value column
-                    fostlib::insert(values, col_def.first, data.value());
-                }
-            }
-            cnx.upsert(relation.c_str(), keys, values);
+            handler.upsert(line.as_json());
             ++records;
         }
         cnx.commit();
@@ -263,51 +213,91 @@ namespace {
         logger("", "CSJ PUT");
 
         fostlib::pg::connection cnx{fostgres::connection(config, req)};
+        fostgres::updater handler(m.configuration["PUT"], cnx, m, req);
         fostlib::json work_done{fostlib::json::object_t()};
-
-        // Work out the table and columns we're dealing with
-        fostlib::string relation = fostlib::coerce<fostlib::string>(m.configuration["PUT"]["table"]);
-        fostlib::json col_config = m.configuration["PUT"]["columns"];
-        std::vector<std::pair<fostlib::string, fostlib::json>> col_defs, key_defs;
-        for ( auto col_def = col_config.begin(); col_def != col_config.end(); ++col_def ) {
-            col_defs.push_back(std::make_pair(
-                fostlib::coerce<fostlib::string>(col_def.key()), *col_def));
-            if ( (*col_def)["key"].get(false) ) {
-                key_defs.push_back(std::make_pair(
-                    fostlib::coerce<fostlib::string>(col_def.key()), *col_def));
-            }
-        }
 
         // Create a SELECT statement to collect all the associated keys
         // in the database. We need to SELECT across the keys not in
         // the body data and store the keys that are in the body data
-        fostlib::json where;
-        std::vector<std::vector<fostlib::json>> dbkeys;
+        /// The bool is set to true when the key has been seen. Those still
+        /// false by the end of the PUT need to be deleted.
+        std::vector<std::pair<std::vector<fostlib::json>, bool>> dbkeys;
+        std::vector<fostlib::string> key_names;
         {
-            for ( const auto &jkey : m.configuration["PUT"]["where"] ) {
-                auto key = fostlib::coerce<fostlib::string>(jkey);
-                auto data = fostgres::datum(key, m.configuration["PUT"]["columns"][key],
-                    m.arguments, fostlib::json(), req);
-                fostlib::insert(where, key, data);
-            }
-            auto rs = cnx.select(relation.c_str(), where, m.configuration["PUT"]["order"]);
-            for ( const auto &row : rs ) {
+            auto rs = select_data(cnx, m.configuration["PUT"]["existing"], m, req);
+            for ( const auto &row : rs.second ) {
                 std::vector<fostlib::json> keys;
                 for ( std::size_t index{}; index != row.size(); ++index ) {
                     keys.push_back(row[index]);
                 }
-                dbkeys.push_back(keys);
+                dbkeys.push_back(std::make_pair(std::move(keys), false));
             }
+            std::sort(dbkeys.begin(), dbkeys.end());
+            key_names = std::move(rs.first);
             fostlib::insert(work_done, "selected", dbkeys.size());
+            logger("selected", dbkeys.size());
         }
 
         // Process the incoming data and put it into the database. Also
         // record the keys seen
+        {
+            // Interpret body as UTF8 and split into lines. Ensure it's not empty
+            fostlib::csj::parser data(fostlib::utf::u8_view(req.data()->data()));
+            logger("header", data.header());
+            std::size_t records{0};
+            std::vector<fostlib::json> key_match;
+            key_match.reserve(key_names.size());
+
+            // Parse each line and send it to the database
+            for ( auto line(data.begin()), e(data.end()); line != e; ++line ) {
+                key_match.clear();
+                auto inserted = handler.upsert(line.as_json());
+                ++records;
+                // Look to see if we had this data in the database before
+                // and if so mark it as seen in the PUT body
+                for ( const auto &k : key_names ) {
+                    key_match.push_back(inserted.first[k]);
+                }
+                auto found = std::lower_bound(
+                    dbkeys.begin(), dbkeys.end(), std::make_pair(key_match, false));
+                if ( found != dbkeys.end() && found->first == key_match ) {
+                    found->second = true;
+                }
+            }
+            fostlib::insert(work_done, "records", records);
+            logger("records", records);
+        }
 
         // Look through the initial keys to find any that weren't in the
         // incoming data so the rows can be deleted
+        {
+            auto sql = fostlib::coerce<fostlib::string>(m.configuration["PUT"]["delete"]);
+            auto sp = cnx.procedure(fostlib::coerce<fostlib::utf8_string>(sql));
+            std::vector<fostlib::json> keys(m.arguments.size() + key_names.size());
+            std::transform(m.arguments.begin(), m.arguments.end(), keys.begin(),
+                [&](const auto &arg) {
+                    return fostlib::json(arg);
+                });
+            std::size_t deleted{0};
+            for ( const auto &record : dbkeys ) {
+                if ( not record.second ) {
+                    // The record wasn't "seen" during the upload so we're
+                    // going to delete it.
+                    std::copy(record.first.begin(), record.first.end(), keys.begin() + m.arguments.size());
+                    sp.exec(keys);
+                    ++deleted;
+                }
+            }
+            fostlib::insert(work_done, "deleted", deleted);
+            logger("deleted", deleted);
+        }
 
-        throw fostlib::exceptions::not_implemented(__func__);
+        cnx.commit();
+
+        boost::shared_ptr<fostlib::mime> response(
+                new fostlib::text_body(fostlib::json::unparse(work_done, true),
+                    fostlib::mime::mime_headers(), L"application/json"));
+        return std::make_pair(response, 200);
     }
 
 

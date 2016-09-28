@@ -6,12 +6,12 @@
 */
 
 
+#include "updater.hpp"
+
+#include <fostgres/fostgres.hpp>
+
 #include <fost/insert>
 #include <fost/log>
-#include <fostgres/fostgres.hpp>
-#include <fostgres/matcher.hpp>
-#include <fostgres/response.hpp>
-#include <fostgres/sql.hpp>
 
 
 namespace {
@@ -58,26 +58,7 @@ namespace {
         const fostlib::json &config, const fostgres::match &m,
         fostlib::http::server::request &req
     ) {
-        auto sql = m.configuration["GET"];
-        if ( sql.isobject() ) {
-            std::vector<fostlib::json> arguments;
-            for ( const auto &arg : sql["arguments"] ) {
-                try {
-                    arguments.push_back(fostgres::datum(
-                        arg, m.arguments, fostlib::json(), req).value(fostlib::json()));
-                } catch ( fostlib::exceptions::exception &e ) {
-                    insert(e.data(), "datum", arg);
-                    throw;
-                }
-            }
-            return get(cnx,
-                fostgres::sql(cnx, fostlib::coerce<fostlib::string>(sql["command"]), arguments),
-                config, m, req);
-        } else {
-            return get(cnx,
-                fostgres::sql(cnx, fostlib::coerce<fostlib::string>(sql), m.arguments),
-                config, m, req);
-        }
+        return get(cnx, select_data(cnx, m.configuration["GET"], m, req), config, m, req);
     }
 
     fostlib::json calc_keys(const fostgres::match &m, const fostlib::json &config) {
@@ -106,27 +87,10 @@ namespace {
         fostlib::http::server::request &req,
         const fostlib::json &put_config, const fostlib::json &body
     ) {
-        fostlib::string relation = fostlib::coerce<fostlib::string>(put_config["table"]);
         if ( put_config.has_key("columns") ) {
-            fostlib::json keys, values, col_config = put_config["columns"];
-            for ( auto col_def = col_config.begin(); col_def != col_config.end(); ++col_def ) {
-                auto key = fostlib::coerce<fostlib::string>(col_def.key());
-                auto data = fostgres::datum(key, *col_def, m.arguments, body, req);
-                if ( (*col_def)["key"].get(false) ) {
-                    // Key column
-                    if ( not data.isnull() ) {
-                        fostlib::insert(keys, key, data.value());
-                    } else {
-                        throw fostlib::exceptions::not_implemented(__func__,
-                            "Key column doesn't have a value", key);
-                    }
-                } else if ( not data.isnull() ) {
-                    // Value column
-                    fostlib::insert(values, key, data.value());
-                }
-            }
-            cnx.upsert(relation.c_str(), keys, values);
+            fostgres::updater(put_config, cnx, m, req).upsert(body);
         } else {
+            fostlib::string relation = fostlib::coerce<fostlib::string>(put_config["table"]);
             fostlib::json keys(calc_keys(m, put_config["keys"]));
             fostlib::json values(calc_values(body, put_config["attributes"]));
             cnx.upsert(relation.c_str(), keys, values);
@@ -193,24 +157,7 @@ namespace {
                     fostlib::coerce<fostlib::utf8_string>(req.data()->data())))};
         fostlib::string relation = fostlib::coerce<fostlib::string>(m.configuration["PATCH"]["table"]);
         if ( m.configuration["PATCH"].has_key("columns") ) {
-            fostlib::json keys, values, col_config = m.configuration["PATCH"]["columns"];
-            for ( auto col_def = col_config.begin(); col_def != col_config.end(); ++col_def ) {
-                auto key = fostlib::coerce<fostlib::string>(col_def.key());
-                auto data = fostgres::datum(key, *col_def, m.arguments, body, req);
-                if ( (*col_def)["key"].get(false) ) {
-                    // Key column
-                    if ( not data.isnull() ) {
-                        fostlib::insert(keys, key, data.value());
-                    } else {
-                        throw fostlib::exceptions::not_implemented(__func__,
-                            "Key column doesn't have a value", key);
-                    }
-                } else if ( not data.isnull() ) {
-                    // Value column
-                    fostlib::insert(values, key, data.value());
-                }
-            }
-            cnx.update(relation.c_str(), keys, values);
+            fostgres::updater(m.configuration["PATCH"], cnx, m, req).update(body);
             cnx.commit();
         } else {
             fostlib::log::warning(fostgres::c_fostgres)
