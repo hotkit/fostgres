@@ -1,3 +1,6 @@
+2016-09-29  Kirit Saelensminde  <kirit@felspar.com>
+ Add default lookups for the Postgres connection string parameters.
+
 2016-09-18  Kirit Saelensminde  <kirit@felspar.com>
  Set the remote address as `fostgres.remote_addr` on the database connection.
 

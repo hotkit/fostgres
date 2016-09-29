@@ -30,31 +30,46 @@ namespace {
 fostlib::pg::connection fostgres::connection(
     fostlib::json config, const fostlib::http::server::request &req
 ) {
-    auto do_lookup = [&config, &req](const auto loc) {
-            auto cfgvalue = config[loc];
-            if ( cfgvalue.isarray() ) {
-                auto lookup = fostlib::coerce<fostlib::jcursor>(cfgvalue);
-                if ( lookup.size() && lookup[0] == "request" ) {
-                    auto lookedup = req[fostlib::jcursor(++lookup.begin(), lookup.end())];
-                    if ( lookedup.isnull() ) {
-                        loc.del_key(config);
+    if ( config.isnull() ) {
+        config = fostlib::json::object_t();
+    }
+
+    auto do_lookup = [&config, &req](const auto &loc, const auto &fallback) {
+            auto do_lookup = [&loc, &config, &req](const auto lookup) {
+                    if ( lookup.size() && lookup[0] == "request" ) {
+                        auto lookedup = req[fostlib::jcursor(++lookup.begin(), lookup.end())];
+                        if ( lookedup.isnull() ) {
+                            if ( config.has_key(loc) ) loc.del_key(config);
+                        } else {
+                            if ( config.has_key(loc) ) {
+                                loc.replace(config, lookedup.value());
+                            } else {
+                                loc.insert(config, lookedup.value());
+                            }
+                        }
                     } else {
-                        loc.replace(config, lookedup.value());
+                        throw fostlib::exceptions::not_implemented(__func__,
+                            "Can't look up this position for the connection detail",
+                            lookup);
                     }
-                } else {
-                    throw fostlib::exceptions::not_implemented(__func__,
-                        "Can't look up this position for the connection detail",
-                        lookup);
-                }
+                };
+            auto cfgvalue = config[loc];
+            if ( cfgvalue.isnull() ) {
+                do_lookup(fallback);
+            } else if ( cfgvalue.isarray() ) {
+                do_lookup(fostlib::coerce<fostlib::jcursor>(cfgvalue));
             }
         };
 
     static const fostlib::jcursor dbnameloc("dbname");
-    do_lookup(dbnameloc);
+    static const fostlib::jcursor dbnamefallback("request", "headers", "__pgdsn", "dbname");
+    do_lookup(dbnameloc, dbnamefallback);
     static const fostlib::jcursor hostloc("host");
-    do_lookup(hostloc);
+    static const fostlib::jcursor hostfallback("request", "headers", "__pgdsn", "host");
+    do_lookup(hostloc, hostfallback);
     static const fostlib::jcursor userloc("user");
-    do_lookup(userloc);
+    static const fostlib::jcursor userfallback("request", "headers", "__pgdsn", "user");
+    do_lookup(userloc, userfallback);
 
     static const fostlib::jcursor ziloc("headers", "__pgzoneinfo");
     auto zoneinfo = req[ziloc];
