@@ -30,7 +30,10 @@ namespace {
 fostlib::pg::connection fostgres::connection(
     fostlib::json config, const fostlib::http::server::request &req
 ) {
-    if ( config.isnull() ) {
+    /// If the configuration is empty or a JSON atom then it's not useful
+    /// for fetching database settings out of, so throw it away and rely on
+    /// the default lookups finding the right settings
+    if ( config.isnull() || config.isatom() ) {
         config = fostlib::json::object_t();
     }
 
