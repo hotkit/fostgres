@@ -57,10 +57,11 @@ namespace {
         }
         try {
             return fostlib::urlhandler::view::execute(fg::json("fg.test"), path.substr(1), req, host);
-        } catch ( fostlib::exceptions::not_implemented & ) {
+        } catch ( fostlib::exceptions::not_implemented &e ) {
             if ( expected_status == 501 ) {
                 return fostlib::urlhandler::response_501(fg::json(), path, req, host);
             } else {
+                fostlib::insert(e.data(), "request", "headers", req.headers());
                 throw;
             }
         }
