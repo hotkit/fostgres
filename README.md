@@ -6,6 +6,8 @@ Postgres is an incredibly powerful database system. It seems a shame to hide it 
 
 Fostgres is a very small wrapper around the SQL interfaces already present in Postgres. Its intention is to enable as much of Postgres' power as possible to be delivered over an HTTP interface. To actually make you want to use it though it also needs to make those APIs great to consume.
 
+Think of Fostgres as post-framework infrastructure.
+
 Yes, [the Fostgres name is stupid](http://tvtropes.org/pmwiki/pmwiki.php/Main/LampshadeHanging). Once somebody suggests a better one it'll get changed.
 
 
