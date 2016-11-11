@@ -45,6 +45,10 @@ namespace {
         fg::frame &stack, fostlib::http::server::request &req,
         const fostlib::string &path, int expected_status
     ) {
+        if ( path.empty() ) {
+            throw fostlib::exceptions::not_implemented(__func__,
+                "Requested path is empty");
+        }
         fostlib::host host("localhost");
         auto headers = stack.symbols["testserver.headers"];
         for ( auto h(headers.begin()); h != headers.end(); ++h ) {
@@ -52,11 +56,12 @@ namespace {
                 fostlib::coerce<fostlib::string>(*h));
         }
         try {
-            return fostlib::urlhandler::router(host, "fg.test", req);
-        } catch ( fostlib::exceptions::not_implemented & ) {
+            return fostlib::urlhandler::view::execute(fg::json("fg.test"), path.substr(1), req, host);
+        } catch ( fostlib::exceptions::not_implemented &e ) {
             if ( expected_status == 501 ) {
                 return fostlib::urlhandler::response_501(fg::json(), path, req, host);
             } else {
+                fostlib::insert(e.data(), "request", "headers", req.headers());
                 throw;
             }
         }

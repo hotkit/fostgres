@@ -1,5 +1,5 @@
 # Add a film and tag it
-PUT film.slug /t1 (module.path.join ../t1.json) 200 (module.path.join ../t1.json)
+PUT film.slug /t1 (module.path.join t1.json) 200 (module.path.join t1.json)
 PUT film.slug /t1/tag/action {} 200 {"tag": "action"}
 
 # Check that the film output is correct
@@ -10,7 +10,7 @@ GET film.slug /t1 200 {
         ]}
 
 # PATCH in more tags
-PATCH film.slug /t1/tags (module.path.join ../tags.csj) 200 {"records": 6}
+PATCH film.slug /t1/tags (module.path.join tags.csj) 200 {"records": 6}
 
 # Check that the film output is still correct
 GET film.slug /t1 200 {
@@ -30,13 +30,13 @@ PUT film.slug /t1/tag/wrong {} 200 {"tag": "wrong"}
 GET film.slug /t1/tags 200 {"columns": ["tag"],
     "rows": [["action"], ["adventure"], ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"], ["wrong"]]}
 # PATCH leaves the wrong tag in place
-PATCH film.slug /t1/tags (module.path.join ../tags.csj) 200 {"records": 6}
+PATCH film.slug /t1/tags (module.path.join tags.csj) 200 {"records": 6}
 GET film.slug /t1/tags 200 {"columns": ["tag"],
     "rows": [["action"], ["adventure"], ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"], ["wrong"]]}
 # PUT removes the wrong tag in place
-#PUT film.slug /t1/tags (module.path.join ../tags.csj) 200 {"selected": 7, "records": 6, "deleted": 1}
-#GET film.slug /t1/tags 200 {"columns": ["tag"],
-#    "rows": [["action"], ["adventure"], ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"]]}
+PUT film.slug /t1/tags (module.path.join tags.csj) 200 {"selected": 7, "records": 6, "deleted": 1}
+GET film.slug /t1/tags 200 {"columns": ["tag"],
+    "rows": [["action"], ["adventure"], ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"]]}
 
 # Mark the film as watched and perform some checks for that. Don't
 # use the HTTP interface yet because we want to be able to check
@@ -66,6 +66,6 @@ DELETE film.slug /t1/tags 200
 GET film.slug /t1 200 {"tags": []}
 
 # DELETE it make sure it is gone, and the DELETE also behaves properly
-DELETE film.slug /t1 200 (module.path.join ../t1.json)
+DELETE film.slug /t1 200 (module.path.join t1.json)
 GET film.slug /t1 404
 DELETE film.slug /t1 404

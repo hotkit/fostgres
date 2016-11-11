@@ -13,10 +13,11 @@ install examples :
 run ../Cpp/fostgres-test//fostgres-test :
         fostgres-test-film-t1
     :
+        ../../fost-web/Configuration/log-show-all.json
         ../Cpp/fostgres//fostgres
-        config/view.film-slug.json
-        schema/films.tables.sql
-        tests/film.t1.fg
+        films/film.t1.fg
+        films/films.tables.sql
+        films/view.film-slug.json
     :
     :
         test-film-t1
@@ -26,9 +27,9 @@ run ../Cpp/fostgres-test//fostgres-test :
         fostgres-test-films
     :
         ../Cpp/fostgres//fostgres
-        config/view.film-slug.json
-        schema/films.tables.sql
-        tests/films.fg
+        films/films.fg
+        films/films.tables.sql
+        films/view.film-slug.json
     :
     :
         test-films
@@ -38,9 +39,9 @@ run ../Cpp/fostgres-test//fostgres-test :
         fostgres-test-users
     :
         ../Cpp/fostgres//fostgres
-        config/view.users.json
-        schema/users.tables.sql
-        tests/user.add.fg
+        users/user.add.fg
+        users/users.tables.sql
+        users/view.users.json
     :
     :
         test-users

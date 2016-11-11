@@ -16,6 +16,9 @@
 namespace fostgres {
 
 
+    struct match;
+
+
     /// Return a database connection
     fostlib::pg::connection connection(
         fostlib::json config, const fostlib::http::server::request &req);
@@ -42,6 +45,11 @@ namespace fostgres {
     /// Execute the command with arguments and return the column names and data
     std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> sql(
         fostlib::pg::connection &, const fostlib::string &cmd, const std::vector<fostlib::json> &args);
+
+    /// Return the data associated with a SELECT configuration (e.g. a GET)
+    std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> select_data(
+        fostlib::pg::connection &, const fostlib::json &select,
+        const fostgres::match &m, const fostlib::http::server::request &req);
 
 
 }
