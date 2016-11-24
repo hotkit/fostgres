@@ -63,7 +63,7 @@ fostlib::nullable<fostgres::match> fostgres::matcher(
     } else if ( configuration.isarray() ) {
         for ( auto conf : configuration ) {
             auto m = check(conf, parts);
-            if ( not m.isnull() ) return m;
+            if ( m ) return m;
         }
     }
     return fostlib::null;

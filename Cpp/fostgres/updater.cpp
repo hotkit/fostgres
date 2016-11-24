@@ -28,13 +28,13 @@ std::pair<fostlib::json, fostlib::json> fostgres::updater::data(const fostlib::j
         auto data = fostgres::datum(key, *col_def, m.arguments, body, req);
         if ( (*col_def)["key"].get(false) ) {
             // Key column
-            if ( not data.isnull() ) {
+            if ( data ) {
                 fostlib::insert(keys, key, data.value());
             } else {
                 throw fostlib::exceptions::not_implemented(__func__,
                     "Key column doesn't have a value", key);
             }
-        } else if ( not data.isnull() ) {
+        } else if ( data ) {
             // Value column
             fostlib::insert(values, key, data.value());
         }

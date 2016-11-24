@@ -23,7 +23,7 @@ namespace {
         const fostlib::json &config, const fostgres::match &m,
         fostlib::http::server::request &req
     ) {
-        const bool pretty = fostlib::coerce<fostlib::nullable<bool>>(config["pretty"]).value(true);
+        const bool pretty = fostlib::coerce<fostlib::nullable<bool>>(config["pretty"]).value_or(true);
         auto row = data.second.begin();
         if ( row == data.second.end() ) {
             fostlib::json result;
@@ -131,7 +131,7 @@ namespace {
         for ( auto col_def = col_config.begin(); col_def != col_config.end(); ++col_def ) {
             const auto name = fostlib::coerce<fostlib::string>(col_def.key());
             const auto data = fostgres::datum(name, *col_def, m.arguments, body, req);
-            if ( not data.isnull() ) {
+            if ( data ) {
                 fostlib::insert(values, name, data.value());
             }
         }

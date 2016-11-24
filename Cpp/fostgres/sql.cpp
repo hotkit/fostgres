@@ -20,7 +20,7 @@ namespace {
         std::vector<fostlib::string> cols;
         std::size_t number{0};
         for ( const auto &c : rs.columns() ) {
-            cols.push_back(c.value("un-named." + std::to_string(++number)));
+            cols.push_back(c.value_or("un-named." + std::to_string(++number)));
         }
         return cols;
     }
@@ -41,7 +41,7 @@ fostlib::pg::connection fostgres::connection(
             auto do_lookup = [&loc, &config, &req](const auto lookup) {
                     if ( lookup.size() && lookup[0] == "request" ) {
                         auto lookedup = req[fostlib::jcursor(++lookup.begin(), lookup.end())];
-                        if ( lookedup.isnull() ) {
+                        if ( not lookedup ) {
                             if ( config.has_key(loc) ) loc.del_key(config);
                         } else {
                             if ( config.has_key(loc) ) {
@@ -189,7 +189,7 @@ std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::select
         for ( const auto &arg : select["arguments"] ) {
             try {
                 arguments.push_back(fostgres::datum(
-                    arg, m.arguments, fostlib::json(), req).value(fostlib::json()));
+                    arg, m.arguments, fostlib::json(), req).value_or(fostlib::json()));
             } catch ( fostlib::exceptions::exception &e ) {
                 insert(e.data(), "datum", arg);
                 throw;

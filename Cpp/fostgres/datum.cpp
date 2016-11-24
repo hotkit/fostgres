@@ -32,13 +32,13 @@ fostlib::nullable<fostlib::json> fostgres::datum(
         return fostlib::null;
     } else {
         auto n = fostlib::coerce<fostlib::nullable<std::size_t>>(jsource.get<int64_t>());
-        if ( not n.isnull() ) {
+        if ( n ) {
             if ( n.value() > 0 && n.value() <= arguments.size() ) {
                 return fostlib::json(arguments[n.value() -1]);
             }
         } else {
             auto s = jsource.get<fostlib::string>();
-            if ( not s.isnull() && row.has_key(s.value()) ) {
+            if ( s && row.has_key(s.value()) ) {
                 return row[s.value()];
             }
         }
