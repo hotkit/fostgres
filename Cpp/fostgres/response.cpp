@@ -42,7 +42,7 @@ std::pair<boost::shared_ptr<fostlib::mime>, int>  fostgres::response(
     const fostlib::json &config, const match &m, fostlib::http::server::request &req
 ) {
     auto fname = m.configuration["return"].get<fostlib::string>();
-    if ( not fname.isnull() ) {
+    if ( fname ) {
         auto returner = g_responders().find(fname.value());
         if ( returner ) {
             return returner(config, m, req);

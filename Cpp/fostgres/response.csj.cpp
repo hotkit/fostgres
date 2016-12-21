@@ -86,7 +86,7 @@ namespace {
                         case csj_mime::output::csv:
                             if ( record[index].isnull() ) {
                                 // Do nothing -- null is an empty entry
-                            } else if ( record[index].get<fostlib::string>().isnull() ) {
+                            } else if ( not record[index].get<fostlib::string>() ) {
                                 csv_string(current, fostlib::json::unparse(record[index], false));
                             } else {
                                 csv_string(current, fostlib::coerce<fostlib::string>(record[index]));

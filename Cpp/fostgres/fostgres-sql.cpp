@@ -28,7 +28,7 @@ namespace {
             const fostlib::host &
         ) const {
             auto m = fostgres::matcher(configuration["sql"], path);
-            if ( not m.isnull() ) {
+            if ( m ) {
                 try {
                     return fostgres::response(configuration, m.value(), req);
                 } catch ( fostlib::exceptions::exception &e ) {

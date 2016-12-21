@@ -46,7 +46,7 @@ namespace {
             }
             fostlib::insert(result, "rows", rows);
         }
-        const bool pretty = fostlib::coerce<fostlib::nullable<bool>>(config["pretty"]).value(true);
+        const bool pretty = fostlib::coerce<fostlib::nullable<bool>>(config["pretty"]).value_or(true);
         boost::shared_ptr<fostlib::mime> response(
                 new fostlib::text_body(fostlib::json::unparse(result, pretty),
                     fostlib::mime::mime_headers(), L"application/json"));
