@@ -1,5 +1,5 @@
 /*
-    Copyright 2016, Felspar Co Ltd. http://support.felspar.com/
+    Copyright 2016-2017, Felspar Co Ltd. http://support.felspar.com/
     Distributed under the Boost Software License, Version 1.0.
     See accompanying file LICENSE_1_0.txt or copy at
         http://www.boost.org/LICENSE_1_0.txt
@@ -10,6 +10,7 @@
 
 
 #include <fost/split.hpp>
+#include <fost/parse/json.hpp>
 
 
 namespace fostlib {
@@ -18,12 +19,44 @@ namespace fostlib {
     namespace csj {
 
 
+        template<typename Iterator>
+        struct headers_parser : boost::spirit::qi::grammar<Iterator, std::vector<string>()> {
+            using vector_type = std::vector<string>;
+
+            boost::spirit::qi::rule<Iterator, vector_type()> top;
+            json_string_parser<Iterator> str;
+
+            headers_parser()
+            : headers_parser::base_type(top) {
+                top = str %
+                    (*boost::spirit::qi::lit(' ') >> boost::spirit::qi::lit(',') >> *boost::spirit::qi::lit(' '));
+            }
+        };
+
+
+        template<typename Iterator>
+        struct line_parser : boost::spirit::qi::grammar<Iterator, std::vector<json>()> {
+            using vector_type = std::vector<json>;
+
+            boost::spirit::qi::rule<Iterator, vector_type()> top;
+            json_embedded_parser<Iterator> item;
+
+            line_parser()
+            : line_parser::base_type(top) {
+                top = item %
+                    (*boost::spirit::qi::lit(' ') >> boost::spirit::qi::lit(',') >> *boost::spirit::qi::lit(' '));
+            }
+        };
+
+
         /// Iterate over a file of CSJ like data
         class parser {
             using line_iter_t = splitter_result<utf::u8_view, utf::u8_view, 1u>;
             line_iter_t line_iter;
             line_iter_t::const_iterator li_pos, li_end;
             std::vector<fostlib::string> headers;
+            headers_parser<f5::const_u32u16_iterator<utf::u8_view::const_iterator>> headers_p;
+            line_parser<f5::const_u32u16_iterator<utf::u8_view::const_iterator>> line_p;
         public:
             /// Initialise from a string
             parser(utf::u8_view);

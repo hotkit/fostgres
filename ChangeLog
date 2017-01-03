@@ -1,3 +1,6 @@
+2017-01-03  Kirit Saelensminde  <kirit@felspar.com>
+ Switch to the new version of Boost Spirit. Drop support for Boost version prior to !.59.
+
 2016-09-29  Kirit Saelensminde  <kirit@felspar.com>
  Add default lookups for the Postgres connection string parameters.
 
