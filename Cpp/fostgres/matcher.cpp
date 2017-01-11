@@ -36,7 +36,8 @@ namespace {
                         if ( n > m.arguments.size() ) {
                             m.arguments.resize(n);
                         }
-                        m.arguments[n-1] = parts[index];
+                        m.arguments[n-1] = fostlib::coerce<fostlib::string>(
+                            fostlib::url::filepath_string(parts[index].c_str()));
                     } else {
                         throw fostlib::exceptions::not_implemented(__FUNCTION__,
                                 "Path arguments numbers cannot be zero");

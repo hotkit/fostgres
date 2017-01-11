@@ -1,13 +1,15 @@
 # Add a film and tag it
 PUT film.slug /t1 (module.path.join t1.json) 200 (module.path.join t1.json)
-PUT film.slug /t1/tag/action {} 200 {"tag": "action"}
+PUT film.slug /t1/tag/robots {} 200 {"tag": "robots"}
 
 # Check that the film output is correct
 GET film.slug /t1 200 {
         "watched": {"times": 0, "last": null},
         "tags": [
-            "action"
+            "robots"
         ]}
+
+PUT film.slug /t1/tag/action%20adventure {} 200 {"tag": "action adventure"}
 
 # PATCH in more tags
 PATCH film.slug /t1/tags (module.path.join tags.csj) 200 {"records": 6}
@@ -16,6 +18,7 @@ PATCH film.slug /t1/tags (module.path.join tags.csj) 200 {"records": 6}
 GET film.slug /t1 200 {
         "tags": [
             "action",
+            "action adventure",
             "adventure",
             "dystopian",
             "robots",
@@ -23,18 +26,20 @@ GET film.slug /t1 200 {
             "time-travel"
         ]}
 GET film.slug /t1/tags 200 {"columns": ["tag"],
-    "rows": [["action"], ["adventure"], ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"]]}
+    "rows": [["action"], ["action adventure"], ["adventure"], ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"]]}
 
 # PUT in a new tag and make sure it's there
 PUT film.slug /t1/tag/wrong {} 200 {"tag": "wrong"}
 GET film.slug /t1/tags 200 {"columns": ["tag"],
-    "rows": [["action"], ["adventure"], ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"], ["wrong"]]}
+    "rows": [["action"], ["action adventure"], ["adventure"],
+        ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"], ["wrong"]]}
 # PATCH leaves the wrong tag in place
 PATCH film.slug /t1/tags (module.path.join tags.csj) 200 {"records": 6}
 GET film.slug /t1/tags 200 {"columns": ["tag"],
-    "rows": [["action"], ["adventure"], ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"], ["wrong"]]}
-# PUT removes the wrong tag in place
-PUT film.slug /t1/tags (module.path.join tags.csj) 200 {"selected": 7, "records": 6, "deleted": 1}
+    "rows": [["action"], ["action adventure"], ["adventure"],
+        ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"], ["wrong"]]}
+# PUT removes the wrong tags in place
+PUT film.slug /t1/tags (module.path.join tags.csj) 200 {"selected": 8, "records": 6, "deleted": 2}
 GET film.slug /t1/tags 200 {"columns": ["tag"],
     "rows": [["action"], ["adventure"], ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"]]}
 

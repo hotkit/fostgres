@@ -1,3 +1,6 @@
+2017-01-11  Kirit Saelensminde  <kirit@felspar.com>
+ Fix the matcher so it properly decodes the file spec parts from their URL encoding.
+
 2017-01-03  Kirit Saelensminde  <kirit@felspar.com>
  Switch to the new version of Boost Spirit. Drop support for Boost version prior to !.59.
 
