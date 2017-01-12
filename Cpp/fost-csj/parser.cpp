@@ -17,7 +17,6 @@ namespace {
     ) {
         into.clear();
         if ( pos != end ) {
-            fostlib::parser_lock lock;
             auto line_pos = f5::make_u32u16_iterator((*pos).begin(), (*pos).end());
             if ( not boost::spirit::qi::parse(line_pos.first, line_pos.second, parser, into)
                     || line_pos.first != line_pos.second )

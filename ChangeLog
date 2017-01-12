@@ -1,3 +1,6 @@
+2017-01-12  Kirit Saelensminde  <kirit@felspar.com>
+ Removed the old `parser_lock` which is no longer needed.
+
 2017-01-11  Kirit Saelensminde  <kirit@felspar.com>
  Fix the matcher so it properly decodes the file spec parts from their URL encoding.
 

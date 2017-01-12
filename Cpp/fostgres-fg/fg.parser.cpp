@@ -16,8 +16,6 @@
 fostlib::json fg::parse(const boost::filesystem::path &filename) {
     fostlib::string code(fostlib::utf::load_file(filename));
     std::vector<fostlib::json> script;
-
-    fostlib::parser_lock lock;
     auto pos = f5::make_u32u16_iterator(code.begin(), code.end());
     fg_parser<decltype(pos.first)> fg_p;
     if ( boost::spirit::qi::parse(pos.first, pos.second, fg_p, script) && pos.first == pos.second ) {
