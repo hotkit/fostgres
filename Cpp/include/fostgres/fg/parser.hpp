@@ -44,7 +44,7 @@ namespace fg {
             inner_sexpr_json = inner_sexpr[boost::phoenix::bind([](auto &v, auto &a) {
                     fostlib::json::array_t arr;
                     for ( auto &&l : a ) {
-                        arr.push_back(boost::make_shared<json>(l));
+                        arr.push_back(l);
                     }
                     v = arr;
                 }, qi::_val, qi::_1)];

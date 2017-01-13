@@ -20,9 +20,9 @@ fostlib::json fg::parse(const boost::filesystem::path &filename) {
     fg_parser<decltype(pos.first)> fg_p;
     if ( boost::spirit::qi::parse(pos.first, pos.second, fg_p, script) && pos.first == pos.second ) {
         fostlib::json::array_t ret;
-        ret.push_back(boost::make_shared<json>("progn"));
+        ret.push_back(fostlib::json("progn"));
         for ( auto &&line : script ) {
-            ret.push_back(boost::make_shared<json>(line));
+            ret.push_back(line);
         }
         return fostlib::json(ret);
     } else {
