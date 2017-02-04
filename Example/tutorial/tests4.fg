@@ -5,3 +5,4 @@ GET todo-list /Create%20tutorial 200
 GET todo-list /Not-a-list 404
 
 PUT todo-list /New%20list {} 200
+GET todo-list /New%20list 200 {"name": "New list"}

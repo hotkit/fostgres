@@ -129,6 +129,126 @@ And then run it:
     Loading configuration views1.json
     Loading script tests3.fg
 
-As we would expect, the GET for the row we entered works and the GET for a row we didn't returns a 404.
+As we would expect, the GET for the row we entered works and the GET for a row we didn't returns a 404. Next we can create an API that allows us to create a to do list using PUT.
 
+    sql.insert todo {"name": "Create tutorial"}
+    sql.insert task {"todo_name": "Create tutorial", "item": "First step"}
+
+    GET todo-list /Create%20tutorial 200
+    GET todo-list /Not-a-list 404
+
+    PUT todo-list /New%20list {} 200
+
+This last line simulates a PUT request. The body is empty (we only have one column and it's value is the URL) and we expect a 200 to come back. If we run this we'll get an error because we haven't defined the view yet.
+
+    {"webserver": {
+        "views/todo-list": {
+            "view": "fostgres.sql",
+            "configuration": {
+                "sql": {
+                    "return": "object",
+                    "path": [1],
+                    "GET": "SELECT * from todo WHERE name=$1",
+                    "PUT": {
+                        "table": "todo",
+                        "columns": {
+                            "name": {
+                                "key":  true,
+                                "source": 1
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }}
+
+The PUT configuration is quite different to the GET configuration. This is because Fostgres has to build the correct SQL statement to manage the data, and this depends not only on the configuration that it is given, but also on the data in the request body. Fostgres will generate a `INSERT ON CONFLICT UPDATE` statement, so the data must always be insertable, but it also means that the PUT request can be used for both row creation and row editing.
+
+Right now Fostgres doesn't try to detect if the `INSERT` or the `UPDATE` part of the statement actually ran so it will never return a 201 (which could signify the resource was created rather than edited) to the client. In any case, there is no way that the client can perform different actions based on this difference in status code and remain idempotent -- a key aspect of PUT requests.
+
+We can now see that after the tests run the new data is also in the database:
+
+    $ psql todo
+    psql (9.5.5)
+    Type "help" for help.
+
+    todo=# select * from todo; select * from task;
+        name
+    -----------------
+    Create tutorial
+    New list
+    (2 rows)
+
+        todo_name    |    item
+    -----------------+------------
+    Create tutorial | First step
+    (1 row)
+
+We can also check this from the script by adding a GET:
+
+    sql.insert todo {"name": "Create tutorial"}
+    sql.insert task {"todo_name": "Create tutorial", "item": "First step"}
+
+    GET todo-list /Create%20tutorial 200
+    GET todo-list /Not-a-list 404
+
+    PUT todo-list /New%20list {} 200
+    GET todo-list /New%20list 200 {"name": "New list"}
+
+This time the GET check also makes sure that the returned JSON object contains a `name` key which has the right value in it.
+
+## Primary keys
+
+The way that primary keys map to URLs is fundemental in understanding how the Fostgres configuration and your API design relate to the schema.
+
+
+## Second API
+
+Let's look at the to do items themselves. Firstly, let's add an API for returning all of the items on a given list.
+
+    sql.insert todo {"name": "Create tutorial"}
+    sql.insert task {"todo_name": "Create tutorial", "item": "First step"}
+
+    GET todo-list /Create%20tutorial 200
+    GET todo-list /Not-a-list 404
+
+    PUT todo-list /New%20list {} 200
+    GET todo-list /New%20list 200 {"name": "New list"}
+
+    GET todo-list /Create%20tutorial/items 200
+
+Running this gives an error because we only have one API and that will only match a URL that contains a single part. This last URL contains two parts. We need to add a second end point to our configuration. We do this by using an array of objects that contain the different `path` options we want to match against:
+
+    {"webserver": {
+        "views/todo-list": {
+            "view": "fostgres.sql",
+            "configuration": {
+                "sql": [
+                    {
+                        "return": "object",
+                        "path": [1],
+                        "GET": "SELECT * FROM todo WHERE name=$1",
+                        "PUT": {
+                            "table": "todo",
+                            "columns": {
+                                "name": {
+                                    "key":  true,
+                                    "source": 1
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "path": [1, "/items"],
+                        "GET": "SELECT * FROM task WHERE todo_name=$1"
+                    }
+                ]
+            }
+        }
+    }}
+
+This second API now has a string in the `path` component. This tells Fostgres that the first part of the URL is going to be bound to the first input in the SQL and the second part must match the string `/items`. The SELECT can now use the first parameter to return all of the to do items associated with the list. Our test now passes, but we haven't checked that it returns the right data.
+
+Because this SQL can return many rows we don't have the `"return": "object"` in the configuration. If we added it we would get an error the first time the API returned more than one row. Instead we get Fostgres' default return type which is CSJ. [CSJ is almost the same as CSV](http://www.kirit.com/Comma%20Separated%20JSON), but because it is based on JSON syntax it doesn't have the ambiguity that we would have with CSV.
 
