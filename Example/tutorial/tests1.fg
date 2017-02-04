@@ -1,0 +1,2 @@
+sql.insert todo {"name": "Create tutorial"}
+sql.insert task {"todo_name": "Create tutorial", "item": "First step"}

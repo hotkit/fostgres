@@ -36,6 +36,15 @@ This means:
 * The path is going to have the word "film" followed by what is going to become the first parameter in the `SELECT` statement. It should look something like `/film/terminator`
 * The GET will issue the specified SELECT and then return the object (or a 404 if nothing is matched).
 
+The JSON object that is returned might look like this:
+
+    {
+        "slug": "t1",
+        "title": "Terminator",
+        "released": "1984-10-26"
+    }
+
+
 The other way we want to handle things is to return multiple rows. For example, fetching all of the tags in the database:
 
     {
@@ -49,8 +58,22 @@ This means:
 * The path just contains `/tags` and there are no parameters to the SQL.
 * The `SELECT` statement that will be run for the GET request.
 
+This will give you CSJ that describes the rows. The output might look like this:
+
+    "tag"
+    "action"
+    "adventure"
+    "sci-fi"
+    "time-travel"
+    "robots"
+    "dystopian"
+
 This should be enough to understand at least some of the [configuration](./Example/config/view.film-slug.json) found in the [films](./Example/schema/films.tables.sql) example. There is obviously a lot more going on in the configuration as well.
 
+* [Tutorial on using the Fostgres view](./Example/tutorial/README.md)
+* Reference documentation about the main Fostgres view -- TODO
+* Look at the basic Mengmom views -- TODO
+* [Odin is a security system compatible with Fostgres](https://github.com/KayEss/odin/blob/master/README.md)
 
 ## Testing your views ##
 
