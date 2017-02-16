@@ -5,25 +5,51 @@ In `PATCH`, `PUT` and `POST` requests files can be uploaded (see [`fostgres.sql`
 Two media types are allowed for the `"object"` response type:
 
 * `multipart/form-data` -- The form data is embedded in the request body as binary data. Care should be taken by the client to choose a suitable boundary string. This media type can only be used
-* `application/json` -- The file data is assumed to be base 64 encoded in a string in the relevant field source.
+* `application/json` -- The file data is assumed to be base 64 encoded in a string in the relevant field source. See "Decoding a file from a JSON object field" below.
 
 For normal APIs (multi-row) then field should always be base 64 encoded data.
 
-### Column configuration
+## Column configuration
 
 For file uploads the column configuration must contain a full configuration telling
 
 * `type` -- Must have the value of `file` for file uploads.
 * `store` -- The name of the file storage that is to be used (see File storage configuration below). * Future extension* If not specified then the file data is passed on to the database for storage.
 
+An example column configuration is below:
 
-### File store configuration
+    "avatar": {
+        "type": "file",
+        "store", "uploads"
+    }
+
+The column value that will be sent to the database is the store relative path name. If the store path is specified to be `/var/lib/site/uploads` then the filename might be `1234/123456789`. The actual filename used will be based on the content of the file, this ensures that the same uploads will always be placed at the same location.
+
+
+## File store configuration
 
 This is configured under the global setting `File storage`, with the setting name being the name of the file storage. For example, a file store called `uploads` might be configured in a JSON file as:
 
     {"File storage": {
         "uploads": {
+            "path": "/var/lib/site/uploads"
         }
     }
 
 This JSON file would then be passed as a parameter to the `fost-webserver` when it is run.
+
+The storage configuration itself consists of:
+
+* `path` -- The root of the file storage location. All of the files will be placed in this folder.
+
+
+## Decoding a file from a JSON object field
+
+If the JSON field is a stirng then it is assumed to be the base 64 encoded file content.
+
+
+## Security considerations
+
+Allowing users to upload files to your servers is a dangerous thing to do, both for your servers and for other users of your web site -- some care needs to be taken.
+
+Complex media types should be checked for compromises. This includes image formasts, PDFs and documents.
