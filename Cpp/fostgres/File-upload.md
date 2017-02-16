@@ -5,7 +5,7 @@ In `PATCH`, `PUT` and `POST` requests files can be uploaded (see [`fostgres.sql`
 Two media types are allowed for the `"object"` response type:
 
 * `multipart/form-data` -- The form data is embedded in the request body as binary data. Care should be taken by the client to choose a suitable boundary string. This media type can only be used
-* `application/json` -- The file data is assumed to be base 64 encoded in a string in the relevant field source. See "Decoding a file from a JSON object field" below.
+* `application/json` and `application/csj` -- The file data is assumed to be base 64 encoded in a string in the relevant field source. See "Decoding a file from a JSON object field" below.
 
 For normal APIs (multi-row) then field should always be base 64 encoded data.
 
