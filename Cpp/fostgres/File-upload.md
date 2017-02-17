@@ -20,7 +20,7 @@ An example column configuration is below:
 
     "avatar": {
         "type": "file",
-        "store", "uploads"
+        "store": "uploads"
     }
 
 The column value that will be sent to the database is the store relative path name. If the store path is specified to be `/var/lib/site/uploads` then the filename might be `1234/123456789`. The actual filename used will be based on the content of the file, this ensures that the same uploads will always be placed at the same location.
