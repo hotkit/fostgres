@@ -65,7 +65,7 @@ fostlib::nullable<fostlib::json> fostgres::datum(
         ("in", "defn", defn)
         ("in", "row", row);
     if ( defn["type"] == c_file ) {
-        return file_upload(defn, row);
+        return file_upload(name, defn, row);
     } else if ( defn["source"].isnull() ) {
         if ( row.has_key(name) ) {
             logger("found", "name", name);

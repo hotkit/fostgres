@@ -9,4 +9,4 @@ PUT users /test-user {
 #     Some file content
 PUT users /test-user/avatar {"avatar": "U29tZSBmaWxlIGNvbnRlbnQ="} 200 {
     "username": "test-user",
-    "avatar": "293/e88ef1c23e5589381d7e64637ac8e2fe53f003e141a7d9c919dace1083869"}
+    "avatar": "f17/e6730780328fab16caacb5cfa7e5deceeaf21b65c7e04a6e2ea31594b958c"}
