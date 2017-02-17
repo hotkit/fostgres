@@ -47,3 +47,16 @@ run ../Cpp/fostgres-test//fostgres-test :
         test-users
     ;
 
+run ../Cpp/fostgres-test//fostgres-test :
+        fostgres-test-user-avatar
+    :
+        ../../fost-web/Configuration/log-show-all.json
+        ../Cpp/fostgres//fostgres
+        users/user.avatar.fg
+        users/users.tables.sql
+        users/view.users.json
+    :
+    :
+        test-user-avatar
+    ;
+

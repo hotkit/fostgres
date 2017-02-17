@@ -1,5 +1,5 @@
 /*
-    Copyright 2016, Felspar Co Ltd. http://support.felspar.com/
+    Copyright 2016-2017, Felspar Co Ltd. http://support.felspar.com/
     Distributed under the Boost Software License, Version 1.0.
     See accompanying file LICENSE_1_0.txt or copy at
         http://www.boost.org/LICENSE_1_0.txt
@@ -11,6 +11,11 @@
 #include <fostgres/response.hpp>
 
 #include <fost/log>
+
+
+namespace {
+    const fostlib::json c_file("file");
+}
 
 
 fostlib::nullable<fostlib::json> fostgres::datum(
@@ -59,7 +64,9 @@ fostlib::nullable<fostlib::json> fostgres::datum(
         ("in", "name", name)
         ("in", "defn", defn)
         ("in", "row", row);
-    if ( defn["source"].isnull() ) {
+    if ( defn["type"] == c_file ) {
+        return file_upload(defn, row);
+    } else if ( defn["source"].isnull() ) {
         if ( row.has_key(name) ) {
             logger("found", "name", name);
             logger("found", "value", row[name]);

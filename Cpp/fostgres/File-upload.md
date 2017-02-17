@@ -53,3 +53,7 @@ If the JSON field is a stirng then it is assumed to be the base 64 encoded file 
 Allowing users to upload files to your servers is a dangerous thing to do, both for your servers and for other users of your web site -- some care needs to be taken.
 
 Complex media types should be checked for compromises. This includes image formasts, PDFs and documents.
+
+## Garbage collection of old files
+
+Fostgres will create new files in response to file data in requests, but it will never remove any files. Removal of files that are no longer referenced from the database is the responsiblity of the
