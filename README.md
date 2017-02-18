@@ -71,11 +71,11 @@ This will give you CSJ that describes the rows. The output might look like this:
 This should be enough to understand at least some of the [configuration](./Example/config/view.film-slug.json) found in the [films](./Example/schema/films.tables.sql) example. There is obviously a lot more going on in the configuration as well.
 
 * [Tutorial on using the Fostgres view](./Example/tutorial/README.md)
-* Reference documentation about the main Fostgres view -- TODO
+* [Reference documentation about the main Fostgres view](./Cpp/fostgres/Fostgres-sql-view.md)
 * Look at the basic Mengmom views -- TODO
 * [Odin is a security system compatible with Fostgres](https://github.com/KayEss/odin/blob/master/README.md)
 
-## Testing your views ##
+## Testing your views
 
 Being able to write views is one thing, but we don't want to have to manually test that everything is working as we expect. Fostgres comes with a simple scripting language that knows enough about the database and the views to help you write tests that ensure that the APIs you build do what you expect.
 
