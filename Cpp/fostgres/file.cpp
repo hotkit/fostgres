@@ -10,6 +10,8 @@
 
 #include <fost/crypto>
 
+#include <boost/filesystem/fstream.hpp>
+
 
 fostlib::nullable<fostlib::json> fostgres::file_upload(
     const fostlib::string &name, const fostlib::json &defn, const fostlib::json &row
