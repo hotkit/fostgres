@@ -1,5 +1,5 @@
 /*
-    Copyright 2016 Felspar Co Ltd. http://support.felspar.com/
+    Copyright 2016-2017 Felspar Co Ltd. http://support.felspar.com/
     Distributed under the Boost Software License, Version 1.0.
     See accompanying file LICENSE_1_0.txt or copy at
         http://www.boost.org/LICENSE_1_0.txt
@@ -63,7 +63,7 @@ void fg::assert_comparable(const fostlib::mime &actual, const fostlib::mime &exp
         auto actual_body = mime_to_json(actual);
         auto expected_body = mime_to_json(expected);
         auto contains = fg::contains(actual_body, expected_body);
-        if ( not contains.isnull() ) {
+        if ( contains ) {
             fostlib::exceptions::test_failure error("Mismatched response body", __FILE__, __LINE__);
             fostlib::insert(error.data(), "expected", expected_body);
             fostlib::insert(error.data(), "actual", actual_body);
@@ -75,7 +75,7 @@ void fg::assert_comparable(const fostlib::mime &actual, const fostlib::mime &exp
     } else if ( actual.headers()["Content-Type"].value() == "text/plain" ) {
         /// This should be CSJ
         auto actual_data = body_data(actual);
-        auto actual_body = fostlib::csj::parser(fostlib::utf::u8_view(actual_data));
+        fostlib::csj::parser actual_body{fostlib::utf::u8_view(actual_data)};
         auto actual_iter = actual_body.begin(), actual_end = actual_body.end();
         auto expected_body = mime_to_json(expected);
         for ( auto row : expected_body["rows"] ) {
@@ -93,7 +93,7 @@ void fg::assert_comparable(const fostlib::mime &actual, const fostlib::mime &exp
             }
             auto actual_json = actual_iter.as_json();
             auto contains = fg::contains(actual_json, expected_row);
-            if ( not contains.isnull() ) {
+            if ( contains ) {
                 fostlib::exceptions::test_failure error("Mismatched response body", __FILE__, __LINE__);
                 fostlib::insert(error.data(), "expected", expected_row);
                 fostlib::insert(error.data(), "actual", actual_json);

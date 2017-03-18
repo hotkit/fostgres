@@ -1,0 +1,27 @@
+{"webserver": {
+    "views/todo-list": {
+        "view": "fostgres.sql",
+        "configuration": {
+            "sql": [
+                {
+                    "return": "object",
+                    "path": [1],
+                    "GET": "SELECT * FROM todo WHERE name=$1",
+                    "PUT": {
+                        "table": "todo",
+                        "columns": {
+                            "name": {
+                                "key":  true,
+                                "source": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "path": [1, "/items"],
+                    "GET": "SELECT * FROM task WHERE todo_name=$1"
+                }
+            ]
+        }
+    }
+}}

@@ -1,0 +1,10 @@
+sql.insert todo {"name": "Create tutorial"}
+sql.insert task {"todo_name": "Create tutorial", "item": "First step"}
+
+GET todo-list /Create%20tutorial 200
+GET todo-list /Not-a-list 404
+
+PUT todo-list /New%20list {} 200
+GET todo-list /New%20list 200 {"name": "New list"}
+
+GET todo-list /Create%20tutorial/items 200

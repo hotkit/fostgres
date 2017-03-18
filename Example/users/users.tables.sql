@@ -12,3 +12,10 @@ CREATE TABLE passwords (
     CONSTRAINT passwords_pk PRIMARY KEY(username)
 );
 
+
+CREATE TABLE avatar_upload (
+    username text NOT NULL REFERENCES users ON DELETE CASCADE INITIALLY DEFERRED,
+    avatar text NOT NULL,
+    CONSTRAINT avatar_upload_pk PRIMARY KEY (username)
+);
+

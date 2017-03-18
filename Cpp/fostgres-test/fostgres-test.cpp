@@ -1,5 +1,5 @@
 /*
-    Copyright 2016 Felspar Co Ltd. http://support.felspar.com/
+    Copyright 2016-2017, Felspar Co Ltd. http://support.felspar.com/
     Distributed under the Boost Software License, Version 1.0.
     See accompanying file LICENSE_1_0.txt or copy at
         http://www.boost.org/LICENSE_1_0.txt
@@ -40,7 +40,7 @@ namespace {
 
 FSL_MAIN(
     L"fostgres-test",
-    L"Fostgres testing environment\nCopyright (C) 2016, Felspar Co. Ltd."
+    L"Fostgres testing environment"
 )( fostlib::ostream &o, fostlib::arguments &args ) {
     if ( args.size() < 2 ) {
         o << "\nRun with:\n\n    fostgres-test dbname ...\n\n"
@@ -112,6 +112,7 @@ FSL_MAIN(
         script(stack);
 
         /// When done and everything was OK, return OK
+        o << "Test script passed" << std::endl;
         return 0;
     } catch ( fg::program::empty_script & ) {
         o << "No commands were found in the script" << std::endl;

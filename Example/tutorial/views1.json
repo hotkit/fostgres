@@ -1,0 +1,12 @@
+{"webserver": {
+    "views/todo-list": {
+        "view": "fostgres.sql",
+        "configuration": {
+            "sql": {
+                "return": "object",
+                "path": [1],
+                "GET": "SELECT * from todo WHERE name=$1"
+            }
+        }
+    }
+}}

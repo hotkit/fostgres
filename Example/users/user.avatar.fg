@@ -1,0 +1,12 @@
+# Add a new user
+PUT users /test-user {
+        "email": "test@example.com",
+        "hashed": "l8hGztvkFceKl+nVTXsYXC3Bo43venuo",
+        "salt": "I9kv4rSE"
+    } 200
+
+# Upload an avatar (just some text base 64 encoded). File content is:
+#     Some file content
+PUT users /test-user/avatar {"avatar": "U29tZSBmaWxlIGNvbnRlbnQ="} 200 {
+    "username": "test-user",
+    "avatar": "f17/e6730780328fab16caacb5cfa7e5deceeaf21b65c7e04a6e2ea31594b958c"}

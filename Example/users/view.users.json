@@ -37,9 +37,32 @@
                         "return": "object",
                         "path": [1, "/password"],
                         "GET": "SELECT * FROM passwords WHERE username=$1"
+                    },
+                    {
+                        "return": "object",
+                        "path": [1, "/avatar"],
+                        "GET": "SELECT * FROM avatar_upload WHERE username=$1",
+                        "PUT": {
+                            "table": "avatar_upload",
+                            "columns": {
+                                "username": {
+                                    "key": true,
+                                    "source": 1
+                                },
+                                "avatar": {
+                                    "type": "file",
+                                    "store": "avatar-uploads"
+                                }
+                            }
+                        }
                     }
                 ]
             }
+        }
+    },
+    "File storage": {
+        "avatar-uploads": {
+            "path": "/tmp"
         }
     }
 }
