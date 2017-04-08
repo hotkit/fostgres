@@ -1,3 +1,6 @@
+2017-04-08  Kirit Saelensminde  <kirit@felspar.com>
+ Move the location of the `column_names` API to `fostgres-core`.
+
 2017-02-18  Kirit Saelensminde  <kirit@felspar.com>
  Added support for file uploads. JSON base 64 encoded only.
 

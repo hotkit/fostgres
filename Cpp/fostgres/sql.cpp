@@ -1,5 +1,5 @@
 /*
-    Copyright 2016, Felspar Co Ltd. http://support.felspar.com/
+    Copyright 2016-2017, Felspar Co Ltd. http://support.felspar.com/
     Distributed under the Boost Software License, Version 1.0.
     See accompanying file LICENSE_1_0.txt or copy at
         http://www.boost.org/LICENSE_1_0.txt
@@ -12,19 +12,6 @@
 #include <fostgres/matcher.hpp>
 #include <fostgres/response.hpp>
 #include <fostgres/sql.hpp>
-
-
-namespace {
-    template<typename RS>
-    std::vector<fostlib::string> columns(const RS &rs) {
-        std::vector<fostlib::string> cols;
-        std::size_t number{0};
-        for ( const auto &c : rs.columns() ) {
-            cols.push_back(c.value_or("un-named." + std::to_string(++number)));
-        }
-        return cols;
-    }
-}
 
 
 fostlib::pg::connection fostgres::connection(
@@ -85,13 +72,6 @@ fostlib::pg::connection fostgres::connection(
 }
 
 
-std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::column_names(
-    fostlib::pg::recordset && rs
-) {
-    return std::make_pair(columns(rs), std::move(rs));
-}
-
-
 std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
     fostlib::pg::connection &cnx, const fostlib::string &cmd
 ) {
@@ -104,7 +84,7 @@ std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
     auto rs = cnx.exec(fostlib::coerce<fostlib::utf8_string>(cmd));
 
     /// Return data suitable for sending to the browser
-    return std::make_pair(columns(rs), std::move(rs));
+    return column_names(std::move(rs));
 }
 
 
@@ -122,7 +102,7 @@ std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
     auto rs = cnx.exec(fostlib::coerce<fostlib::utf8_string>(cmd));
 
     /// Return data suitable for sending to the browser
-    return std::make_pair(columns(rs), std::move(rs));
+    return column_names(std::move(rs));
 }
 
 
@@ -138,7 +118,7 @@ namespace {
             auto sp = cnx.procedure(fostlib::coerce<fostlib::utf8_string>(cmd));
             auto rs = sp.exec(args);
 
-            return std::make_pair(columns(rs), std::move(rs));
+            return fostgres::column_names(std::move(rs));
         };
 }
 std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
@@ -171,7 +151,7 @@ std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
     auto sp = cnx.procedure(fostlib::coerce<fostlib::utf8_string>(cmd));
     auto rs = sp.exec(args);
 
-    return std::make_pair(columns(rs), std::move(rs));
+    return column_names(std::move(rs));
 }
 
 
