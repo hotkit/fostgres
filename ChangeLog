@@ -1,3 +1,6 @@
+2017-05-03  Kirit Saelensminde  <kirit@felspar.com>
+ Add -h and -U options to fostgres-test to control how to access the database.
+
 2017-04-08  Kirit Saelensminde  <kirit@felspar.com>
  * Add a `json_recordset` adapter that allows rows to be dereferenced directly as objects.
  * Move the location of the `column_names` API to `fostgres-core`.
