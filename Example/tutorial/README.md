@@ -68,7 +68,7 @@ Let's see if we can retrieve the todo list. Change the test script:
 
     GET todo-list /Create%20tutorial 200
 
-This last line means we want to test a view called `todo` and fetch a URL `/Create%20tutorial`. This GET request should give us a 200 response status. To do actually get anything we'll also need to have a view. Let's build this up in stages:
+This last line means we want to test a view called `todo-list` and fetch a URL `/Create%20tutorial`. This GET request should give us a 200 response status. To do actually get anything we'll also need to have a view. Let's build this up in stages:
 
     {"webserver": {
     }}
@@ -251,4 +251,3 @@ Running this gives an error because we only have one API and that will only matc
 This second API now has a string in the `path` component. This tells Fostgres that the first part of the URL is going to be bound to the first input in the SQL and the second part must match the string `/items`. The SELECT can now use the first parameter to return all of the to do items associated with the list. Our test now passes, but we haven't checked that it returns the right data.
 
 Because this SQL can return many rows we don't have the `"return": "object"` in the configuration. If we added it we would get an error the first time the API returned more than one row. Instead we get Fostgres' default return type which is CSJ. [CSJ is almost the same as CSV](http://www.kirit.com/Comma%20Separated%20JSON), but because it is based on JSON syntax it doesn't have the ambiguity that we would have with CSV.
-

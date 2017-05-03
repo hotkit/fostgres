@@ -25,7 +25,7 @@ namespace {
         auto actual = (server.*op)(stack, path, status);
         if ( actual.second != status ) {
             throw fostlib::exceptions::not_implemented(__func__,
-                "Actual resopnse status isn't what was epected", actual.second);
+                "Actual response status isn't what was expected", actual.second);
         }
         if ( pos != end ) {
             auto response = fg::mime_from_argument(stack, stack.argument("response", pos, end));
@@ -90,4 +90,3 @@ fg::frame::builtin fg::lib::put = ::put;
 fg::frame::builtin fg::lib::patch = ::patch;
 fg::frame::builtin fg::lib::post = ::post;
 fg::frame::builtin fg::lib::del = ::del;
-
