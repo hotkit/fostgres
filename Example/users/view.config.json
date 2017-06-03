@@ -15,18 +15,25 @@
                         "PUT": [
                             {
                                 "table": "groups",
+                                "existing": "SELECT name FROM groups",
+                                "delete": "DELETE FROM groups WHERE name=$1",
                                 "columns": {
                                     "name": {"key": true, "source": "group_name"}
                                 }
                             },
                             {
                                 "table": "permissions",
+                                "existing": "SELECT name FROM permissions",
+                                "delete": "DELETE FROM permissions WHERE name=$1",
                                 "columns": {
                                     "name": {"key": true, "source": "permission_name"}
                                 }
                             },
                             {
                                 "table": "group_permissions",
+                                "existing": "SELECT group_name, permission_name FROM group_permissions",
+                                "delete": "DELETE FROM group_permissions
+                                    WHERE group_name=$! AND permission_name=$2",
                                 "columns": {
                                     "group_name": {"key": true},
                                     "permission_name": {"key": true}
