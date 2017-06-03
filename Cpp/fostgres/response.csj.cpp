@@ -162,15 +162,21 @@ namespace {
         const fostlib::json &config, const fostgres::match &m,
         fostlib::http::server::request &req
     ) {
+        const auto &get_conf = m.configuration["GET"];
         fostlib::pg::connection cnx(fostgres::connection(config, req));
-        auto data = fostgres::select_data(cnx, m.configuration["GET"], m, req);
-        return std::make_pair(
-            boost::shared_ptr<fostlib::mime>(
-                new csj_mime(
-                    req.headers()["Accept"].value(),
-                    std::move(data.first),
-                    std::move(data.second))),
-            200);
+        if ( get_conf.isarray() ) {
+            throw fostlib::exceptions::not_implemented(__func__,
+                "Multi GET not implemented");
+        } else {
+            auto data = fostgres::select_data(cnx, get_conf, m, req);
+            return std::make_pair(
+                boost::shared_ptr<fostlib::mime>(
+                    new fostgres::csj_mime(
+                        req.headers()["Accept"].value(),
+                        std::move(data.first),
+                        std::move(data.second))),
+                200);
+        }
     }
 
 

@@ -1,2 +1,6 @@
 # Make sure we can PUT all of the config at one time
+
+# First do a GET and see no data
+GET config / 200 (module.path.join config.headers.csj)
+
 PUT config / (module.path.join config.csj) 200
