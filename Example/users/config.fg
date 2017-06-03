@@ -1,0 +1,2 @@
+# Make sure we can PUT all of the config at one time
+PUT config / (module.path.join config.csj) 200

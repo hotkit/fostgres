@@ -1,0 +1,42 @@
+{
+    "webserver" : {
+        "views/config": {
+            "view": "fostgres.sql",
+            "configuration": {
+                "dbname": ["request", "headers", "__pgdsn", "dbname"],
+                "sql": [
+                    {
+                        "path": [],
+                        "GET": [
+                            "SELECT name AS group_name FROM groups",
+                            "SELECT name AS permission_name FROM permissions",
+                            "SELECT * FROM group_permissions"
+                        ],
+                        "PUT": [
+                            {
+                                "table": "groups",
+                                "columns": {
+                                    "name": {"key": true, "source": "group_name"}
+                                }
+                            },
+                            {
+                                "table": "permissions",
+                                "columns": {
+                                    "name": {"key": true, "source": "permission_name"}
+                                }
+                            },
+                            {
+                                "table": "group_permissions",
+                                "columns": {
+                                    "group_name": {"key": true},
+                                    "permission_name": {"key": true}
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+}
+

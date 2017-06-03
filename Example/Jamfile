@@ -60,3 +60,16 @@ run ../Cpp/fostgres-test//fostgres-test :
         test-user-avatar
     ;
 
+run ../Cpp/fostgres-test//fostgres-test :
+        fostgres-test-user-config
+    :
+        ../../fost-web/Configuration/log-show-all.json
+        ../Cpp/fostgres//fostgres
+        users/config.fg
+        users/users.tables.sql
+        users/view.config.json
+    :
+    :
+        test-user-config
+    ;
+

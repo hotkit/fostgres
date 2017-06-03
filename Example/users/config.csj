@@ -1,0 +1,14 @@
+"group_name"
+"admin"
+"user"
+"anon"
+
+"permission_name"
+"can-register"
+"upload-avatar"
+"ban-user"
+
+"group_name", "permission_name"
+"admin", "ban-user"
+"anon", "can-register"
+"user", "upload-avatar"
