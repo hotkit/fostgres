@@ -1,6 +1,7 @@
 # `fostgres.sql` view reference
 
 * For details about file uploads see [File uploads](./File-uploads.md)
+* For details about CSJ output see [CSJ options for `fostgres.sql`](./Fostgres-sql-view.csj.md)
 
 
 ## Configuration
