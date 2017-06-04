@@ -144,3 +144,45 @@ fostlib::const_memory_block fostgres::csj_mime::csj_iterator::operator () () {
     }
 }
 
+
+/*
+ * fostgres::multi_csj_mime
+ */
+
+
+fostgres::multi_csj_mime::multi_csj_mime(
+    const fostlib::string &accept, std::vector<csj_generator> g
+) : mime(fostlib::mime::mime_headers(), mime_type(accept)),
+    parts(std::move(g))
+{
+}
+
+
+auto fostgres::multi_csj_mime::iterator() const -> std::unique_ptr<iterator_implementation> {
+    return std::unique_ptr<iterator_implementation>{
+        new enumerator(parts.begin(), parts.end())};
+}
+
+
+/*
+ * fostgres::multi_csj_mime::enumerator
+ */
+
+
+fostlib::const_memory_block fostgres::multi_csj_mime::enumerator::operator () () {
+    if ( pos == end ) {
+        return fostlib::const_memory_block{};
+    } else {
+        auto block = (*opos)();
+        if ( block == fostlib::const_memory_block{} ) {
+            static const char * const nl = "\n";
+            if ( ++pos != end ) {
+                opos = (*pos)->iterator();
+            }
+            return fostlib::const_memory_block(nl, nl + 1);
+        } else {
+            return block;
+        }
+    }
+}
+

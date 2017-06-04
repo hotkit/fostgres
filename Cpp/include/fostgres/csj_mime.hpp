@@ -58,5 +58,37 @@ namespace fostgres {
     };
 
 
+    /// A MIME type for multiple CSJ part outputs
+    class multi_csj_mime : public fostlib::mime {
+    public:
+        using csj_generator = std::unique_ptr<csj_mime>;
+
+        multi_csj_mime(const fostlib::string &accept, std::vector<csj_generator> g);
+
+        class enumerator : public fostlib::mime::iterator_implementation {
+            friend class multi_csj_mime;
+            using get_iter = std::vector<csj_generator>::const_iterator;
+            get_iter pos, end;
+            std::unique_ptr<fostlib::mime::iterator_implementation>  opos;
+            enumerator(get_iter b, get_iter e)
+            : pos(b), end(e), opos((*b)->iterator()) {
+            }
+        public:
+            fostlib::const_memory_block operator () ();
+        };
+        std::unique_ptr<iterator_implementation> iterator() const;
+
+        bool boundary_is_ok(const fostlib::string &) const {
+            throw fostlib::exceptions::not_implemented(__func__);
+        }
+        std::ostream &print_on(std::ostream &) const {
+            throw fostlib::exceptions::not_implemented(__func__);
+        }
+
+    private:
+        std::vector<csj_generator> parts;
+    };
+
+
 }
 
