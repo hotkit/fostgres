@@ -65,7 +65,7 @@ fostgres::csj_mime::csj_mime(
 }
 
 
-std::unique_ptr<iterator_implementation> fostgres::csj_mime::iterator() const {
+auto fostgres::csj_mime::iterator() const -> std::unique_ptr<iterator_implementation> {
     if ( done ) {
         throw fostlib::exceptions::not_implemented(__func__,
             "The data can only be iterated over once");

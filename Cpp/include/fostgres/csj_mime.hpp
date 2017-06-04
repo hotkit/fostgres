@@ -17,14 +17,15 @@ namespace fostgres {
 
 
     /// A MIME type that provides CSJ data
-    struct csj_mime : public fostlib::mime {
+    class csj_mime : public fostlib::mime {
         enum class output { csj, csv } format;
         mutable bool done = false;
         mutable std::vector<fostlib::string> columns;
         mutable fostlib::pg::recordset rs;
 
+    public:
         class csj_iterator : public fostlib::mime::iterator_implementation {
-            friend struct csj_mime;
+            friend class csj_mime;
 
             const csj_mime::output format;
             fostlib::pg::recordset rs;
