@@ -1,5 +1,5 @@
 /*
-    Copyright 2016, Felspar Co Ltd. http://support.felspar.com/
+    Copyright 2016-2017, Felspar Co Ltd. http://support.felspar.com/
     Distributed under the Boost Software License, Version 1.0.
     See accompanying file LICENSE_1_0.txt or copy at
         http://www.boost.org/LICENSE_1_0.txt
@@ -15,6 +15,20 @@ FSL_TEST_SUITE(csj_parser);
 
 FSL_TEST_FUNCTION(no_lines) {
     fostlib::utf8_string str("\"h1\",\"h2\",\"h3\",\"h4\",\"h5\"");
+    fostlib::csj::parser csj(str);
+    FSL_CHECK(csj.begin() == csj.end());
+}
+
+
+FSL_TEST_FUNCTION(no_lines_trailing_blank_lines) {
+    fostlib::utf8_string str("\"h1\",\"h2\",\"h3\",\"h4\",\"h5\"\n\n");
+    fostlib::csj::parser csj(str);
+    FSL_CHECK(csj.begin() == csj.end());
+}
+
+
+FSL_TEST_FUNCTION(no_lines_with_blank_prefix) {
+    fostlib::utf8_string str("\n\n\"h1\",\"h2\",\"h3\",\"h4\",\"h5\"");
     fostlib::csj::parser csj(str);
     FSL_CHECK(csj.begin() == csj.end());
 }

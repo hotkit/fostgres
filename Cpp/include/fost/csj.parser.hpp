@@ -70,9 +70,10 @@ namespace fostlib {
                 friend class parser;
                 const parser &owner;
                 line_iter_t::const_iterator pos;
+                bool end_iterator;
                 std::vector<fostlib::json> line;
 
-                const_iterator(const parser &, line_iter_t::const_iterator);
+                const_iterator(const parser &, line_iter_t::const_iterator, bool end_iter);
             public:
                 /// Return the current line
                 const std::vector<json> &operator * () const {
@@ -86,7 +87,7 @@ namespace fostlib {
 
                 /// Allow comparison
                 bool operator == (const_iterator i) const {
-                    return pos == i.pos;
+                    return (i.end_iterator && line.empty()) || pos == i.pos;
                 }
                 bool operator != (const_iterator i) const {
                     return pos != i.pos;
@@ -97,6 +98,11 @@ namespace fostlib {
             /// Return iterators
             const_iterator begin() const;
             const_iterator end() const;
+        };
+
+
+        /// Iterate over multiple CSJ parts
+        class multi_parser {
         };
 
 

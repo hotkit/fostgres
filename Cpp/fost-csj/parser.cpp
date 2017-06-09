@@ -16,7 +16,7 @@ namespace {
         const P &parser, Iter &pos, Iter end, Vec &into
     ) {
         into.clear();
-        if ( pos != end ) {
+        if ( pos != end && not (*pos).empty() ) {
             auto line_pos = f5::make_u32u16_iterator((*pos).begin(), (*pos).end());
             if ( not boost::spirit::qi::parse(line_pos.first, line_pos.second, parser, into)
                     || line_pos.first != line_pos.second )
@@ -39,6 +39,8 @@ fostlib::csj::parser::parser(utf::u8_view str)
     li_pos(line_iter.begin()),
     li_end(line_iter.end())
 {
+    while ( (*li_pos).empty() && li_pos != li_end )
+        ++li_pos;
     parseline(headers_p, li_pos, li_end, headers);
     if ( not headers.size() ) {
         throw exceptions::not_implemented(__func__,
@@ -49,10 +51,10 @@ fostlib::csj::parser::parser(utf::u8_view str)
 
 
 fostlib::csj::parser::const_iterator fostlib::csj::parser::begin() const {
-    return fostlib::csj::parser::const_iterator(*this, li_pos);
+    return fostlib::csj::parser::const_iterator(*this, li_pos, false);
 }
 fostlib::csj::parser::const_iterator fostlib::csj::parser::end() const {
-    return fostlib::csj::parser::const_iterator(*this, li_end);
+    return fostlib::csj::parser::const_iterator(*this, li_end, true);
 }
 
 
@@ -62,8 +64,8 @@ fostlib::csj::parser::const_iterator fostlib::csj::parser::end() const {
 
 
 fostlib::csj::parser::const_iterator::const_iterator(
-    const parser &o, line_iter_t::const_iterator p
-) : owner(o), pos(p) {
+    const parser &o, line_iter_t::const_iterator p, bool end_iter
+) : owner(o), pos(p), end_iterator(end_iter) {
     parseline(owner.line_p, pos, owner.li_end, line);
 }
 
@@ -71,12 +73,13 @@ fostlib::csj::parser::const_iterator::const_iterator(
 fostlib::csj::parser::const_iterator &fostlib::csj::parser::const_iterator::operator ++ () {
     parseline(owner.line_p, ++pos, owner.li_end, line);
     if ( not line.size() ) {
-        // We've hit a blank line. Make sure we only get them from now on
+        // We've (probably) hit a blank line. Make sure we only get them
+        // from now on
         while ( pos != owner.li_end ) {
             parseline(owner.line_p, ++pos, owner.li_end, line);
             if ( line.size() ) {
                 throw exceptions::not_implemented(__func__,
-                    "Empty line embedded in CSJ file");
+                    "Empty line embedded in CSJ file", line);
             }
         }
     } else if ( line.size() != owner.header().size() ) {
