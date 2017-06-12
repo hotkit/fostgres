@@ -49,14 +49,22 @@ namespace fostlib {
         };
 
 
+        class multi_parser;
+
+
         /// Iterate over a file of CSJ like data
         class parser {
+            friend class multi_parser;
             using line_iter_t = splitter_result<utf::u8_view, utf::u8_view, 1u>;
             line_iter_t line_iter;
             line_iter_t::const_iterator li_pos, li_end;
             std::vector<fostlib::string> headers;
             headers_parser<f5::const_u32u16_iterator<utf::u8_view::const_iterator>> headers_p;
             line_parser<f5::const_u32u16_iterator<utf::u8_view::const_iterator>> line_p;
+            /// Reset the parser so that we expect the next line to be a
+            /// line of headers, parse those and fill into the `headers`
+            // member
+            void reset();
         public:
             /// Initialise from a string
             parser(utf::u8_view);
@@ -103,6 +111,40 @@ namespace fostlib {
 
         /// Iterate over multiple CSJ parts
         class multi_parser {
+            parser current;
+        public:
+            /// Constuct from a text buffer
+            multi_parser(utf::u8_view);
+
+            class const_iterator {
+                friend class multi_parser;
+                const multi_parser &owner;
+                const_iterator(const multi_parser &o)
+                : owner(o) {
+                }
+            public:
+                /// Move to next CSJ section
+                const_iterator &operator ++ ();
+
+                /// Return the CSJ parser for this part
+                const parser &operator * () {
+                    return owner.current;
+                }
+                const parser *operator -> () {
+                    return &**this;
+                }
+
+                /// Iterators are comparable
+                bool operator == (const const_iterator &) const;
+                bool operator != (const const_iterator &r) const {
+                    return not (*this == r);
+                }
+            };
+            friend class const_iterator;
+
+            /// Return iterators
+            const_iterator begin() const;
+            const_iterator end() const;
         };
 
 

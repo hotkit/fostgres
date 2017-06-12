@@ -109,3 +109,23 @@ FSL_TEST_FUNCTION(two_lines_and_spaces) {
     FSL_CHECK(iter == line.end());
 }
 
+
+FSL_TEST_FUNCTION(z_multi_no_lines) {
+    fostlib::utf8_string str("\"h1a\",\"h2a\"\n\n\"h1b\",\"h2b\",\"h3b\"");
+    fostlib::csj::multi_parser multi_csj(str);
+
+    auto part = multi_csj.begin();
+    FSL_CHECK(part != multi_csj.end());
+
+    // First heading
+    auto ha = (*part).header();
+    FSL_CHECK_EQ(ha.size(), 2);
+    FSL_CHECK_EQ(ha[0], "h1a");
+    FSL_CHECK_EQ(ha[1], "h2a");
+    FSL_CHECK(part->begin() == part->end());
+
+    // Second heading
+    ++part;
+    auto hb = (*part).header();
+}
+

@@ -39,6 +39,11 @@ fostlib::csj::parser::parser(utf::u8_view str)
     li_pos(line_iter.begin()),
     li_end(line_iter.end())
 {
+    reset();
+}
+
+
+void fostlib::csj::parser::reset() {
     while ( (*li_pos).empty() && li_pos != li_end )
         ++li_pos;
     parseline(headers_p, li_pos, li_end, headers);
@@ -96,5 +101,41 @@ fostlib::json fostlib::csj::parser::const_iterator::as_json() const {
         fostlib::insert(row, owner.header()[c], line[c]);
     }
     return row;
+}
+
+
+/*
+    fostlib::csj::multi_parser
+*/
+
+
+fostlib::csj::multi_parser::multi_parser(utf::u8_view b)
+: current(b) {
+}
+
+
+auto fostlib::csj::multi_parser::begin() const -> const_iterator {
+    return const_iterator{*this};
+}
+
+
+auto fostlib::csj::multi_parser::end() const -> const_iterator {
+    return const_iterator{*this};
+}
+
+
+/*
+    fostlib::csj::multi_parser::const_iterator
+*/
+
+
+auto fostlib::csj::multi_parser::const_iterator::operator ++ () -> const_iterator & {
+    current.reset();
+    return *this;
+}
+
+
+bool fostlib::csj::multi_parser::const_iterator::operator == (const const_iterator &i) const {
+    return false;
 }
 
