@@ -126,6 +126,15 @@ FSL_TEST_FUNCTION(z_multi_no_lines) {
 
     // Second heading
     ++part;
+    FSL_CHECK(part != multi_csj.end());
     auto hb = (*part).header();
+    FSL_CHECK_EQ(hb[0], "h1b");
+    FSL_CHECK_EQ(hb[1], "h2b");
+    FSL_CHECK_EQ(hb.size(), 3);
+    FSL_CHECK_EQ(hb[2], "h3b");
+
+    /// There is no third
+    ++part;
+    FSL_CHECK(part == multi_csj.end());
 }
 

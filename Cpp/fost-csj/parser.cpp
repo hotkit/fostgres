@@ -39,19 +39,21 @@ fostlib::csj::parser::parser(utf::u8_view str)
     li_pos(line_iter.begin()),
     li_end(line_iter.end())
 {
-    reset();
+    if ( not read_header() )
+        throw exceptions::not_implemented(__func__,
+            "No headers were found when parsing CSJ");
 }
 
 
-void fostlib::csj::parser::reset() {
+bool fostlib::csj::parser::read_header() {
     while ( (*li_pos).empty() && li_pos != li_end )
         ++li_pos;
     parseline(headers_p, li_pos, li_end, headers);
-    if ( not headers.size() ) {
-        throw exceptions::not_implemented(__func__,
-            "No headers were found when parsing CSJ");
-    }
-    ++li_pos;
+    if ( headers.size() ) {
+        ++li_pos;
+        return true;
+    } else
+        return false;
 }
 
 
@@ -114,13 +116,13 @@ fostlib::csj::multi_parser::multi_parser(utf::u8_view b)
 }
 
 
-auto fostlib::csj::multi_parser::begin() const -> const_iterator {
-    return const_iterator{*this};
+auto fostlib::csj::multi_parser::begin() -> const_iterator {
+    return const_iterator{*this, false};
 }
 
 
-auto fostlib::csj::multi_parser::end() const -> const_iterator {
-    return const_iterator{*this};
+auto fostlib::csj::multi_parser::end() -> const_iterator {
+    return const_iterator{*this, true};
 }
 
 
@@ -130,12 +132,12 @@ auto fostlib::csj::multi_parser::end() const -> const_iterator {
 
 
 auto fostlib::csj::multi_parser::const_iterator::operator ++ () -> const_iterator & {
-    current.reset();
+    end_iterator = not owner.current.read_header();
     return *this;
 }
 
 
 bool fostlib::csj::multi_parser::const_iterator::operator == (const const_iterator &i) const {
-    return false;
+    return end_iterator == i.end_iterator;
 }
 

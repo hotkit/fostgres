@@ -63,8 +63,8 @@ namespace fostlib {
             line_parser<f5::const_u32u16_iterator<utf::u8_view::const_iterator>> line_p;
             /// Reset the parser so that we expect the next line to be a
             /// line of headers, parse those and fill into the `headers`
-            // member
-            void reset();
+            // member. Returns true if headers were found.
+            bool read_header();
         public:
             /// Initialise from a string
             parser(utf::u8_view);
@@ -118,19 +118,20 @@ namespace fostlib {
 
             class const_iterator {
                 friend class multi_parser;
-                const multi_parser &owner;
-                const_iterator(const multi_parser &o)
-                : owner(o) {
+                multi_parser &owner;
+                bool end_iterator;
+                const_iterator(multi_parser &o, bool e)
+                : owner(o), end_iterator(e) {
                 }
             public:
                 /// Move to next CSJ section
                 const_iterator &operator ++ ();
 
                 /// Return the CSJ parser for this part
-                const parser &operator * () {
+                const parser &operator * () const {
                     return owner.current;
                 }
-                const parser *operator -> () {
+                const parser *operator -> () const {
                     return &**this;
                 }
 
@@ -143,8 +144,8 @@ namespace fostlib {
             friend class const_iterator;
 
             /// Return iterators
-            const_iterator begin() const;
-            const_iterator end() const;
+            const_iterator begin();
+            const_iterator end();
         };
 
 
