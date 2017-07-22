@@ -27,6 +27,11 @@ namespace {
     const setting<json> c_load("fostgres-test.cpp",
         "fostgres-test", "Load", json::array_t());
 
+    const fostlib::setting<fostlib::nullable<fostlib::string>> c_db_host(__FILE__,
+        "fostgres-test", "DB Host", fostlib::null, true);
+    const fostlib::setting<fostlib::nullable<fostlib::string>> c_db_user(__FILE__,
+        "fostgres-test", "DB User", fostlib::null, true);
+
     const setting<json> c_logger("fostgres-test.cpp",
         "webserver", "logging", fostlib::json(), true);
     // Take out the Fost logger configuration so we don't end up with both
@@ -44,9 +49,14 @@ FSL_MAIN(
 )( fostlib::ostream &o, fostlib::arguments &args ) {
     if ( args.size() < 2 ) {
         o << "\nRun with:\n\n    fostgres-test dbname ...\n\n"
+            << "      -h     Postgres hostname or path\n"
+            << "      -U     Postgres username\n"
             << std::endl;
         return 2;
     }
+    args.commandSwitch("h", c_db_host);
+    args.commandSwitch("U", c_db_user);
+
     /// State used by the testing process as it runs
     std::vector<settings> loaded_settings;
     std::vector<std::unique_ptr<fostlib::dynlib>> dynlibs;
@@ -54,6 +64,10 @@ FSL_MAIN(
     try {
         /// Create the database
         json cnxconfig;
+        if ( c_db_host.value() )
+            fostlib::insert(cnxconfig, "host", c_db_host.value().value());
+        if ( c_db_user.value() )
+            fostlib::insert(cnxconfig, "user", c_db_user.value().value());
         const string dbname = args[1].value();
         {
             o << "Going to be using database " << dbname << std::endl;
