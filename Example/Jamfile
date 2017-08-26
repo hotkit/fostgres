@@ -10,6 +10,32 @@ install examples :
     ;
 
 
+run-fail fostgres-test :
+        fostgres-test-noscript
+    :
+    :
+    :
+        fostgres-test-noscript
+    ;
+
+run fostgres-test :
+        fostgres-test-comment
+    :
+        comment.fg
+    :
+    :
+        fostgres-test-comment
+    ;
+
+run fostgres-test :
+        fostgres-test-empty
+    :
+        empty.fg
+    :
+    :
+        fostgres-test-empty
+    ;
+
 run ../Cpp/fostgres-test//fostgres-test :
         fostgres-test-film-t1
     :

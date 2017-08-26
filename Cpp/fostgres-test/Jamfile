@@ -10,29 +10,3 @@ fost-exe fostgres-test
         fostgres-test.cpp
     ;
 
-run-fail fostgres-test :
-        fostgres-test-noscript
-    :
-    :
-    :
-        fostgres-test-noscript
-    ;
-
-run fostgres-test :
-        fostgres-test-comment
-    :
-        comment.fg
-    :
-    :
-        fostgres-test-comment
-    ;
-
-run fostgres-test :
-        fostgres-test-empty
-    :
-        empty.fg
-    :
-    :
-        fostgres-test-empty
-    ;
-
