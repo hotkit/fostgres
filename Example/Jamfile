@@ -10,7 +10,7 @@ install examples :
     ;
 
 
-run-fail fostgres-test :
+run-fail ../Cpp/fostgres-test//fostgres-test :
         fostgres-test-noscript
     :
     :
@@ -18,7 +18,7 @@ run-fail fostgres-test :
         fostgres-test-noscript
     ;
 
-run fostgres-test :
+run ../Cpp/fostgres-test//fostgres-test :
         fostgres-test-comment
     :
         comment.fg
@@ -27,7 +27,7 @@ run fostgres-test :
         fostgres-test-comment
     ;
 
-run fostgres-test :
+run ../Cpp/fostgres-test//fostgres-test :
         fostgres-test-empty
     :
         empty.fg
