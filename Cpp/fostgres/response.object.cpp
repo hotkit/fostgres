@@ -1,5 +1,5 @@
 /*
-    Copyright 2016, Felspar Co Ltd. http://support.felspar.com/
+    Copyright 2016-2017, Felspar Co Ltd. http://support.felspar.com/
     Distributed under the Boost Software License, Version 1.0.
     See accompanying file LICENSE_1_0.txt or copy at
         http://www.boost.org/LICENSE_1_0.txt
@@ -81,20 +81,29 @@ namespace {
     }
 
 
-    void proc_put(
+    std::pair<boost::shared_ptr<fostlib::mime>, int> proc_put(
         fostlib::pg::connection &cnx,
         const fostlib::json &config, const fostgres::match &m,
         fostlib::http::server::request &req,
         const fostlib::json &put_config, const fostlib::json &body
     ) {
         if ( put_config.has_key("columns") ) {
-            fostgres::updater(put_config, cnx, m, req).upsert(body);
+            fostgres::updater ins(put_config, cnx, m, req);
+            if ( ins.returning().size() ) {
+                auto data = ins.data(body);
+                auto rs = cnx.upsert(ins.relation.c_str(), data.first, data.second, ins.returning());
+                auto result = fostgres::column_names(std::move(rs));
+                return get(cnx, std::move(result), config, m, req);
+            } else {
+                ins.upsert(body);
+            }
         } else {
             fostlib::string relation = fostlib::coerce<fostlib::string>(put_config["table"]);
             fostlib::json keys(calc_keys(m, put_config["keys"]));
             fostlib::json values(calc_values(body, put_config["attributes"]));
             cnx.upsert(relation.c_str(), keys, values);
         }
+        return std::make_pair(nullptr, 0);
     }
     std::pair<boost::shared_ptr<fostlib::mime>, int>  put(
         fostlib::pg::connection &cnx,
@@ -106,15 +115,20 @@ namespace {
                 fostlib::coerce<fostlib::string>(
                     fostlib::coerce<fostlib::utf8_string>(req.data()->data())))};
         auto put_config = m.configuration["PUT"];
+        std::pair<boost::shared_ptr<fostlib::mime>, int> returning;
         if ( put_config.isobject() ) {
-            proc_put(cnx, config, m, req, put_config, body);
+            returning = proc_put(cnx, config, m, req, put_config, body);
         } else if ( put_config.isarray() ) {
             for ( const auto &cfg : put_config ) {
-                proc_put(cnx, config, m, req, cfg, body);
+                returning = proc_put(cnx, config, m, req, cfg, body);
             }
         }
         cnx.commit();
-        return get(cnx, config, m, req);
+        if ( returning.first ) {
+            return returning;
+        } else {
+            return get(cnx, config, m, req);
+        }
     }
     std::pair<boost::shared_ptr<fostlib::mime>, int> post(
         fostlib::pg::connection &cnx,

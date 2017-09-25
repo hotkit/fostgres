@@ -1,5 +1,5 @@
 /*
-    Copyright 2016, Felspar Co Ltd. http://support.felspar.com/
+    Copyright 2016-2017, Felspar Co Ltd. http://support.felspar.com/
     Distributed under the Boost Software License, Version 1.0.
     See accompanying file LICENSE_1_0.txt or copy at
         http://www.boost.org/LICENSE_1_0.txt
@@ -18,6 +18,11 @@ fostgres::updater::updater(
     col_config(config["columns"]),
     cnx(cnx), m(m), req(req)
 {
+    if ( config.has_key("returning") ) {
+        const fostlib::json &ret_cols = config["returning"];
+        std::transform(ret_cols.begin(), ret_cols.end(), std::back_inserter(returning_cols),
+            [](const auto &s) { return fostlib::coerce<fostlib::string>(s); });
+    }
 }
 
 

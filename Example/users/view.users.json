@@ -53,7 +53,8 @@
                                     "type": "file",
                                     "store": "avatar-uploads"
                                 }
-                            }
+                            },
+                            "returning": ["avatar"]
                         }
                     }
                 ]

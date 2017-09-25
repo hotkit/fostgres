@@ -1,3 +1,6 @@
+2017-09-25  Kirit Saelensminde  <kirit@felspar.com>
+ Add RETURNING support to PUT request for objects.
+
 2017-09-17  Kirit Saelensminde  <kirit@felspar.com>
  Move some tests so Postgres is not needed for a normal build.
 
