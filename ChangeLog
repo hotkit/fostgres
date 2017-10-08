@@ -1,3 +1,6 @@
+2017-10-08  Kirit Saelensminde  <kirit@felspar.com>
+ * Add parser support for all JSON atom values.
+
 2017-09-25  Kirit Saelensminde  <kirit@felspar.com>
  Add RETURNING support to PUT request for objects.
 
