@@ -1,4 +1,5 @@
 2017-10-08  Kirit Saelensminde  <kirit@felspar.com>
+ * Add scripting call `setting` for manipulating settings.
  * Add parser support for all JSON atom values.
 
 2017-09-25  Kirit Saelensminde  <kirit@felspar.com>

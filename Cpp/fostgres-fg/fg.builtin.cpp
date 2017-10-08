@@ -1,5 +1,5 @@
 /*
-    Copyright 2016 Felspar Co Ltd. http://support.felspar.com/
+    Copyright 2016-2017 Felspar Co Ltd. http://support.felspar.com/
     Distributed under the Boost Software License, Version 1.0.
     See accompanying file LICENSE_1_0.txt or copy at
         http://www.boost.org/LICENSE_1_0.txt
@@ -37,6 +37,22 @@ namespace {
     }
 
 
+    /// Change the value of a setting
+    fg::json setting(
+        fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end
+    ) {
+        auto domain = stack.resolve_string(stack.argument("domain", pos, end));
+        auto name = stack.resolve_string(stack.argument("name", pos, end));
+        auto value = stack.argument("value", pos, end);
+        // Argh, fostlib::setting should be movable
+        static std::vector<std::unique_ptr<fostlib::setting<fg::json>>> settings;
+        settings.push_back(
+            std::make_unique<fostlib::setting<fg::json>>(
+                "fostgres-test", domain, name, value));
+        return value;
+    }
+
+
 }
 
 
@@ -52,6 +68,7 @@ fg::frame fg::builtins() {
     funcs.native["progn"] = ::progn;
     funcs.native["PUT"] = lib::put;
     funcs.native["set"] = ::set;
+    funcs.native["setting"] = ::setting;
     funcs.native["sql.file"] = lib::sql_file;
     funcs.native["sql.insert"] = lib::sql_insert;
 
