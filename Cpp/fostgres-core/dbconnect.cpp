@@ -6,7 +6,9 @@
 */
 
 
-#include <fostgres/db.hpp>z
+#include <fostgres/db.hpp>
+
+#include <mutex>
 
 
 namespace {
@@ -35,8 +37,7 @@ fostlib::pg::connection fostgres::connection(
 }
 
 
-void register_connection_callback(cnx_callback_fn cb)  {
+void fostgres::register_connection_callback(cnx_callback_fn cb)  {
     std::unique_lock<std::mutex> lock{g_cb_mut};
     g_callbacks.push_back(std::move(cb));
 }
-
