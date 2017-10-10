@@ -24,11 +24,5 @@ namespace fostgres {
         const fostlib::nullable<fostlib::string> &zoneinfo,
         const fostlib::nullable<fostlib::string> &subrole = fostlib::null);
 
-    /// Register a callback to be called when a database connection
-    /// is established.
-    using cnx_callback_fn = std::function<void(fostlib::pg::connection&)>;
-    void register_connection_callback(cnx_callback_fn);
-
 
 }
-
