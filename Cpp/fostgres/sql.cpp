@@ -203,4 +203,3 @@ std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::select
             : fostgres::sql(cnx, fostlib::coerce<fostlib::string>(select));
     }
 }
-
