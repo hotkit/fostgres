@@ -80,7 +80,7 @@ fostlib::pg::connection fostgres::connection(
 
     std::unique_lock<std::mutex> lock{g_cb_mut};
     for ( auto &cb : g_callbacks )
-        cb(cnx);
+        cb(cnx, req);
 
     cnx.set_session("fostgres.source_addr", req.remote_address().name());
 

@@ -21,7 +21,7 @@ namespace fostgres {
 
     /// Register a callback to be called when a database connection
     /// is established.
-    using cnx_callback_fn = std::function<void(fostlib::pg::connection&)>;
+    using cnx_callback_fn = std::function<void(fostlib::pg::connection&, const fostlib::http::server::request&)>;
     void register_cnx_callback(cnx_callback_fn);
 
     /// Return a database connection
