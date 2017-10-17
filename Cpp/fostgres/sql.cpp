@@ -13,6 +13,18 @@
 #include <fostgres/response.hpp>
 #include <fostgres/sql.hpp>
 
+#include <mutex>
+
+namespace {
+    std::mutex g_cb_mut;
+    std::vector<fostgres::cnx_callback_fn> g_callbacks;
+}
+
+void fostgres::register_cnx_callback(cnx_callback_fn cb) {
+    std::unique_lock<std::mutex> lock{g_cb_mut};
+    g_callbacks.push_back(std::move(cb));
+}
+
 
 fostlib::pg::connection fostgres::connection(
     fostlib::json config, const fostlib::http::server::request &req
@@ -65,6 +77,10 @@ fostlib::pg::connection fostgres::connection(
     auto zoneinfo = req[ziloc];
     auto cnx = fostgres::connection(config,
         fostlib::coerce<fostlib::nullable<fostlib::string>>(zoneinfo));
+
+    std::unique_lock<std::mutex> lock{g_cb_mut};
+    for ( auto &cb : g_callbacks )
+        cb(cnx, req);
 
     cnx.set_session("fostgres.source_addr", req.remote_address().name());
 
