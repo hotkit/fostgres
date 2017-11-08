@@ -20,7 +20,7 @@ namespace {
     std::vector<fostgres::cnx_callback_fn> g_callbacks;
 }
 
-void fostgres::register_cnx_callback(cnx_callback_fn cb) {
+fostgres::register_cnx_callback::register_cnx_callback(cnx_callback_fn cb) {
     std::unique_lock<std::mutex> lock{g_cb_mut};
     g_callbacks.push_back(std::move(cb));
 }
