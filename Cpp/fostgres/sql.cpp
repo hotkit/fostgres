@@ -7,6 +7,7 @@
 
 
 #include <fost/log>
+#include <fostgres/callback.hpp>
 #include <fostgres/db.hpp>
 #include <fostgres/fostgres.hpp>
 #include <fostgres/matcher.hpp>
