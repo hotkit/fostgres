@@ -51,15 +51,15 @@ namespace fostlib {
 
         /// Iterate over a file of CSJ like data
         class parser {
-            using line_iter_t = splitter_result<utf::u8_view, utf::u8_view, 1u>;
+            using line_iter_t = splitter_result<f5::u8view, f5::u8view, 1u>;
             line_iter_t line_iter;
             line_iter_t::const_iterator li_pos, li_end;
             std::vector<fostlib::string> headers;
-            headers_parser<f5::const_u32u16_iterator<utf::u8_view::const_iterator>> headers_p;
-            line_parser<f5::const_u32u16_iterator<utf::u8_view::const_iterator>> line_p;
+            headers_parser<f5::const_u32u16_iterator<f5::u8view::const_iterator>> headers_p;
+            line_parser<f5::const_u32u16_iterator<f5::u8view::const_iterator>> line_p;
         public:
             /// Initialise from a string
-            parser(utf::u8_view);
+            parser(f5::u8view);
 
             /// Return the header column names
             const auto &header() const {

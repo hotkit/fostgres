@@ -75,7 +75,7 @@ void fg::assert_comparable(const fostlib::mime &actual, const fostlib::mime &exp
     } else if ( actual.headers()["Content-Type"].value() == "text/plain" ) {
         /// This should be CSJ
         auto actual_data = body_data(actual);
-        fostlib::csj::parser actual_body{fostlib::utf::u8_view(actual_data)};
+        fostlib::csj::parser actual_body{f5::u8view(actual_data)};
         auto actual_iter = actual_body.begin(), actual_end = actual_body.end();
         auto expected_body = mime_to_json(expected);
         for ( auto row : expected_body["rows"] ) {
