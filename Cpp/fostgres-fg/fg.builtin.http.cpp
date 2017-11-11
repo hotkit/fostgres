@@ -1,5 +1,5 @@
 /*
-    Copyright 2016 Felspar Co Ltd. http://support.felspar.com/
+    Copyright 2016-2016 Felspar Co Ltd. http://support.felspar.com/
     Distributed under the Boost Software License, Version 1.0.
     See accompanying file LICENSE_1_0.txt or copy at
         http://www.boost.org/LICENSE_1_0.txt
@@ -10,8 +10,21 @@
 #include <fostgres/fg/fg.hpp>
 #include <fostgres/fg/fg.testserver.hpp>
 
+#include <fost/unicode>
+
 
 namespace {
+
+
+    auto body_data(const fostlib::mime &body) {
+        std::vector<unsigned char> data;
+        for ( const auto &part : body ) {
+            data.insert(data.end(),
+                reinterpret_cast<const char *>(part.first),
+                reinterpret_cast<const char *>(part.second));
+        }
+        return fostlib::json{f5::u8view(data)};
+    }
 
 
     template<typename O> inline
@@ -51,7 +64,7 @@ namespace {
             auto response = fg::mime_from_argument(stack, stack.argument("response", pos, end));
             fg::assert_comparable(*actual.first, *response);
         }
-        return fostlib::json();
+        return body_data(*actual.first);
     }
 
 
