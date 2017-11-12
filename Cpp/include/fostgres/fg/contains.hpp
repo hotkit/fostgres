@@ -1,5 +1,5 @@
 /*
-    Copyright 2016 Felspar Co Ltd. http://support.felspar.com/
+    Copyright 2016-2017 Felspar Co Ltd. http://support.felspar.com/
     Distributed under the Boost Software License, Version 1.0.
     See accompanying file LICENSE_1_0.txt or copy at
         http://www.boost.org/LICENSE_1_0.txt
@@ -9,7 +9,7 @@
 #pragma once
 
 
-#include <fost/core>
+#include <fostgres/fg/fg.hpp>
 
 
 namespace fg {
@@ -23,6 +23,11 @@ namespace fg {
     /// although a null in sub means that the key doesn't have to
     /// exist in `super`.
     fostlib::nullable<fostlib::jcursor> contains(const fostlib::json &super, const fostlib::json &sub);
+
+    /// If data is returned by the contains then we can throw an error
+    /// in a standard format.
+    [[noreturn]]
+    void throw_contains_error(json expected, json actual, jcursor contains_error);
 
 
 }

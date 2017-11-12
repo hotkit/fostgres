@@ -19,6 +19,7 @@ namespace fg {
 
 
     using json = fostlib::json;
+    using jcursor = fostlib::jcursor;
 
 
     /// Parse an fg script and return its JSON representation
@@ -98,7 +99,8 @@ namespace fg {
 
 
     namespace lib {
-        extern frame::builtin del, get, patch, post, put, sql_file, sql_insert;
+        extern frame::builtin contains, del, get, patch, post, put,
+            sql_file, sql_insert;
     }
 
 

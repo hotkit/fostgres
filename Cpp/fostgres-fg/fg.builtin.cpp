@@ -115,6 +115,7 @@ fg::frame fg::builtins() {
     funcs.symbols["testserver.headers"] = fg::json::object_t();
 
     funcs.native["cat"] = ::cat;
+    funcs.native["contains"] = lib::contains;
     funcs.native["DELETE"] = lib::del;
     funcs.native["GET"] = lib::get;
     funcs.native["lookup"] = ::lookup;
