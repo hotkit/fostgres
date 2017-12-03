@@ -33,7 +33,7 @@ To look at something concrete let's think about a database that holds films and 
 This means:
 
 * We are going to return a JSON ojbect made up from the colums in the `SELECT`.
-* The path is going to have the word "film" followed by what is going to become the first parameter in the `SELECT` statement. It should look something like `/film/terminator`
+* The path is going to have the word "film" followed by what is going to become the first parameter in the `SELECT` statement. It should look something like `/film/t1`
 * The GET will issue the specified SELECT and then return the object (or a 404 if nothing is matched).
 
 The JSON object that is returned might look like this:
