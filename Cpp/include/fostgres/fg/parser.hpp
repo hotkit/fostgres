@@ -33,9 +33,9 @@ namespace fg {
             comment_p = qi::lit('#') >> *(qi::standard_wide::char_ - newline);
             comment = qi::omit[comment_p];
 
-            linebreak = -comment >> newline;
+            linebreak = *space >> -comment >> newline;
 
-            identifier_seq= +(qi::standard_wide::char_ - (space | newline | qi::lit(')')));
+            identifier_seq= +(qi::standard_wide::char_ - (space | newline | qi::lit(')') | qi::lit('#')));
             identifier = identifier_seq[boost::phoenix::bind([](auto &v, auto &s) {
                     v = fostlib::json(s);
                 }, qi::_val, qi::_1)];
@@ -48,7 +48,7 @@ namespace fg {
                     }
                     v = arr;
                 }, qi::_val, qi::_1)];
-            full_sexpr = qi::lit('(') >> inner_sexpr_json >> qi::lit(')');
+            full_sexpr = qi::lit('(') >> *space >> inner_sexpr_json >> *space >> qi::lit(')');
 
             top = qi::omit[*linebreak] >> -(inner_sexpr_json % +linebreak) >> qi::omit[*linebreak];
         }

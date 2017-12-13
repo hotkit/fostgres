@@ -1,5 +1,5 @@
 /*
-    Copyright 2016 Felspar Co Ltd. http://support.felspar.com/
+    Copyright 2016-2017 Felspar Co Ltd. http://support.felspar.com/
     Distributed under the Boost Software License, Version 1.0.
     See accompanying file LICENSE_1_0.txt or copy at
         http://www.boost.org/LICENSE_1_0.txt
@@ -15,7 +15,11 @@
 namespace fg {
 
 
+    const extern fostlib::module c_fg;
+
+
     using json = fostlib::json;
+    using jcursor = fostlib::jcursor;
 
 
     /// Parse an fg script and return its JSON representation
@@ -30,9 +34,9 @@ namespace fg {
     public:
         using builtin = std::function<json(frame &, json::const_iterator, json::const_iterator)>;
 
-        frame(const frame *parent);
+        frame(frame *parent);
 
-        const frame *parent;
+        frame *parent;
         std::map<fostlib::string, builtin> native;
         std::map<fostlib::string, json> symbols;
 
@@ -40,9 +44,11 @@ namespace fg {
         json argument(const fostlib::string &name, json::const_iterator &pos, json::const_iterator end);
 
         /// Turn an expression into a string
-        fostlib::string resolve_string(const json &) const;
+        fostlib::string resolve_string(const json &);
         /// Turn an expression into an integer
-        int64_t resolve_int(const json &) const;
+        int64_t resolve_int(const json &);
+        /// Expect that the JSON represents executable code
+        json resolve(const json &);
 
         /// Lookup a symbol
         json lookup(const fostlib::string &name) const;
@@ -93,7 +99,8 @@ namespace fg {
 
 
     namespace lib {
-        extern frame::builtin del, get, patch, post, put, sql_file, sql_insert;
+        extern frame::builtin contains, del, get, patch, post, put,
+            sql_file, sql_insert;
     }
 
 

@@ -64,13 +64,7 @@ void fg::assert_comparable(const fostlib::mime &actual, const fostlib::mime &exp
         auto expected_body = mime_to_json(expected);
         auto contains = fg::contains(actual_body, expected_body);
         if ( contains ) {
-            fostlib::exceptions::test_failure error("Mismatched response body", __FILE__, __LINE__);
-            fostlib::insert(error.data(), "expected", expected_body);
-            fostlib::insert(error.data(), "actual", actual_body);
-            fostlib::insert(error.data(), "mismatch", "path", contains.value());
-            fostlib::insert(error.data(), "mismatch", "expected", expected_body[contains.value()]);
-            fostlib::insert(error.data(), "mismatch", "actual", actual_body[contains.value()]);
-            throw error;
+            throw_contains_error(expected_body, actual_body, contains.value());
         }
     } else if ( actual.headers()["Content-Type"].value() == "text/plain" ) {
         /// This should be CSJ
