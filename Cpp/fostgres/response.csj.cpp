@@ -86,10 +86,10 @@ namespace {
                         case csj_mime::output::csv:
                             if ( record[index].isnull() ) {
                                 // Do nothing -- null is an empty entry
-                            } else if ( not record[index].get<fostlib::string>() ) {
+                            } else if ( not fostlib::coerce<fostlib::nullable<f5::u8view>>(record[index]) ) {
                                 csv_string(current, fostlib::json::unparse(record[index], false));
                             } else {
-                                csv_string(current, fostlib::coerce<fostlib::string>(record[index]));
+                                csv_string(current, fostlib::coerce<f5::u8view>(record[index]));
                             }
                             break;
                         }

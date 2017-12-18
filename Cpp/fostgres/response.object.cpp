@@ -72,7 +72,7 @@ namespace {
     fostlib::json calc_values(const fostlib::json &body, const fostlib::json config) {
         fostlib::json values;
         for ( auto value : config ) {
-            auto vname = value.get<fostlib::string>().value();
+            auto vname = fostlib::coerce<f5::u8view>(value);
             if ( body.has_key(vname) ) {
                 fostlib::insert(values, vname, body[vname]);
             }

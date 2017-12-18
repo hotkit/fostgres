@@ -42,7 +42,7 @@ fostlib::nullable<fostlib::json> fostgres::datum(
                 return fostlib::json(arguments[n.value() -1]);
             }
         } else {
-            auto s = jsource.get<fostlib::string>();
+            auto s = fostlib::coerce<fostlib::nullable<f5::u8view>>(jsource);
             if ( s && row.has_key(s.value()) ) {
                 return row[s.value()];
             }
