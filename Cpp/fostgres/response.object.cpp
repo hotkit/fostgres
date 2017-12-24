@@ -25,7 +25,7 @@ namespace {
     ) {
         const bool pretty = fostlib::coerce<fostlib::nullable<bool>>(config["pretty"]).value_or(true);
         auto row = data.second.begin();
-        if ( row == data.second.end() ) {
+        if ( row == data.second.end() ) { // TODO:Use data.second.empty() instead?
             fostlib::json result;
             insert(result, "error", "Not found");
             boost::shared_ptr<fostlib::mime> response(
