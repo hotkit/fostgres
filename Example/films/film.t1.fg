@@ -43,6 +43,12 @@ PUT film.slug /t1/tags (module.path.join tags.csj) 200 {"selected": 8, "records"
 GET film.slug /t1/tags 200 {"columns": ["tag"],
     "rows": [["action"], ["adventure"], ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"]]}
 
+# Check what happens with embedded \t
+PATCH film.slug /t1/tags (module.path.join tags-tab.csj) 200 {"records": 1}
+GET film.slug /t1/tags 200 {"columns": ["tag"],
+    "rows": [["action"], ["action\tadventure"], ["adventure"],
+        ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"]]}
+
 # Mark the film as watched and perform some checks for that. Don't
 # use the HTTP interface yet because we want to be able to check
 # the timestamp comes back correctly.
