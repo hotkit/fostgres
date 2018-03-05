@@ -34,7 +34,7 @@ namespace {
 */
 
 
-fostlib::csj::parser::parser(utf::u8_view str)
+fostlib::csj::parser::parser(f5::u8view str)
 : line_iter(splitter(str, '\n')),
     li_pos(line_iter.begin()),
     li_end(line_iter.end())

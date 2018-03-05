@@ -1,5 +1,5 @@
 /*
-    Copyright 2016 Felspar Co Ltd. http://support.felspar.com/
+    Copyright 2016-2017 Felspar Co Ltd. http://support.felspar.com/
     Distributed under the Boost Software License, Version 1.0.
     See accompanying file LICENSE_1_0.txt or copy at
         http://www.boost.org/LICENSE_1_0.txt
@@ -14,7 +14,7 @@
  */
 
 
-fg::frame::frame(const frame *f)
+fg::frame::frame(frame *f)
 : parent(f) {
 }
 
@@ -33,7 +33,7 @@ fg::json fg::frame::argument(
 }
 
 
-fostlib::string fg::frame::resolve_string(const json &code) const {
+fostlib::string fg::frame::resolve_string(const json &code) {
     if ( code.isatom() ) {
         return fostlib::coerce<fostlib::string>(code);
     } else if ( code.isarray() ) {
@@ -46,12 +46,24 @@ fostlib::string fg::frame::resolve_string(const json &code) const {
 }
 
 
-int64_t fg::frame::resolve_int(const json &code) const {
+int64_t fg::frame::resolve_int(const json &code) {
     if ( code.isatom() ) {
         return fostlib::coerce<int64_t>(code);
     } else {
         throw fostlib::exceptions::not_implemented(__func__,
             "Can't resolve to an int", code);
+    }
+}
+
+
+fg::json fg::frame::resolve(const json &code) {
+    /// S-expressions are always a JSON array. Everything else is a literal
+    /// and doesn't need to be resolved.
+    if ( code.isarray() ) {
+        frame stack(this);
+        return call(stack, code);
+    } else {
+        return code;
     }
 }
 

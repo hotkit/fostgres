@@ -1,3 +1,6 @@
+2017-12-13  Kirit Saelensminde  <kirit@felspar.com>
+ Fix the fg parser to allow whitspace and comments in more places.
+
 2017-10-08  Kirit Saelensminde  <kirit@felspar.com>
  * Add scripting call `setting` for manipulating settings.
  * Add parser support for all JSON atom values.

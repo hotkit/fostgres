@@ -1,5 +1,5 @@
 /*
-    Copyright 2016, Felspar Co Ltd. http://support.felspar.com/
+    Copyright 2016-2017, Felspar Co Ltd. http://support.felspar.com/
     Distributed under the Boost Software License, Version 1.0.
     See accompanying file LICENSE_1_0.txt or copy at
         http://www.boost.org/LICENSE_1_0.txt
@@ -86,10 +86,10 @@ namespace {
                         case csj_mime::output::csv:
                             if ( record[index].isnull() ) {
                                 // Do nothing -- null is an empty entry
-                            } else if ( not record[index].get<fostlib::string>() ) {
+                            } else if ( not fostlib::coerce<fostlib::nullable<f5::u8view>>(record[index]) ) {
                                 csv_string(current, fostlib::json::unparse(record[index], false));
                             } else {
-                                csv_string(current, fostlib::coerce<fostlib::string>(record[index]));
+                                csv_string(current, fostlib::coerce<f5::u8view>(record[index]));
                             }
                             break;
                         }
@@ -188,7 +188,7 @@ namespace {
         fostgres::updater handler(m.configuration["PATCH"], cnx, m, req);
 
         // Interpret body as UTF8 and split into lines. Ensure it's not empty
-        fostlib::csj::parser data(fostlib::utf::u8_view(req.data()->data()));
+        fostlib::csj::parser data(f5::u8view(req.data()->data()));
         logger("header", data.header());
 
         // Parse each line and send it to the database
@@ -242,7 +242,7 @@ namespace {
         // record the keys seen
         {
             // Interpret body as UTF8 and split into lines. Ensure it's not empty
-            fostlib::csj::parser data(fostlib::utf::u8_view(req.data()->data()));
+            fostlib::csj::parser data(f5::u8view(req.data()->data()));
             logger("header", data.header());
             std::size_t records{0};
             std::vector<fostlib::json> key_match;
