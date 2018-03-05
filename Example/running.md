@@ -5,7 +5,7 @@ The simplest way to run Fostgres is through [Docker](https://www.docker.com/), a
 There is a docker image available, `kayess/fostgres` which can be run. You will need to make Postgres available to it.
 
 
-## Testing the image
+## The `docker run` command
 
 Assuming you're running Postgres on your host machine and it has a unix domain socket available in `/var/run/postgres` (the default on Ubuntu) you can run the image using:
 
@@ -28,4 +28,36 @@ This breaks down as:
 * `-ePGUSER=$USER` Use the current username as the Postgresql role name when connecting.
 * `kayess/fostgres` The container name
 * `fostgres-test todo schema1.sql tests1.fg` The command to run in the container.
+
+
+# Testing the image
+
+Make sure we have the latest version of the image:
+
+    sudo docker pull kayess/fostgres
+
+Clone the Fostgres project files:
+
+    git clone git@github.com:KayEss/fostgres.git
+
+There are a number of examples that can be used, this is one of the tests:
+
+    cd fostgres/Examples/films
+
+And finally run the image:
+
+    sudo docker run -it \
+        -v/var/run/postgresql:/var/run/postgresql \
+        -v$(pwd):/src \
+        -u$(id -u):$(id -g) \
+        -w/src \
+        -ePGUSER=$USER \
+        kayess/fostgres:latest \
+        fostgres-test fostgres-test-films \
+            libfostgres.so films.fg films.tables.sql view.film-slug.json
+
+
+## Troubleshooting
+
+**TBD**
 
