@@ -56,6 +56,16 @@ And finally run the image:
         fostgres-test fostgres-test-films \
             libfostgres.so films.fg films.tables.sql view.film-slug.json
 
+It's probably most convenient to set up an alias for this:
+
+    alias fostgres-test="sudo docker run -it
+        -v/var/run/postgresql:/var/run/postgresql
+        -v$(pwd):/src
+        -u$(id -u):$(id -g)
+        -w/src
+        -ePGUSER=$USER
+        kayess/fostgres:latest
+        fostgres-test"
 
 ## Troubleshooting
 
