@@ -1,4 +1,4 @@
-# fostgres
+# Fostgres
 
 *RESTful APIs for Postgres databases*
 
