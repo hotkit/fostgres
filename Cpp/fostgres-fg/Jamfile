@@ -3,6 +3,8 @@ fost-lib-autotest fostgres-fg
     : Cpp/fostgres-fg
     :
         ../../../fost-base/Cpp/fost-test
+        ../../../fost-internet/Cpp/fost-inet
+        ../../../fost-postgres/Cpp/fost-postgres
         ../../../fost-web/Cpp/fost-urlhandler
         ../fost-csj
         ../fostgres-core
