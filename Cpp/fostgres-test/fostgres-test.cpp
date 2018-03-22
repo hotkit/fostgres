@@ -97,7 +97,7 @@ FSL_MAIN(
             } else if ( extension == ".json" ) {
                 o << "Loading configuration " << filename << std::endl;
                 loaded_settings.emplace_back(filename);
-            } else if ( extension == ".so" ) {
+            } else if ( extension == ".so" || extension == ".dylib" ) {
                 o << "Loading library " << filename << std::endl;
                 dynlibs.emplace_back(std::make_unique<fostlib::dynlib>(args[argn].value()));
             } else if ( extension == ".sql" ) {
