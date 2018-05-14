@@ -50,6 +50,7 @@ And we can look into the database after the tests have run and see our data in t
     Create tutorial | First step
     (1 row)
 
+
 ## First API
 
 Let's see if we can retrieve the todo list. Change the test script:

@@ -4,11 +4,11 @@
 
 Postgres is an incredibly powerful database system. It seems a shame to hide it behind a cripplingly bad O/RM just because you want to use it for your web APIs.
 
-Fostgres is a very small wrapper around the SQL interfaces already present in Postgres. Its intention is to enable as much of Postgres' power as possible to be delivered over an HTTP interface. To actually make you want to use it though it also needs to make those APIs great to consume.
+Fostgres is a very small wrapper around the SQL interfaces already present in Postgres. Its intention is to enable as much of Postgres' power as possible to be delivered over an HTTP interface. For you to want to use it it's important that those APIs are great to consume.
 
 Think of Fostgres as post-framework infrastructure.
 
-Yes, [the Fostgres name is stupid](http://tvtropes.org/pmwiki/pmwiki.php/Main/LampshadeHanging). Once somebody suggests a better one it'll get changed.
+Yes, [the Fostgres name is stupid](http://tvtropes.org/pmwiki/pmwiki.php/Main/LampshadeHanging). if somebody can suggest a better one it'll get changed.
 
 
 # Central concepts
@@ -87,7 +87,7 @@ And we can make sure we get a 404 from an unknown tag
 
     GET film.slug /film/not-a-film 404
 
-The script can be run using `fostgres-test`:
+The script can be [run using `fostgres-test`](./Running.md):
 
     fostgres-test test-dbname Example/schema/films.tables.sql \
         Example/config/view.film-slug.json Example/tests/film.t1.fg
@@ -96,12 +96,14 @@ The first argument is the name of the test database to use. This will be destroy
 
 This should be enough that the [real test script](./Example/tests/film.t1.fg) makes some sort of sense.
 
+To try Fostgres, there is a [docker image available](./Running.md) or you can [build it from source](./Building.md).
+
 
 # Views and configuration
 
 Most of Fostgres is implemented through a single view, `fostgres.sql` which is suitable for general interaction with the database.
 
+
 ## Configuration for running the `test`s target
 
 You will need Postgres 9.5 or later installed. The database needs to be asccesible to your user account with super user permissions. Running `psql` on its own (with no command line options) will allow you to run commands like `CREATE DATABASE`.
-
