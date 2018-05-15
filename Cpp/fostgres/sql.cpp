@@ -28,7 +28,7 @@ fostgres::register_cnx_callback::register_cnx_callback(cnx_callback_fn cb) {
 }
 
 
-fostlib::pg::connection fostgres::connection(
+fostlib::json fostgres::connection_config(
     fostlib::json config, const fostlib::http::server::request &req
 ) {
     /// If the configuration is empty or a JSON atom then it's not useful
@@ -95,10 +95,16 @@ fostlib::pg::connection fostgres::connection(
     static const fostlib::jcursor userfallback("request", "headers", "__pgdsn", "user");
     do_lookup(userloc, userfallback);
 
-    static const fostlib::jcursor ziloc("headers", "__pgzoneinfo");
-    auto zoneinfo = req[ziloc];
-    auto cnx = fostgres::connection(config,
-        fostlib::coerce<fostlib::nullable<fostlib::string>>(zoneinfo));
+    return config;
+}
+
+
+fostlib::pg::connection fostgres::connection(
+    fostlib::json config,
+    const fostlib::nullable<fostlib::string> &zi,
+    const fostlib::http::server::request &req
+) {
+    auto cnx = fostgres::connection(config, zi);
 
     std::unique_lock<std::mutex> lock{g_cb_mut};
     for ( const auto &cb : g_callbacks )
@@ -107,6 +113,19 @@ fostlib::pg::connection fostgres::connection(
     cnx.set_session("fostgres.source_addr", req.remote_address().name());
 
     return cnx;
+}
+
+
+fostlib::pg::connection fostgres::connection(
+    fostlib::json config, const fostlib::http::server::request &req
+) {
+    config = connection_config(config, req);
+
+    static const fostlib::jcursor ziloc("headers", "__pgzoneinfo");
+    auto zoneinfo = req[ziloc];
+
+    return connection(config,
+        fostlib::coerce<fostlib::nullable<fostlib::string>>(zoneinfo), req);
 }
 
 
