@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2017, Felspar Co Ltd. http://support.felspar.com/
+    Copyright 2016-2018, Felspar Co Ltd. http://support.felspar.com/
     Distributed under the Boost Software License, Version 1.0.
     See accompanying file LICENSE_1_0.txt or copy at
         http://www.boost.org/LICENSE_1_0.txt
@@ -15,6 +15,7 @@
 #include <fostgres/sql.hpp>
 
 #include <mutex>
+
 
 namespace {
     std::mutex g_cb_mut;
@@ -50,6 +51,26 @@ fostlib::pg::connection fostgres::connection(
                                 loc.insert(config, lookedup.value());
                             }
                         }
+                    } else if ( lookup.size() && lookup[0] == "env" ) {
+                        if ( lookup.size() != 2 ) {
+                            fostlib::log::warning(fostgres::c_fostgres)
+                                ("", "Environment lookup needs to have exactly one "
+                                    "item that is looked up")
+                                ("lookup", lookup);
+                        } else {
+                            const auto envname =
+                                fostlib::coerce<fostlib::nullable<fostlib::string>>(
+                                    lookup[1]);
+                            const char *env = std::getenv(envname.value().c_str());
+                            if ( env == nullptr ) loc.del_key(config);
+                            else {
+                                if ( config.has_key(loc) ) {
+                                    loc.replace(config, env);
+                                } else {
+                                    loc.insert(config, env);
+                                }
+                            }
+                        }
                     } else {
                         throw fostlib::exceptions::not_implemented(__func__,
                             "Can't look up this position for the connection detail",
@@ -80,7 +101,7 @@ fostlib::pg::connection fostgres::connection(
         fostlib::coerce<fostlib::nullable<fostlib::string>>(zoneinfo));
 
     std::unique_lock<std::mutex> lock{g_cb_mut};
-    for ( auto &cb : g_callbacks )
+    for ( const auto &cb : g_callbacks )
         cb(cnx, req);
 
     cnx.set_session("fostgres.source_addr", req.remote_address().name());
