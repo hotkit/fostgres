@@ -56,7 +56,10 @@ fostlib::json fostgres::connection_config(
                             fostlib::log::warning(fostgres::c_fostgres)
                                 ("", "Environment lookup needs to have exactly one "
                                     "item that is looked up")
+                                ("config", "item", loc)
+                                ("config", "current", config)
                                 ("lookup", lookup);
+                            loc.del_key(config);
                         } else {
                             const auto envname =
                                 fostlib::coerce<fostlib::nullable<fostlib::string>>(
@@ -72,9 +75,14 @@ fostlib::json fostgres::connection_config(
                             }
                         }
                     } else {
-                        throw fostlib::exceptions::not_implemented(__func__,
-                            "Can't look up this position for the connection detail",
-                            lookup);
+                        fostlib::log::warning(fostgres::c_fostgres)
+                            ("", "Can't look up this position for the connection detail")
+                            ("allowed", 0, "request")
+                            ("allowed", 1, "env")
+                            ("config", "item", loc)
+                            ("config", "current", config)
+                            ("lookup", lookup);
+                        loc.del_key(config);
                     }
                 };
             auto cfgvalue = config[loc];
