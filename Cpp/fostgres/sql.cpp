@@ -1,8 +1,8 @@
-/*
-    Copyright 2016-2018, Felspar Co Ltd. http://support.felspar.com/
+/**
+    Copyright 2016-2018, Felspar Co Ltd. <http://support.felspar.com/>
+
     Distributed under the Boost Software License, Version 1.0.
-    See accompanying file LICENSE_1_0.txt or copy at
-        http://www.boost.org/LICENSE_1_0.txt
+    See <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 
@@ -99,6 +99,9 @@ fostlib::json fostgres::connection_config(
     static const fostlib::jcursor hostloc("host");
     static const fostlib::jcursor hostfallback("request", "headers", "__pgdsn", "host");
     do_lookup(hostloc, hostfallback);
+    static const fostlib::jcursor passwordloc("password");
+    static const fostlib::jcursor passwordfallback("request", "headers", "__pgdsn", "password");
+    do_lookup(passwordloc, passwordfallback);
     static const fostlib::jcursor userloc("user");
     static const fostlib::jcursor userfallback("request", "headers", "__pgdsn", "user");
     do_lookup(userloc, userfallback);

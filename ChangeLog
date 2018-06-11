@@ -1,3 +1,6 @@
+2018-06-11  Kirit Saelensminde  <kirit@felspar.com>
+ Add support for `password` configuration on the connection strings.
+
 2018-05-15  Kirit Saelensminde  <kirit@felspar.com>
  Allow database connection string settings to come from the environment.
 
