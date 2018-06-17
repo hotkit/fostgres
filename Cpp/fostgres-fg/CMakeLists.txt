@@ -11,6 +11,6 @@ add_library(fostgres-fg
         fg.testserver.cpp
         mime.cpp
     )
-target_link_libraries(fostgres-fg fostgres)
+target_link_libraries(fostgres-fg fost-test fostgres)
 install(TARGETS fostgres-fg LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 
