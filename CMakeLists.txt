@@ -1,5 +1,2 @@
-add_subdirectory(Cpp/fost-csj)
-add_subdirectory(Cpp/fostgres)
-add_subdirectory(Cpp/fostgres-core)
-add_subdirectory(Cpp/fostgres-fg)
-add_subdirectory(Cpp/fostgres-test)
+add_subdirectory(Cpp)
+
