@@ -1,7 +1,0 @@
-
-fost-lib-autotest fostgres-core
-    : Cpp/fostgres-core
-    :
-        ../../../fost-postgres/Cpp/fost-postgres
-        ../../../fost-postgres/Cpp/fost-pqxx
-    ;
