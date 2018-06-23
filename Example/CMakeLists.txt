@@ -26,7 +26,7 @@ add_custom_command(OUTPUT test-empty
 add_custom_command(OUTPUT test-film-t1
         COMMAND fostgres-test fostgres-test-film-t1 -o test-film-t1
             ${CMAKE_CURRENT_SOURCE_DIR}/../Configuration/log-show-all.json
-            $<TARGET_FILE_NAME:fostgres>
+            $<TARGET_SONAME_FILE:fostgres>
             ${CMAKE_CURRENT_SOURCE_DIR}/films/films.tables.sql
             ${CMAKE_CURRENT_SOURCE_DIR}/films/view.film-slug.json
             ${CMAKE_CURRENT_SOURCE_DIR}/films/film.t1.fg
@@ -41,7 +41,7 @@ add_custom_command(OUTPUT test-film-t1
 add_custom_command(OUTPUT test-films
         COMMAND fostgres-test fostgres-test-films -o test-films
             ${CMAKE_CURRENT_SOURCE_DIR}/../Configuration/log-show-all.json
-            $<TARGET_FILE_NAME:fostgres>
+            $<TARGET_SONAME_FILE:fostgres>
             ${CMAKE_CURRENT_SOURCE_DIR}/films/films.tables.sql
             ${CMAKE_CURRENT_SOURCE_DIR}/films/view.film-slug.json
             ${CMAKE_CURRENT_SOURCE_DIR}/films/films.fg
@@ -56,7 +56,7 @@ add_custom_command(OUTPUT test-films
 add_custom_command(OUTPUT test-users
         COMMAND fostgres-test fostgres-test-users -o test-users
             ${CMAKE_CURRENT_SOURCE_DIR}/../Configuration/log-show-all.json
-            $<TARGET_FILE_NAME:fostgres>
+            $<TARGET_SONAME_FILE:fostgres>
             ${CMAKE_CURRENT_SOURCE_DIR}/users/users.tables.sql
             ${CMAKE_CURRENT_SOURCE_DIR}/users/view.users.json
             ${CMAKE_CURRENT_SOURCE_DIR}/users/user.add.fg
@@ -71,7 +71,7 @@ add_custom_command(OUTPUT test-users
 add_custom_command(OUTPUT test-user-avatar
         COMMAND fostgres-test fostgres-test-user-avatar -o test-user-avatar
             ${CMAKE_CURRENT_SOURCE_DIR}/../Configuration/log-show-all.json
-            $<TARGET_FILE_NAME:fostgres>
+            $<TARGET_SONAME_FILE:fostgres>
             ${CMAKE_CURRENT_SOURCE_DIR}/users/users.tables.sql
             ${CMAKE_CURRENT_SOURCE_DIR}/users/view.users.json
             ${CMAKE_CURRENT_SOURCE_DIR}/users/user.avatar.fg
