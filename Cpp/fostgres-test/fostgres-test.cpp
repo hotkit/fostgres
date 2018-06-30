@@ -1,8 +1,8 @@
-/*
-    Copyright 2016-2017, Felspar Co Ltd. http://support.felspar.com/
+/**
+    Copyright 2016-2018, Felspar Co Ltd. <http://support.felspar.com/>
+
     Distributed under the Boost Software License, Version 1.0.
-    See accompanying file LICENSE_1_0.txt or copy at
-        http://www.boost.org/LICENSE_1_0.txt
+    See <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 
@@ -26,6 +26,11 @@ namespace {
         "fostgres-test", "MIME types", "Configuration/mime-types.json");
     const setting<json> c_load("fostgres-test.cpp",
         "fostgres-test", "Load", json::array_t());
+
+    /// If we need to output a file when the script runs successfully then
+    /// the filename can be specified here.
+    const setting<nullable<string>> c_output("fostgres-test.cpp",
+        "fostgres-test", "Output", null, true);
 
     const fostlib::setting<fostlib::nullable<fostlib::string>> c_db_host(__FILE__,
         "fostgres-test", "DB Host", fostlib::null, true);
@@ -51,11 +56,22 @@ FSL_MAIN(
         o << "\nRun with:\n\n    fostgres-test dbname ...\n\n"
             << "      -h     Postgres hostname or path\n"
             << "      -U     Postgres username\n"
+            << "      -o     Output filename to write on success\n"
             << std::endl;
         return 2;
     }
     args.commandSwitch("h", c_db_host);
     args.commandSwitch("U", c_db_user);
+    args.commandSwitch("o", c_output);
+
+    const auto success = [&o](const char *msg) {
+        o << msg << std::endl;
+        if ( c_output.value() ) {
+            utf::save_file(coerce<filesystem::path>(c_output.value().value()), "");
+        }
+        return 0;
+    };
+
 
     /// State used by the testing process as it runs
     std::vector<settings> loaded_settings;
@@ -111,7 +127,6 @@ FSL_MAIN(
             }
         }
 
-
         // Set up the logging options
         std::unique_ptr<fostlib::log::global_sink_configuration> loggers;
         if ( not c_logger.value().isnull() && c_logger.value().has_key("sinks") ) {
@@ -126,11 +141,9 @@ FSL_MAIN(
         script(stack);
 
         /// When done and everything was OK, return OK
-        o << "Test script passed" << std::endl;
-        return 0;
+        return success("Test script passed");
     } catch ( fg::program::empty_script & ) {
-        o << "No commands were found in the script" << std::endl;
-        return 0;
+        return success("No commands were found in the script");
     } catch ( fg::program::nothing_loaded & ) {
         o << "No script was specified on the command line" << std::endl;
         return 4;

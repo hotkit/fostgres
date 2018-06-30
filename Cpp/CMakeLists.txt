@@ -1,0 +1,5 @@
+add_subdirectory(fost-csj)
+add_subdirectory(fostgres)
+add_subdirectory(fostgres-core)
+add_subdirectory(fostgres-fg)
+add_subdirectory(fostgres-test)
