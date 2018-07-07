@@ -12,5 +12,6 @@ add_library(fostgres-fg
         mime.cpp
     )
 target_link_libraries(fostgres-fg fost-test fostgres)
+set_target_properties(fostgres-fg PROPERTIES DEBUG_POSTFIX "-d")
 install(TARGETS fostgres-fg LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 

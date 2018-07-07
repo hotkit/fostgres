@@ -12,6 +12,7 @@ add_library(fostgres
         updater.cpp
     )
 target_link_libraries(fostgres fostgres-core fost-csj)
+set_target_properties(fostgres PROPERTIES DEBUG_POSTFIX "-d")
 install(TARGETS fostgres LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 
 add_library(fostgres-smoke STATIC EXCLUDE_FROM_ALL
