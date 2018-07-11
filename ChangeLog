@@ -1,3 +1,6 @@
+2018-07-11  Tle Ekkul  <e.aryuth@gmail.com>
+ Add fg quote function
+
 2018-06-11  Kirit Saelensminde  <kirit@felspar.com>
  Add support for `password` configuration on the connection strings.
 
