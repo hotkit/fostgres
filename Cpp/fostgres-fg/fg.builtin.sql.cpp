@@ -1,8 +1,8 @@
-/*
-    Copyright 2016 Felspar Co Ltd. http://support.felspar.com/
+/**
+    Copyright 2016-2018 Felspar Co Ltd. <https://support.felspar.com/>
+
     Distributed under the Boost Software License, Version 1.0.
-    See accompanying file LICENSE_1_0.txt or copy at
-        http://www.boost.org/LICENSE_1_0.txt
+    See <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 
@@ -27,7 +27,7 @@ fg::frame::builtin fg::lib::sql_file =
 
 fg::frame::builtin fg::lib::sql_insert =
     [](fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end) {
-        auto relation = stack.resolve_string(stack.argument("filename", pos, end));
+        auto relation = stack.resolve_string(stack.argument("relation", pos, end));
         auto data = stack.argument("data", pos, end);
         fostlib::pg::connection cnx(fostgres::connection(stack.lookup("pg.dsn"),
             fostlib::coerce<fostlib::nullable<fostlib::string>>(stack.lookup("pg.zoneinfo"))));
