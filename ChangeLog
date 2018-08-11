@@ -1,5 +1,6 @@
 2018-08-11  Kirit Saelensminde  <kirit@felspar.com>
- Fix a bug in the HTTP request checking where expressions would be resolved twice.
+ * Fix the order of the expected & actual results for object request.
+ * Fix a bug in the HTTP request checking where expressions would be resolved twice.
 
 2018-07-11  Tle Ekkul  <e.aryuth@gmail.com>
  Add fg quote function
