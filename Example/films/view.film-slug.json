@@ -11,6 +11,15 @@
                         "GET": "SELECT * FROM films_view WHERE slug=$1",
                         "PUT": {
                             "table": "films",
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "slug": {"type": "string"},
+                                    "title": {"type": "string"},
+                                    "released": {"type": "string"},
+                                    "length_minutes": {"type": "integer"}
+                                }
+                            },
                             "columns": {
                                 "slug": {
                                     "key":  true,
@@ -23,6 +32,15 @@
                         },
                         "PATCH": {
                             "table": "films",
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "slug": {"type": "string"},
+                                    "title": {"type": "string"},
+                                    "released": {"type": "string"},
+                                    "length_minutes": {"type": "integer"}
+                                }
+                            },
                             "columns": {
                                 "slug": {
                                     "key":  true,

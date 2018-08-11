@@ -1,4 +1,5 @@
 2018-08-11  Kirit Saelensminde  <kirit@felspar.com>
+ * Add JSON schema validation for object `PUT` and `PATCH`.
  * Fix the order of the expected & actual results for object request.
  * Fix a bug in the HTTP request checking where expressions would be resolved twice.
 
