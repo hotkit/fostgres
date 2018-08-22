@@ -1,3 +1,11 @@
+2018-08-11  Kirit Saelensminde  <kirit@felspar.com>
+ * Add JSON schema validation for object `PUT` and `PATCH`.
+ * Fix the order of the expected & actual results for object request.
+ * Fix a bug in the HTTP request checking where expressions would be resolved twice.
+
+2018-07-11  Tle Ekkul  <e.aryuth@gmail.com>
+ Add fg quote function
+
 2018-06-11  Kirit Saelensminde  <kirit@felspar.com>
  Add support for `password` configuration on the connection strings.
 

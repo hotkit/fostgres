@@ -9,6 +9,15 @@ GET film.slug /t1 200 {
             "robots"
         ]}
 
+# Invalid JSON being pushed leads to a schema validation error
+PUT film.slug /t1 [] 422 {"schema": {"type" : "object"},
+    "error": {"assertion": "type", "in-schema": [], "in-data": []}}
+PATCH film.slug /t1 {"title": 12} 422 {"schema": {"properties": {"title": {"type": "string"}}},
+    "error": {"assertion": "type",
+        "in-schema": ["properties", "title"],
+        "in-data": ["title"]}}
+
+# Set a tag on the film
 PUT film.slug /t1/tag/action%20adventure {} 200 {"tag": "action adventure"}
 
 # PATCH in more tags

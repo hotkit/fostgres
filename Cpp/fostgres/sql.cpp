@@ -19,12 +19,22 @@
 
 namespace {
     std::mutex g_cb_mut;
-    std::vector<fostgres::cnx_callback_fn> g_callbacks;
+    auto &g_callbacks() {
+        static std::set<fostgres::register_cnx_callback *> cbs;
+        return cbs;
+    }
 }
 
-fostgres::register_cnx_callback::register_cnx_callback(cnx_callback_fn cb) {
+fostgres::register_cnx_callback::register_cnx_callback(cnx_callback_fn cb)
+: cb(std::move(cb)) {
     std::unique_lock<std::mutex> lock{g_cb_mut};
-    g_callbacks.push_back(std::move(cb));
+    g_callbacks().insert(this);
+}
+fostgres::register_cnx_callback::~register_cnx_callback() {
+    std::unique_lock<std::mutex> lock{g_cb_mut};
+    const auto pos = g_callbacks().find(this);
+    if ( pos != g_callbacks().end() )
+        g_callbacks().erase(pos);
 }
 
 
@@ -118,8 +128,8 @@ fostlib::pg::connection fostgres::connection(
     auto cnx = fostgres::connection(config, zi);
 
     std::unique_lock<std::mutex> lock{g_cb_mut};
-    for ( const auto &cb : g_callbacks )
-        cb(cnx, req);
+    for ( const auto * const cb : g_callbacks() )
+        (*cb)(cnx, req);
 
     cnx.set_session("fostgres.source_addr", req.remote_address().name());
 

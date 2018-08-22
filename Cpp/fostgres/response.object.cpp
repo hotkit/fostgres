@@ -1,8 +1,8 @@
-/*
-    Copyright 2016-2017, Felspar Co Ltd. http://support.felspar.com/
+/**
+    Copyright 2016-2018, Felspar Co Ltd. <https://support.felspar.com/>
+
     Distributed under the Boost Software License, Version 1.0.
-    See accompanying file LICENSE_1_0.txt or copy at
-        http://www.boost.org/LICENSE_1_0.txt
+    See <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 
@@ -10,11 +10,37 @@
 
 #include <fostgres/fostgres.hpp>
 
+#include <f5/json/schema.hpp>
 #include <fost/insert>
 #include <fost/log>
 
 
 namespace {
+
+    std::pair<boost::shared_ptr<fostlib::mime>, int>  schema_check(
+        fostlib::pg::connection &cnx,
+        const fostlib::json &config, const fostgres::match &m,
+        fostlib::http::server::request &req,
+        const fostlib::json &method_config, const fostlib::json &body
+    ) {
+        if ( method_config.has_key("schema") ) {
+            f5::json::schema s{method_config["schema"]};
+            if ( const auto valid = s.validate(body); not valid ) {
+                const bool pretty = fostlib::coerce<fostlib::nullable<bool>>(
+                    config["pretty"]).value_or(true);
+                fostlib::json result;
+                fostlib::insert(result, "schema", method_config["schema"]);
+                fostlib::insert(result, "error", "assertion", valid.outcome.value().assertion);
+                fostlib::insert(result, "error", "in-schema", valid.outcome.value().spos);
+                fostlib::insert(result, "error", "in-data", valid.outcome.value().dpos);
+                boost::shared_ptr<fostlib::mime> response(
+                        new fostlib::text_body(fostlib::json::unparse(result, pretty),
+                            fostlib::mime::mime_headers(), L"application/json"));
+                return std::make_pair(response, 422);
+            }
+        }
+        return std::make_pair(nullptr, 0);
+    }
 
 
     std::pair<boost::shared_ptr<fostlib::mime>, int>  get(
@@ -87,6 +113,8 @@ namespace {
         fostlib::http::server::request &req,
         const fostlib::json &put_config, const fostlib::json &body
     ) {
+        auto error = schema_check(cnx, config, m, req, put_config, body);
+        if ( error.first || error.second ) return error;
         if ( put_config.has_key("columns") ) {
             fostgres::updater ins(put_config, cnx, m, req);
             if ( ins.returning().size() ) {
@@ -169,6 +197,9 @@ namespace {
             fostlib::json::parse(
                 fostlib::coerce<fostlib::string>(
                     fostlib::coerce<fostlib::utf8_string>(req.data()->data())))};
+        auto error = schema_check(cnx, config, m, req, m.configuration["PATCH"], body);
+        if ( error.first || error.second ) return error;
+
         fostlib::string relation = fostlib::coerce<fostlib::string>(m.configuration["PATCH"]["table"]);
         if ( m.configuration["PATCH"].has_key("columns") ) {
             fostgres::updater(m.configuration["PATCH"], cnx, m, req).update(body);

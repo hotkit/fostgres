@@ -1,8 +1,8 @@
-/*
-    Copyright 2016-2017 Felspar Co Ltd. http://support.felspar.com/
+/**
+    Copyright 2016-2018 Felspar Co Ltd. <https://support.felspar.com/>
+
     Distributed under the Boost Software License, Version 1.0.
-    See accompanying file LICENSE_1_0.txt or copy at
-        http://www.boost.org/LICENSE_1_0.txt
+    See <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 
@@ -52,13 +52,13 @@ namespace {
     ) {
         auto viewname = stack.resolve_string(stack.argument("view", pos, end));
         auto path = stack.resolve_string(stack.argument("path", pos, end));
-        auto body = stack.argument("body", pos, end);
+        auto body = fg::mime_from_argument(stack, stack.argument("body", pos, end));
         auto status = stack.resolve_int(stack.argument("status", pos, end));
         fg::testserver server(stack, viewname);
-        auto actual = (server.*op)(stack, path, body, status);
+        auto actual = (server.*op)(stack, path, std::move(body), status);
         if ( actual.second != status ) {
             throw fostlib::exceptions::not_implemented(__func__,
-                "Actual resopnse status isn't what was epected", actual.second);
+                "Actual response status isn't what was expected", actual.second);
         }
         if ( pos != end ) {
             auto response = fg::mime_from_argument(stack, stack.argument("response", pos, end));

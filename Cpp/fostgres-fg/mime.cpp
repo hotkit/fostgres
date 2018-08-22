@@ -1,8 +1,8 @@
-/*
-    Copyright 2016-2017 Felspar Co Ltd. http://support.felspar.com/
+/**
+    Copyright 2016-2018 Felspar Co Ltd. <https://support.felspar.com/>
+
     Distributed under the Boost Software License, Version 1.0.
-    See accompanying file LICENSE_1_0.txt or copy at
-        http://www.boost.org/LICENSE_1_0.txt
+    See <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 
@@ -35,20 +35,34 @@ namespace {
 std::unique_ptr<fostlib::binary_body> fg::mime_from_argument(
     frame &stack, const json &data
 ) {
-    std::unique_ptr<fostlib::binary_body> body;
-    if ( data.isatom() || data.isarray() ) {
-        auto filename = fostlib::coerce<boost::filesystem::path>(stack.resolve_string(data));
-        auto filedata = fostlib::utf::load_file(filename);
-        body.reset(new fostlib::binary_body(
-            filedata.std_str().c_str(), filedata.std_str().c_str() + filedata.std_str().length()));
-        body->headers().set("Content-Type", fostlib::urlhandler::mime_type(filename));
-    } else {
-        auto bodydata = fostlib::json::unparse(data, false);
-        body.reset(new fostlib::binary_body(
-            bodydata.std_str().c_str(), bodydata.std_str().c_str() + bodydata.std_str().length()));
-        body->headers().set("Content-Type", "application/json");
+    fostlib::json expr;
+    try {
+        std::unique_ptr<fostlib::binary_body> body;
+        expr = stack.resolve(data);
+        if ( expr.isatom() ) {
+            /// **TODO** This is a horrific nasty design. We should be sending
+            /// the data resolved at this point as is, rather than guessing that
+            /// might be meant to represent a filename. The expression should
+            /// have already loaded the file data by now. Of course if we had
+            /// anything but the JSON types to deal with this would be far far
+            /// simpler.
+            auto filename = fostlib::coerce<boost::filesystem::path>(expr);
+            auto filedata = fostlib::utf::load_file(filename);
+            body.reset(new fostlib::binary_body(
+                filedata.std_str().c_str(), filedata.std_str().c_str() + filedata.std_str().length()));
+            body->headers().set("Content-Type", fostlib::urlhandler::mime_type(filename));
+        } else {
+            auto bodydata = fostlib::json::unparse(data, false);
+            body.reset(new fostlib::binary_body(
+                bodydata.std_str().c_str(), bodydata.std_str().c_str() + bodydata.std_str().length()));
+            body->headers().set("Content-Type", "application/json");
+        }
+        return body;
+    } catch ( fostlib::exceptions::exception &e ) {
+        fostlib::insert(e.data(), "mime_from_argument", "data", data);
+        fostlib::insert(e.data(), "mime_from_argument", "expression", expr);
+        throw;
     }
-    return body;
 }
 
 
@@ -64,7 +78,7 @@ void fg::assert_comparable(const fostlib::mime &actual, const fostlib::mime &exp
         auto expected_body = mime_to_json(expected);
         auto contains = fg::contains(actual_body, expected_body);
         if ( contains ) {
-            throw_contains_error(expected_body, actual_body, contains.value());
+            throw_contains_error(actual_body, expected_body, contains.value());
         }
     } else if ( actual.headers()["Content-Type"].value() == "text/plain" ) {
         /// This should be CSJ

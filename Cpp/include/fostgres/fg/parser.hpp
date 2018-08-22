@@ -20,7 +20,7 @@ namespace fg {
         boost::spirit::qi::rule<Iterator, std::vector<fostlib::json>()> top, inner_sexpr;
         boost::spirit::qi::rule<Iterator, void()> space, newline, comment, linebreak;
         boost::spirit::qi::rule<Iterator, std::string()> comment_p, identifier_seq;
-        boost::spirit::qi::rule<Iterator, fostlib::json()> identifier, inner_sexpr_json, full_sexpr;
+        boost::spirit::qi::rule<Iterator, fostlib::json()> identifier, inner_sexpr_json, full_sexpr, quoted_json;
         fostlib::json_embedded_parser<Iterator> json_p;
 
         fg_parser()
@@ -40,7 +40,14 @@ namespace fg {
                     v = fostlib::json(s);
                 }, qi::_val, qi::_1)];
 
-            inner_sexpr = (json_p.object | json_p.atom | full_sexpr | identifier) % +space;
+            quoted_json = json_p.array[boost::phoenix::bind([](auto &v, auto &a) {
+                    fostlib::json::array_t arr;
+                    arr.push_back(fostlib::json("quote"));
+                    arr.push_back(a);
+                    v = fostlib::json(std::move(arr));
+                }, qi::_val, qi::_1)];
+
+            inner_sexpr = (json_p.object | quoted_json | json_p.atom | full_sexpr | identifier) % +space;
             inner_sexpr_json = inner_sexpr[boost::phoenix::bind([](auto &v, auto &a) {
                     fostlib::json::array_t arr;
                     for ( auto &&l : a ) {

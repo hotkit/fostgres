@@ -54,6 +54,13 @@ namespace {
     }
 
 
+    fg::json quote(
+        fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end
+    ) {
+        return stack.argument("object", pos, end);
+    }
+
+
     /// Bind a name to a value
     fg::json set(
         fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end
@@ -76,7 +83,7 @@ namespace {
         fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end
     ) {
         auto name = stack.resolve_string(stack.argument("varname", pos, end));
-        auto path = stack.argument("path", pos, end);
+        auto path = stack.resolve(stack.argument("path", pos, end));
         auto value = stack.resolve(stack.argument("value", pos, end));
         stack.symbols[name] =
             fostlib::coerce<fostlib::jcursor>(path).set(stack.symbols[name], value);
@@ -123,6 +130,7 @@ fg::frame fg::builtins() {
     funcs.native["POST"] = lib::post;
     funcs.native["progn"] = ::progn;
     funcs.native["PUT"] = lib::put;
+    funcs.native["quote"] = ::quote;
     funcs.native["set"] = ::set;
     funcs.native["set-path"] = ::set_path;
     funcs.native["setting"] = ::setting;
