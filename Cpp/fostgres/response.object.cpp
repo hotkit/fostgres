@@ -25,14 +25,15 @@ namespace {
     ) {
         if ( method_config.has_key("schema") ) {
             f5::json::schema s{method_config["schema"]};
-            if ( const auto valid = s.validate(body); not valid ) {
+            if ( auto valid = s.validate(body); not valid ) {
                 const bool pretty = fostlib::coerce<fostlib::nullable<bool>>(
                     config["pretty"]).value_or(true);
                 fostlib::json result;
                 fostlib::insert(result, "schema", method_config["schema"]);
-                fostlib::insert(result, "error", "assertion", valid.outcome.value().assertion);
-                fostlib::insert(result, "error", "in-schema", valid.outcome.value().spos);
-                fostlib::insert(result, "error", "in-data", valid.outcome.value().dpos);
+                auto e{(f5::json::validation::result::error)std::move(valid)};
+                fostlib::insert(result, "error", "assertion", e.assertion);
+                fostlib::insert(result, "error", "in-schema", e.spos);
+                fostlib::insert(result, "error", "in-data", e.dpos);
                 boost::shared_ptr<fostlib::mime> response(
                         new fostlib::text_body(fostlib::json::unparse(result, pretty),
                             fostlib::mime::mime_headers(), L"application/json"));
