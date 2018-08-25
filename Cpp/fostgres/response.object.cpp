@@ -24,7 +24,7 @@ namespace {
         const fostlib::json &method_config, const fostlib::json &body
     ) {
         if ( method_config.has_key("schema") ) {
-            f5::json::schema s{method_config["schema"]};
+            f5::json::schema s{fostlib::url{}, method_config["schema"]};
             if ( auto valid = s.validate(body); not valid ) {
                 const bool pretty = fostlib::coerce<fostlib::nullable<bool>>(
                     config["pretty"]).value_or(true);
