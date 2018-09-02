@@ -1,3 +1,4 @@
-# A sample schema to use
-set schema {}
+# Add some schemas to the system
+PUT schema-validation /empty {} 200 {}
+PUT schema-validation /true (quote true) 200 (quote true)
 
