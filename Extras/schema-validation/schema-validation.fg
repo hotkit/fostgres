@@ -2,3 +2,6 @@
 PUT schema-validation /empty {} 200 {}
 PUT schema-validation /true (quote true) 200 (quote true)
 
+## This is an invalid schema
+PUT schema-validation /invalid {"additionalProperties": 1} 422 {
+    "error": {"in-data": ["additionalProperties"]}}

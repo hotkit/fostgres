@@ -1,4 +1,12 @@
 {
+    "JSON schema validation": {
+        "Schema loaders": [
+            {
+                "loader": "http",
+                "prefix": "http://json-schema.org/"
+            }
+        ]
+    },
     "webserver": {
         "views/schema-validation": {
             "view": "fostgres.sql",
@@ -10,6 +18,9 @@
                         "GET": "SELECT schema as __ FROM json_schema WHERE slug=$1",
                         "PUT": {
                             "table": "json_schema",
+                            "schema": {
+                                "$ref": "http://json-schema.org/draft-07/schema#"
+                            },
                             "columns": {
                                 "slug": {
                                     "key": true,
