@@ -10,12 +10,13 @@
 
 #include <fostgres/fostgres.hpp>
 
-#include <f5/json/schema.hpp>
+#include <f5/json/schema.cache.hpp>
 #include <fost/insert>
 #include <fost/log>
 
 
 namespace {
+
 
     std::pair<boost::shared_ptr<fostlib::mime>, int>  schema_check(
         fostlib::pg::connection &cnx,
@@ -23,8 +24,8 @@ namespace {
         fostlib::http::server::request &req,
         const fostlib::json &method_config, const fostlib::json &body
     ) {
-        if ( method_config.has_key("schema") ) {
-            f5::json::schema s{fostlib::url{}, method_config["schema"]};
+        const std::pair<boost::shared_ptr<fostlib::mime>, int> ok{nullptr, 0};
+        const auto validate = [&](const f5::json::schema &s) {
             if ( auto valid = s.validate(body); not valid ) {
                 const bool pretty = fostlib::coerce<fostlib::nullable<bool>>(
                     config["pretty"]).value_or(true);
@@ -38,9 +39,20 @@ namespace {
                         new fostlib::text_body(fostlib::json::unparse(result, pretty),
                             fostlib::mime::mime_headers(), L"application/json"));
                 return std::make_pair(response, 422);
+            } else {
+                return ok;
             }
+        };
+
+        if ( method_config.has_key("allow$schema") && body.has_key("$schema") ) {
+            return validate((*f5::json::schema_cache::root_cache())[
+                fostlib::coerce<f5::u8view>(body["$schema"])]);
+        } else if ( method_config.has_key("schema") ) {
+            f5::json::schema s{fostlib::url{}, method_config["schema"]};
+            return validate(s);
+        } else {
+            return ok;
         }
-        return std::make_pair(nullptr, 0);
     }
 
 

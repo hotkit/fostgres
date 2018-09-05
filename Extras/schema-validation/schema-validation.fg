@@ -1,7 +1,39 @@
-# Add some schemas to the system
+## Add some schemas to the system
 PUT schema-validation /empty {} 200 {}
 PUT schema-validation /true (quote true) 200 (quote true)
 
 ## This is an invalid schema
 PUT schema-validation /invalid {"additionalProperties": 1} 422 {
     "error": {"in-data": ["additionalProperties"]}}
+
+## For some model that we wish to push to the database, enable
+## schema lookups.
+
+## Start with some default data
+PUT test-schema /t1 {"foo": {}} 200 {"name": "t1", "foo": {}}
+PUT test-schema /t2 {"name": "XX", "foo": false} 200 {"name": "t2", "foo": false}
+
+## Additional columns are not allowed
+PUT test-schema /t1 {"foo": {}, "banned": {}} 422 {
+    "error": {"in-data": ["banned"]}}
+
+## Add a schema that forces a single falue on `foo`
+PUT schema-validation /foo-is-true {
+        "properties": {
+            "name": {
+                "type": "string"
+            },
+            "foo": {"const": true}
+        },
+        "additionalProperties": false
+    } 200
+
+#PUT test-schema /foo-true {
+#        "$schema": "http://localhost/schema/foo-is-true",
+#        "foo": true
+#    } 200
+#PUT test-schema /foo-false {
+#        "$schema": "http://localhost/schema/foo-is-true",
+#        "foo": false
+#    } 422
+

@@ -1,0 +1,51 @@
+{
+    "JSON schema validation": {
+        "Schema loaders": [
+            {
+                "loader": "http",
+                "prefix": "http://json-schema.org/"
+            },
+            {
+                "loader": "fostgres-db-schema",
+                "prefix": "http://localhost/schema/",
+                "db": {
+                    "dbname": "fostgres-schema-validation-test"
+                }
+            }
+        ]
+    },
+    "webserver": {
+        "views/test-schema": {
+            "view": "fostgres.sql",
+            "configuration": {
+                "sql": [
+                    {
+                        "return": "object",
+                        "path": [1],
+                        "GET": "SELECT * FROM test_json WHERE name=$1",
+                        "PUT": {
+                            "table": "test_json",
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "foo": true
+                                },
+                                "additionalProperties": false
+                            },
+                            "allow$schema": true,
+                            "columns": {
+                                "name": {
+                                    "key": true,
+                                    "source": 1
+                                },
+                                "foo": {}
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
