@@ -10,14 +10,14 @@ PUT schema-validation /invalid {"additionalProperties": 1} 422 {
 ## schema lookups.
 
 ## Start with some default data
-PUT test-schema /t1 {"foo": {}} 200 {"name": "t1", "foo": {}}
-PUT test-schema /t2 {"name": "XX", "foo": false} 200 {"name": "t2", "foo": false}
+PUT test-schema /root-schema/t1 {"foo": {}} 200 {"name": "t1", "foo": {}}
+PUT test-schema /root-schema/t2 {"name": "XX", "foo": false} 200 {"name": "t2", "foo": false}
 
 ## Additional columns are not allowed
-PUT test-schema /t1 {"foo": {}, "banned": {}} 422 {
+PUT test-schema /root-schema/t1 {"foo": {}, "banned": {}} 422 {
     "error": {"in-data": ["banned"]}}
 
-## Add a schema that forces a single falue on `foo`
+## Add a schema that forces a single value on `foo`
 PUT schema-validation /foo-is-true {
         "properties": {
             "$schema": {
@@ -31,15 +31,15 @@ PUT schema-validation /foo-is-true {
         "additionalProperties": false
     } 200
 
-PUT test-schema /not-foo {
+PUT test-schema /root-schema/not-foo {
         "$schema": "http://localhost/schema/not-a-schema",
         "foo": true
     } 501
-PUT test-schema /foo-true {
+PUT test-schema /root-schema/foo-true {
         "$schema": "http://localhost/schema/foo-is-true",
         "foo": true
     } 200
-PUT test-schema /foo-false {
+PUT test-schema /root-schema/foo-false {
         "$schema": "http://localhost/schema/foo-is-true",
         "foo": false
     } 422 {"error": {

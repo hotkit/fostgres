@@ -21,7 +21,7 @@
                 "sql": [
                     {
                         "return": "object",
-                        "path": [1],
+                        "path": ["/root-schema", 1],
                         "GET": "SELECT * FROM test_json WHERE name=$1",
                         "PUT": {
                             "table": "test_json",
