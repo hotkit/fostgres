@@ -20,6 +20,9 @@ PUT test-schema /t1 {"foo": {}, "banned": {}} 422 {
 ## Add a schema that forces a single falue on `foo`
 PUT schema-validation /foo-is-true {
         "properties": {
+            "$schema": {
+                "type": "string"
+            },
             "name": {
                 "type": "string"
             },
@@ -28,12 +31,19 @@ PUT schema-validation /foo-is-true {
         "additionalProperties": false
     } 200
 
-#PUT test-schema /foo-true {
-#        "$schema": "http://localhost/schema/foo-is-true",
-#        "foo": true
-#    } 200
-#PUT test-schema /foo-false {
-#        "$schema": "http://localhost/schema/foo-is-true",
-#        "foo": false
-#    } 422
+PUT test-schema /not-foo {
+        "$schema": "http://localhost/schema/not-a-schema",
+        "foo": true
+    } 501
+PUT test-schema /foo-true {
+        "$schema": "http://localhost/schema/foo-is-true",
+        "foo": true
+    } 200
+PUT test-schema /foo-false {
+        "$schema": "http://localhost/schema/foo-is-true",
+        "foo": false
+    } 422 {"error": {
+        "in-data" : ["foo"],
+        "in-schema": ["properties", "foo", "const"]
+    }}
 

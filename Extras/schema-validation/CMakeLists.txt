@@ -2,7 +2,7 @@ add_library(fostgres-schema-loader
         loader.cpp
     )
 target_link_libraries(fostgres-schema-loader
-    f5-json-schema)
+    fost-postgres f5-json-schema)
 set_target_properties(fostgres-schema-loader
     PROPERTIES DEBUG_POSTFIX "-d")
 install(TARGETS fostgres-schema-loader
