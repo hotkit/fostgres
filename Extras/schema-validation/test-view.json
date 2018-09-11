@@ -1,19 +1,4 @@
 {
-    "JSON schema validation": {
-        "Schema loaders": [
-            {
-                "loader": "http",
-                "prefix": "http://json-schema.org/"
-            },
-            {
-                "loader": "fostgres-db-schema",
-                "prefix": "http://localhost/schema/",
-                "dsn": {
-                    "dbname": "fostgres-schema-validation-test"
-                }
-            }
-        ]
-    },
     "webserver": {
         "views/test-schema": {
             "view": "fostgres.sql",

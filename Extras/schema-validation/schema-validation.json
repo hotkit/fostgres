@@ -4,6 +4,13 @@
             {
                 "loader": "http",
                 "prefix": "http://json-schema.org/"
+            },
+            {
+                "loader": "fostgres-db-schema",
+                "prefix": "http://localhost/schema/",
+                "dsn": {
+                    "dbname": "fostgres-schema-validation-test"
+                }
             }
         ]
     },
