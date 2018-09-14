@@ -7,6 +7,10 @@ set_target_properties(fostgres-schema-loader
     PROPERTIES DEBUG_POSTFIX "-d")
 install(TARGETS fostgres-schema-loader
     LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+install(FILES
+        schema-validation-001.sql
+        schema-validation.json
+    DESTINATION share/fostgres/extras/schema-validation)
 
 
 add_custom_command(OUTPUT fostgres-schema-validation-test
