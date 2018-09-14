@@ -1,8 +1,8 @@
-/*
-    Copyright 2016-2017, Felspar Co Ltd. http://support.felspar.com/
+/**
+    Copyright 2016-2018, Felspar Co Ltd. <https://support.felspar.com/>
+
     Distributed under the Boost Software License, Version 1.0.
-    See accompanying file LICENSE_1_0.txt or copy at
-        http://www.boost.org/LICENSE_1_0.txt
+    See <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 
@@ -185,7 +185,7 @@ namespace {
 
         // We're going to need these items later
         fostlib::pg::connection cnx{fostgres::connection(config, req)};
-        fostgres::updater handler(m.configuration["PATCH"], cnx, m, req);
+        fostgres::updater handler{config, m.configuration["PATCH"], cnx, m, req};
 
         // Interpret body as UTF8 and split into lines. Ensure it's not empty
         fostlib::csj::parser data(f5::u8view(req.data()->data()));
@@ -193,7 +193,7 @@ namespace {
 
         // Parse each line and send it to the database
         for ( auto line(data.begin()), e(data.end()); line != e; ++line ) {
-            handler.upsert(line.as_json());
+            handler.upsert(nullptr, line.as_json());
             ++records;
         }
         cnx.commit();
@@ -213,7 +213,7 @@ namespace {
         logger("", "CSJ PUT");
 
         fostlib::pg::connection cnx{fostgres::connection(config, req)};
-        fostgres::updater handler(m.configuration["PUT"], cnx, m, req);
+        fostgres::updater handler{config, m.configuration["PUT"], cnx, m, req};
         fostlib::json work_done{fostlib::json::object_t()};
 
         // Create a SELECT statement to collect all the associated keys
@@ -251,7 +251,7 @@ namespace {
             // Parse each line and send it to the database
             for ( auto line(data.begin()), e(data.end()); line != e; ++line ) {
                 key_match.clear();
-                auto inserted = handler.upsert(line.as_json());
+                auto inserted = handler.upsert(nullptr, line.as_json()).second;
                 ++records;
                 // Look to see if we had this data in the database before
                 // and if so mark it as seen in the PUT body

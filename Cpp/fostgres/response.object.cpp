@@ -44,7 +44,10 @@ namespace {
             }
         };
 
-        if ( method_config.has_key("allow$schema") && body.has_key("$schema") ) {
+        const bool allow_schema =
+            fostlib::coerce<std::optional<bool>>(
+                method_config["allow$schema"]).value_or(false);
+        if ( allow_schema && body.has_key("$schema") ) {
             return validate((*f5::json::schema_cache::root_cache())[
                 fostlib::coerce<f5::u8view>(body["$schema"])]);
         } else if ( method_config.has_key("schema") ) {
@@ -129,15 +132,7 @@ namespace {
         auto error = schema_check(cnx, config, m, req, put_config, body);
         if ( error.first || error.second ) return error;
         if ( put_config.has_key("columns") ) {
-            fostgres::updater ins(put_config, cnx, m, req);
-            if ( ins.returning().size() ) {
-                auto data = ins.data(body);
-                auto rs = cnx.upsert(ins.relation.c_str(), data.first, data.second, ins.returning());
-                auto result = fostgres::column_names(std::move(rs));
-                return get(cnx, std::move(result), config, m, req);
-            } else {
-                ins.upsert(body);
-            }
+            return fostgres::updater{config, put_config, cnx, m, req}.upsert(get, body).first;
         } else {
             fostlib::string relation = fostlib::coerce<fostlib::string>(put_config["table"]);
             fostlib::json keys(calc_keys(m, put_config["keys"]));
@@ -215,7 +210,7 @@ namespace {
 
         fostlib::string relation = fostlib::coerce<fostlib::string>(m.configuration["PATCH"]["table"]);
         if ( m.configuration["PATCH"].has_key("columns") ) {
-            fostgres::updater(m.configuration["PATCH"], cnx, m, req).update(body);
+            fostgres::updater{config, m.configuration["PATCH"], cnx, m, req}.update(body);
             cnx.commit();
         } else {
             fostlib::log::warning(fostgres::c_fostgres)

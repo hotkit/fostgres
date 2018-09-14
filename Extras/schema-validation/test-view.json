@@ -31,6 +31,23 @@
                                 "foo": {}
                             }
                         }
+                    },
+                    {
+                        "return": "object",
+                        "path": ["/field-schema", 1],
+                        "GET": "SELECT * FROM test_json WHERE name=$1",
+                        "PUT": {
+                            "table": "test_json",
+                            "columns": {
+                                "name": {
+                                    "key": true,
+                                    "source": 1
+                                },
+                                "foo": {
+                                    "allow$schema": true
+                                }
+                            }
+                        }
                     }
                 ]
             }

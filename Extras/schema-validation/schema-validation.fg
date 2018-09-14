@@ -47,3 +47,17 @@ PUT test-schema /root-schema/foo-false {
         "in-schema": ["properties", "foo", "const"]
     }}
 
+## Test the field validation
+
+PUT schema-validation /bar-is-1 {
+        "properties": {
+            "bar": {"const": 1}
+        }
+    } 200
+
+PUT test-schema /field-schema/bar-1 {
+        "foo": {
+            "$schema": "http://localhost/schema/bar-is-1",
+            "bar": 1
+        }
+    } 200
