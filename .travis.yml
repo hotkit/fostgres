@@ -2,6 +2,9 @@ language: cpp
 sudo: required
 dist: xenial
 
+services:
+    - postgresql
+
 compiler:
     - gcc
     - clang
@@ -17,7 +20,7 @@ cache:
 install:
     - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
     - sudo apt-get update -qq
-    - sudo apt-get install -qq -y ninja-build g++-8
+    - sudo apt-get install -qq -y ninja-build g++-8 libpq-dev postgresql-server-dev-all
 
 script:
     - mkdir build.tmp && cd build.tmp
@@ -29,6 +32,7 @@ script:
     - git clone https://github.com/KayEss/fost-libpq.git PostgreSQL
     - sed -i 's/git@github.com:/https:\/\/github.com\//' PostgreSQL/.gitmodules
     - cd PostgreSQL && git submodule update --init --recursive && cd ..
+    - PostgreSQL/configure
     - git clone https://github.com/KayEss/fost-postgres.git
     - git clone https://github.com/KayEss/fost-web.git
     - git clone https://github.com/KayEss/f5-cord.git
