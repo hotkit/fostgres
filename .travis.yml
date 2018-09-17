@@ -26,6 +26,7 @@ script:
     - mkdir build.tmp && cd build.tmp
     - 'if [ "$CXX" = "g++" ]; then export CC=gcc-8; export CXX=g++-8; fi'
     - git clone https://github.com/KayEss/fost-base.git
+    - git clone https://github.com/KayEss/fost-beanbag.git
     - git clone https://github.com/KayEss/fost-boost.git
     - git clone https://github.com/KayEss/fost-crypto.git
     - git clone https://github.com/KayEss/fost-internet.git
