@@ -37,7 +37,7 @@ script:
     - git clone https://github.com/KayEss/fost-postgres.git
     - git clone https://github.com/KayEss/fost-web.git
     - git clone https://github.com/KayEss/f5-cord.git
-    - git clone https://github.com/KayEss/f5-threading.git
+    - git clone -b develop https://github.com/KayEss/f5-threading.git
     - git clone https://github.com/KayEss/json-schema.git
     - ln -s ../../boost-cache fost-boost/boost
     - cp ../.travis.CMakeLists.txt CMakeLists.txt
