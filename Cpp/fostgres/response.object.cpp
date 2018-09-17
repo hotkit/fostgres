@@ -10,53 +10,11 @@
 
 #include <fostgres/fostgres.hpp>
 
-#include <f5/json/schema.cache.hpp>
 #include <fost/insert>
 #include <fost/log>
 
 
 namespace {
-
-
-    std::pair<boost::shared_ptr<fostlib::mime>, int>  schema_check(
-        fostlib::pg::connection &cnx,
-        const fostlib::json &config, const fostgres::match &m,
-        fostlib::http::server::request &req,
-        const fostlib::json &method_config, const fostlib::json &body
-    ) {
-        const std::pair<boost::shared_ptr<fostlib::mime>, int> ok{nullptr, 0};
-        const auto validate = [&](const f5::json::schema &s) {
-            if ( auto valid = s.validate(body); not valid ) {
-                const bool pretty = fostlib::coerce<fostlib::nullable<bool>>(
-                    config["pretty"]).value_or(true);
-                fostlib::json result;
-                fostlib::insert(result, "schema", method_config["schema"]);
-                auto e{(f5::json::validation::result::error)std::move(valid)};
-                fostlib::insert(result, "error", "assertion", e.assertion);
-                fostlib::insert(result, "error", "in-schema", e.spos);
-                fostlib::insert(result, "error", "in-data", e.dpos);
-                boost::shared_ptr<fostlib::mime> response(
-                        new fostlib::text_body(fostlib::json::unparse(result, pretty),
-                            fostlib::mime::mime_headers(), L"application/json"));
-                return std::make_pair(response, 422);
-            } else {
-                return ok;
-            }
-        };
-
-        const bool allow_schema =
-            fostlib::coerce<std::optional<bool>>(
-                method_config["allow$schema"]).value_or(false);
-        if ( allow_schema && body.has_key("$schema") ) {
-            return validate((*f5::json::schema_cache::root_cache())[
-                fostlib::coerce<f5::u8view>(body["$schema"])]);
-        } else if ( method_config.has_key("schema") ) {
-            f5::json::schema s{fostlib::url{}, method_config["schema"]};
-            return validate(s);
-        } else {
-            return ok;
-        }
-    }
 
 
     std::pair<boost::shared_ptr<fostlib::mime>, int>  get(
@@ -129,7 +87,7 @@ namespace {
         fostlib::http::server::request &req,
         const fostlib::json &put_config, const fostlib::json &body
     ) {
-        auto error = schema_check(cnx, config, m, req, put_config, body);
+        auto error = fostgres::schema_check(cnx, config, m, req, put_config, body);
         if ( error.first || error.second ) return error;
         if ( put_config.has_key("columns") ) {
             return fostgres::updater{config, put_config, cnx, m, req}.upsert(get, body).first;
@@ -205,7 +163,7 @@ namespace {
             fostlib::json::parse(
                 fostlib::coerce<fostlib::string>(
                     fostlib::coerce<fostlib::utf8_string>(req.data()->data())))};
-        auto error = schema_check(cnx, config, m, req, m.configuration["PATCH"], body);
+        auto error = fostgres::schema_check(cnx, config, m, req, m.configuration["PATCH"], body);
         if ( error.first || error.second ) return error;
 
         fostlib::string relation = fostlib::coerce<fostlib::string>(m.configuration["PATCH"]["table"]);

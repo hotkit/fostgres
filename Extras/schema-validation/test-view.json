@@ -41,7 +41,11 @@
                             "columns": {
                                 "name": {
                                     "key": true,
-                                    "source": 1
+                                    "source": 1,
+                                    "schema": {
+                                        "type": "string",
+                                        "minLength": 3
+                                    }
                                 },
                                 "foo": {
                                     "allow$schema": true

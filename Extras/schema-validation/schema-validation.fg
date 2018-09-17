@@ -61,3 +61,21 @@ PUT test-schema /field-schema/bar-1 {
             "bar": 1
         }
     } 200
+PUT test-schema /field-schema/bar-3 {
+        "foo": {
+            "$schema": "http://localhost/schema/bar-is-1",
+            "bar": 3
+        }
+    } 422 {"error": {
+        "in-data": ["bar"],
+        "in-schema": ["properties", "bar", "const"]
+    }}
+PUT test-schema /field-schema/1 {
+        "foo": {
+            "$schema": "http://localhost/schema/bar-is-1",
+            "bar": 1
+        }
+    } 422 {"error": {
+        "in-data": [],
+        "in-schema": ["minLength"]
+    }}

@@ -56,5 +56,12 @@ namespace fostgres {
     };
 
 
+    std::pair<boost::shared_ptr<fostlib::mime>, int>  schema_check(
+        fostlib::pg::connection &cnx,
+        const fostlib::json &config, const fostgres::match &m,
+        fostlib::http::server::request &req,
+        const fostlib::json &schema_config, const fostlib::json &instance);
+
+
 }
 

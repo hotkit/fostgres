@@ -8,7 +8,13 @@
 
 #include "updater.hpp"
 
+#include <f5/json/schema.cache.hpp>
 #include <fost/insert>
+
+
+/**
+ * ## `fostgres::updater`
+ */
 
 
 fostgres::updater::updater(
@@ -31,15 +37,6 @@ std::pair<fostlib::json, fostlib::json> fostgres::updater::data(const fostlib::j
     for ( const auto &col_def : col_config.object() ) {
         const auto &key = col_def.first;
         auto data = fostgres::datum(key, col_def.second, m.arguments, body, req);
-
-        const bool allow_schema =
-            fostlib::coerce<std::optional<bool>>(
-                col_def.second["allow$schema"]).value_or(false);
-        if ( allow_schema && data && data.value().has_key("$schema") ) {
-//             throw fostlib::exceptions::not_implemented(
-//                 __PRETTY_FUNCTION__);
-        }
-
         if ( col_def.second["key"].get(false) ) {
             // Key column
             if ( data ) {
@@ -71,6 +68,14 @@ std::pair<
     const fostlib::json &body
 ) {
     auto d = data(body);
+    for ( const auto &col_def : col_config.object() ) {
+        const bool allow_schema =
+            fostlib::coerce<std::optional<bool>>(
+                col_def.second["allow$schema"]).value_or(false);
+        auto instance = (col_def.second["key"].get(false) ? d.first : d.second)[col_def.first];
+        auto error = schema_check(cnx, config, m, req, col_def.second, instance);
+        if ( error.first ) return {error, d};
+    }
     if ( get && returning_cols.size() ) {
         auto rs = cnx.upsert(relation.c_str(), d.first, d.second, returning_cols);
         auto result = fostgres::column_names(std::move(rs));
@@ -88,3 +93,48 @@ std::pair<fostlib::json, fostlib::json> fostgres::updater::update(const fostlib:
     return d;
 }
 
+
+/**
+ * ## Schema validation
+ */
+
+
+std::pair<boost::shared_ptr<fostlib::mime>, int> fostgres::schema_check(
+    fostlib::pg::connection &cnx,
+    const fostlib::json &config, const fostgres::match &m,
+    fostlib::http::server::request &req,
+    const fostlib::json &s_config, const fostlib::json &body
+) {
+    const std::pair<boost::shared_ptr<fostlib::mime>, int> ok{nullptr, 0};
+    const auto validate = [&](const f5::json::schema &s) {
+        if ( auto valid = s.validate(body); not valid ) {
+            const bool pretty = fostlib::coerce<fostlib::nullable<bool>>(
+                config["pretty"]).value_or(true);
+            fostlib::json result;
+            fostlib::insert(result, "schema", s_config["schema"]);
+            auto e{(f5::json::validation::result::error)std::move(valid)};
+            fostlib::insert(result, "error", "assertion", e.assertion);
+            fostlib::insert(result, "error", "in-schema", e.spos);
+            fostlib::insert(result, "error", "in-data", e.dpos);
+            boost::shared_ptr<fostlib::mime> response(
+                    new fostlib::text_body(fostlib::json::unparse(result, pretty),
+                        fostlib::mime::mime_headers(), L"application/json"));
+            return std::make_pair(response, 422);
+        } else {
+            return ok;
+        }
+    };
+
+    const bool allow_schema =
+        fostlib::coerce<std::optional<bool>>(
+            s_config["allow$schema"]).value_or(false);
+    if ( allow_schema && body.has_key("$schema") ) {
+        return validate((*f5::json::schema_cache::root_cache())[
+            fostlib::coerce<f5::u8view>(body["$schema"])]);
+    } else if ( s_config.has_key("schema") ) {
+        f5::json::schema s{fostlib::url{}, s_config["schema"]};
+        return validate(s);
+    } else {
+        return ok;
+    }
+}
