@@ -40,9 +40,10 @@ namespace fostgres {
                     const fostlib::json &config, const fostgres::match &m,
                     fostlib::http::server::request &req
                 ),
-                const fostlib::json &data);
-        [[nodiscard]] auto upsert(const fostlib::json &data) {
-            return upsert(nullptr, data);
+                const fostlib::json &data,
+                std::optional<std::size_t > row = {});
+        [[nodiscard]] auto upsert(std::size_t row, const fostlib::json &data) {
+            return upsert(nullptr, data, row);
         }
         std::pair<fostlib::json, fostlib::json> update(const fostlib::json &data);
 
@@ -63,7 +64,8 @@ namespace fostgres {
         fostlib::pg::connection &cnx,
         const fostlib::json &config, const fostgres::match &m,
         fostlib::http::server::request &req,
-        const fostlib::json &schema_config, const fostlib::json &instance);
+        const fostlib::json &schema_config, const fostlib::json &instance,
+        fostlib::jcursor dpos);
 
 
 }

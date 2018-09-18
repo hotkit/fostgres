@@ -67,7 +67,7 @@ PUT test-schema /field-schema/bar-3 {
             "bar": 3
         }
     } 422 {"error": {
-        "in-data": ["bar"],
+        "in-data": ["foo", "bar"],
         "in-schema": ["properties", "bar", "const"]
     }}
 PUT test-schema /field-schema/1 {
@@ -76,6 +76,6 @@ PUT test-schema /field-schema/1 {
             "bar": 1
         }
     } 422 {"error": {
-        "in-data": [],
+        "in-data": ["name"],
         "in-schema": ["minLength"]
     }}

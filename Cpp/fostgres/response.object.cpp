@@ -87,7 +87,7 @@ namespace {
         fostlib::http::server::request &req,
         const fostlib::json &put_config, const fostlib::json &body
     ) {
-        auto error = fostgres::schema_check(cnx, config, m, req, put_config, body);
+        auto error = fostgres::schema_check(cnx, config, m, req, put_config, body, fostlib::jcursor{});
         if ( error.first || error.second ) return error;
         if ( put_config.has_key("columns") ) {
             return fostgres::updater{put_config, cnx, m, req}.upsert(get, body).first;
@@ -163,7 +163,7 @@ namespace {
             fostlib::json::parse(
                 fostlib::coerce<fostlib::string>(
                     fostlib::coerce<fostlib::utf8_string>(req.data()->data())))};
-        auto error = fostgres::schema_check(cnx, config, m, req, m.configuration["PATCH"], body);
+        auto error = fostgres::schema_check(cnx, config, m, req, m.configuration["PATCH"], body, fostlib::jcursor{});
         if ( error.first || error.second ) return error;
 
         fostlib::string relation = fostlib::coerce<fostlib::string>(m.configuration["PATCH"]["table"]);

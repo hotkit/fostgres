@@ -193,7 +193,7 @@ namespace {
 
         // Parse each line and send it to the database
         for ( auto line(data.begin()), e(data.end()); line != e; ++line ) {
-            auto error = handler.upsert(line.as_json()).first;
+            auto error = handler.upsert(records, line.as_json()).first;
             if ( error.first) return error;
             ++records;
         }
@@ -245,14 +245,14 @@ namespace {
             // Interpret body as UTF8 and split into lines. Ensure it's not empty
             fostlib::csj::parser data(f5::u8view(req.data()->data()));
             logger("header", data.header());
-            std::size_t records{0};
+            std::size_t records{};
             std::vector<fostlib::json> key_match;
             key_match.reserve(key_names.size());
 
             // Parse each line and send it to the database
             for ( auto line(data.begin()), e(data.end()); line != e; ++line ) {
                 key_match.clear();
-                auto [error, inserted] = handler.upsert(line.as_json());
+                auto [error, inserted] = handler.upsert(records, line.as_json());
                 if ( error.first ) return error;
                 ++records;
                 // Look to see if we had this data in the database before

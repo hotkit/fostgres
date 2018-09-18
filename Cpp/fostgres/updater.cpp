@@ -65,7 +65,8 @@ std::pair<
         const fostlib::json &config, const fostgres::match &m,
         fostlib::http::server::request &req
     ),
-    const fostlib::json &body
+    const fostlib::json &body,
+    std::optional<std::size_t> row
 ) {
     auto d = data(body);
     for ( const auto &col_def : col_config.object() ) {
@@ -73,7 +74,8 @@ std::pair<
             fostlib::coerce<std::optional<bool>>(
                 col_def.second["allow$schema"]).value_or(false);
         auto instance = (col_def.second["key"].get(false) ? d.first : d.second)[col_def.first];
-        auto error = schema_check(cnx, config, m, req, col_def.second, instance);
+        auto error = schema_check(cnx, config, m, req, col_def.second, instance,
+            (row ? fostlib::jcursor{*row} : fostlib::jcursor{}) / col_def.first);
         if ( error.first ) return {error, d};
     }
     if ( get && returning_cols.size() ) {
@@ -103,7 +105,8 @@ std::pair<boost::shared_ptr<fostlib::mime>, int> fostgres::schema_check(
     fostlib::pg::connection &cnx,
     const fostlib::json &config, const fostgres::match &m,
     fostlib::http::server::request &req,
-    const fostlib::json &s_config, const fostlib::json &body
+    const fostlib::json &s_config, const fostlib::json &body,
+    fostlib::jcursor dpos
 ) {
     const std::pair<boost::shared_ptr<fostlib::mime>, int> ok{nullptr, 0};
     const auto validate = [&](const f5::json::schema &s) {
@@ -115,7 +118,7 @@ std::pair<boost::shared_ptr<fostlib::mime>, int> fostgres::schema_check(
             auto e{(f5::json::validation::result::error)std::move(valid)};
             fostlib::insert(result, "error", "assertion", e.assertion);
             fostlib::insert(result, "error", "in-schema", e.spos);
-            fostlib::insert(result, "error", "in-data", e.dpos);
+            fostlib::insert(result, "error", "in-data", dpos / e.dpos);
             boost::shared_ptr<fostlib::mime> response(
                     new fostlib::text_body(fostlib::json::unparse(result, pretty),
                         fostlib::mime::mime_headers(), L"application/json"));
