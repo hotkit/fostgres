@@ -18,10 +18,10 @@
 
 
 fostgres::updater::updater(
-    fostlib::json config, fostlib::json mconf, fostlib::pg::connection &cnx,
+    fostlib::json mconf, fostlib::pg::connection &cnx,
     const fostgres::match &m, fostlib::http::server::request &req
 ) : relation(fostlib::coerce<fostlib::string>(mconf["table"])),
-    config(config), col_config(mconf["columns"]),
+    config(m.configuration), col_config(mconf["columns"]),
     cnx(cnx), m(m), req(req)
 {
     if ( mconf.has_key("returning") ) {

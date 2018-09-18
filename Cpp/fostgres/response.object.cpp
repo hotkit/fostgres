@@ -90,7 +90,7 @@ namespace {
         auto error = fostgres::schema_check(cnx, config, m, req, put_config, body);
         if ( error.first || error.second ) return error;
         if ( put_config.has_key("columns") ) {
-            return fostgres::updater{config, put_config, cnx, m, req}.upsert(get, body).first;
+            return fostgres::updater{put_config, cnx, m, req}.upsert(get, body).first;
         } else {
             fostlib::string relation = fostlib::coerce<fostlib::string>(put_config["table"]);
             fostlib::json keys(calc_keys(m, put_config["keys"]));
@@ -168,7 +168,7 @@ namespace {
 
         fostlib::string relation = fostlib::coerce<fostlib::string>(m.configuration["PATCH"]["table"]);
         if ( m.configuration["PATCH"].has_key("columns") ) {
-            fostgres::updater{config, m.configuration["PATCH"], cnx, m, req}.update(body);
+            fostgres::updater{m.configuration["PATCH"], cnx, m, req}.update(body);
             cnx.commit();
         } else {
             fostlib::log::warning(fostgres::c_fostgres)

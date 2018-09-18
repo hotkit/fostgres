@@ -22,7 +22,7 @@ namespace fostgres {
     public:
         const fostlib::string relation;
 
-        updater(fostlib::json config, fostlib::json method_config,
+        updater(fostlib::json method_config,
             fostlib::pg::connection &, const fostgres::match &,
             fostlib::http::server::request &);
 

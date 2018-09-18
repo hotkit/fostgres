@@ -185,7 +185,7 @@ namespace {
 
         // We're going to need these items later
         fostlib::pg::connection cnx{fostgres::connection(config, req)};
-        fostgres::updater handler{config, m.configuration["PATCH"], cnx, m, req};
+        fostgres::updater handler{m.configuration["PATCH"], cnx, m, req};
 
         // Interpret body as UTF8 and split into lines. Ensure it's not empty
         fostlib::csj::parser data(f5::u8view(req.data()->data()));
@@ -213,7 +213,7 @@ namespace {
         logger("", "CSJ PUT");
 
         fostlib::pg::connection cnx{fostgres::connection(config, req)};
-        fostgres::updater handler{config, m.configuration["PUT"], cnx, m, req};
+        fostgres::updater handler{m.configuration["PUT"], cnx, m, req};
         fostlib::json work_done{fostlib::json::object_t()};
 
         // Create a SELECT statement to collect all the associated keys
