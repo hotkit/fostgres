@@ -193,7 +193,7 @@ namespace {
 
         // Parse each line and send it to the database
         for ( auto line(data.begin()), e(data.end()); line != e; ++line ) {
-            handler.upsert(nullptr, line.as_json());
+            handler.upsert(line.as_json());
             ++records;
         }
         cnx.commit();
@@ -251,7 +251,7 @@ namespace {
             // Parse each line and send it to the database
             for ( auto line(data.begin()), e(data.end()); line != e; ++line ) {
                 key_match.clear();
-                auto inserted = handler.upsert(nullptr, line.as_json()).second;
+                auto inserted = handler.upsert(line.as_json());
                 ++records;
                 // Look to see if we had this data in the database before
                 // and if so mark it as seen in the PUT body

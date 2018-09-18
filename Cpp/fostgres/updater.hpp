@@ -41,6 +41,9 @@ namespace fostgres {
                     fostlib::http::server::request &req
                 ),
                 const fostlib::json &data);
+        std::pair<fostlib::json, fostlib::json> upsert(const fostlib::json &data) {
+            return upsert(nullptr, data).second;
+        }
         std::pair<fostlib::json, fostlib::json> update(const fostlib::json &data);
 
     private:
