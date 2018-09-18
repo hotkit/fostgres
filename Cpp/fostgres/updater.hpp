@@ -31,7 +31,7 @@ namespace fostgres {
             return returning_cols;
         }
 
-        std::pair<
+        [[nodiscard]] std::pair<
             std::pair<boost::shared_ptr<fostlib::mime>, int>,
             std::pair<fostlib::json, fostlib::json>> upsert(
                 std::pair<boost::shared_ptr<fostlib::mime>, int> (*)(
@@ -41,8 +41,8 @@ namespace fostgres {
                     fostlib::http::server::request &req
                 ),
                 const fostlib::json &data);
-        std::pair<fostlib::json, fostlib::json> upsert(const fostlib::json &data) {
-            return upsert(nullptr, data).second;
+        [[nodiscard]] auto upsert(const fostlib::json &data) {
+            return upsert(nullptr, data);
         }
         std::pair<fostlib::json, fostlib::json> update(const fostlib::json &data);
 
