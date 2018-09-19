@@ -58,14 +58,7 @@ std::pair<fostlib::json, fostlib::json> fostgres::updater::data(const fostlib::j
 std::pair<
     std::pair<boost::shared_ptr<fostlib::mime>, int>,
     std::pair<fostlib::json, fostlib::json>
-> fostgres::updater::upsert(
-    std::pair<boost::shared_ptr<fostlib::mime>, int> (*get)(
-        std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> &&data,
-        const fostlib::json &config
-    ),
-    const fostlib::json &body,
-    std::optional<std::size_t> row
-) {
+> fostgres::updater::upsert(const fostlib::json &body, std::optional<std::size_t> row) {
     auto d = data(body);
     for ( const auto &col_def : col_config.object() ) {
         const bool allow_schema =
@@ -76,10 +69,10 @@ std::pair<
             (row ? fostlib::jcursor{*row} : fostlib::jcursor{}) / col_def.first);
         if ( error.first ) return {error, d};
     }
-    if ( get && returning_cols.size() ) {
+    if ( returning_cols.size() ) {
         auto rs = cnx.upsert(relation.c_str(), d.first, d.second, returning_cols);
         auto result = fostgres::column_names(std::move(rs));
-        return {get(std::move(result), config), d};
+        return {response_object(std::move(result), config), d};
     } else {
         cnx.upsert(relation.c_str(), d.first, d.second);
     }

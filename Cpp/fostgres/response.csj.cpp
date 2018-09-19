@@ -193,7 +193,7 @@ namespace {
 
         // Parse each line and send it to the database
         for ( auto line(data.begin()), e(data.end()); line != e; ++line ) {
-            auto error = handler.upsert(records, line.as_json()).first;
+            auto error = handler.upsert(line.as_json(), records).first;
             if ( error.first) return error;
             ++records;
         }
@@ -252,7 +252,7 @@ namespace {
             // Parse each line and send it to the database
             for ( auto line(data.begin()), e(data.end()); line != e; ++line ) {
                 key_match.clear();
-                auto [error, inserted] = handler.upsert(records, line.as_json());
+                auto [error, inserted] = handler.upsert(line.as_json(), records);
                 if ( error.first ) return error;
                 ++records;
                 // Look to see if we had this data in the database before

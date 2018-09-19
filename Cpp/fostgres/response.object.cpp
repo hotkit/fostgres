@@ -18,45 +18,12 @@ namespace {
 
 
     std::pair<boost::shared_ptr<fostlib::mime>, int>  get(
-        std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> &&data,
-        const fostlib::json &config
-    ) {
-        const bool pretty = fostlib::coerce<fostlib::nullable<bool>>(config["pretty"]).value_or(true);
-        auto row = data.second.begin();
-        if ( row == data.second.end() ) { // TODO:Use data.second.empty() instead?
-            fostlib::json result;
-            insert(result, "error", "Not found");
-            boost::shared_ptr<fostlib::mime> response(
-                    new fostlib::text_body(fostlib::json::unparse(result, pretty),
-                        fostlib::mime::mime_headers(), L"application/json"));
-            return std::make_pair(response, 404);
-        }
-        fostlib::json result;
-        auto record = *row;
-        for ( std::size_t index{0}; index < record.size(); ++index ) {
-            if ( data.first[index].endswith("__tableoid") )
-                continue;
-            const auto parts = fostlib::split(data.first[index], "__");
-            fostlib::jcursor pos;
-            for ( const auto &p : parts ) pos /= p;
-            fostlib::insert(result, pos, record[index]);
-        }
-        if ( ++row != data.second.end() ) {
-            // TODO Return proper error
-            throw fostlib::exceptions::not_implemented(__func__,
-                "Too many rows returned");
-        }
-        boost::shared_ptr<fostlib::mime> response(
-                new fostlib::text_body(fostlib::json::unparse(result, pretty),
-                    fostlib::mime::mime_headers(), L"application/json"));
-        return std::make_pair(response, 200);
-    }
-    std::pair<boost::shared_ptr<fostlib::mime>, int>  get(
         fostlib::pg::connection &cnx,
         const fostlib::json &config, const fostgres::match &m,
         fostlib::http::server::request &req
     ) {
-        return get(select_data(cnx, m.configuration["GET"], m, req), config);
+        return fostgres::response_object(
+            select_data(cnx, m.configuration["GET"], m, req), config);
     }
 
     fostlib::json calc_keys(const fostgres::match &m, const fostlib::json &config) {
@@ -88,7 +55,7 @@ namespace {
         auto error = fostgres::schema_check(cnx, config, m, req, put_config, body, fostlib::jcursor{});
         if ( error.first || error.second ) return error;
         if ( put_config.has_key("columns") ) {
-            return fostgres::updater{put_config, cnx, m, req}.upsert(get, body).first;
+            return fostgres::updater{put_config, cnx, m, req}.upsert(body).first;
         } else {
             fostlib::string relation = fostlib::coerce<fostlib::string>(put_config["table"]);
             fostlib::json keys(calc_keys(m, put_config["keys"]));
@@ -150,7 +117,7 @@ namespace {
         }
         auto result = fostgres::column_names(cnx.insert(relation.c_str(), values, returning));
         cnx.commit();
-        return get(std::move(result), config);
+        return fostgres::response_object(std::move(result), config);
     }
     std::pair<boost::shared_ptr<fostlib::mime>, int>  patch(
         fostlib::pg::connection &cnx,
@@ -221,3 +188,38 @@ namespace {
 
 }
 
+
+std::pair<boost::shared_ptr<fostlib::mime>, int>  fostgres::response_object(
+    std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> &&data,
+    const fostlib::json &config
+) {
+    const bool pretty = fostlib::coerce<fostlib::nullable<bool>>(config["pretty"]).value_or(true);
+    auto row = data.second.begin();
+    if ( row == data.second.end() ) { // TODO:Use data.second.empty() instead?
+        fostlib::json result;
+        insert(result, "error", "Not found");
+        boost::shared_ptr<fostlib::mime> response(
+                new fostlib::text_body(fostlib::json::unparse(result, pretty),
+                    fostlib::mime::mime_headers(), L"application/json"));
+        return std::make_pair(response, 404);
+    }
+    fostlib::json result;
+    auto record = *row;
+    for ( std::size_t index{0}; index < record.size(); ++index ) {
+        if ( data.first[index].endswith("__tableoid") )
+            continue;
+        const auto parts = fostlib::split(data.first[index], "__");
+        fostlib::jcursor pos;
+        for ( const auto &p : parts ) pos /= p;
+        fostlib::insert(result, pos, record[index]);
+    }
+    if ( ++row != data.second.end() ) {
+        // TODO Return proper error
+        throw fostlib::exceptions::not_implemented(__func__,
+            "Too many rows returned");
+    }
+    boost::shared_ptr<fostlib::mime> response(
+            new fostlib::text_body(fostlib::json::unparse(result, pretty),
+                fostlib::mime::mime_headers(), L"application/json"));
+    return std::make_pair(response, 200);
+}

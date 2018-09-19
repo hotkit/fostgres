@@ -60,6 +60,11 @@ namespace fostgres {
     std::pair<boost::shared_ptr<fostlib::mime>, int> response_csj(
         const fostlib::json &config, const match &, fostlib::http::server::request &);
 
+    /// Generate a response for a single JSON object from a row of data
+    std::pair<boost::shared_ptr<fostlib::mime>, int> response_object(
+        std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> &&data,
+        const fostlib::json &config);
+
 
 }
 

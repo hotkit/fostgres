@@ -34,15 +34,8 @@ namespace fostgres {
         [[nodiscard]] std::pair<
             std::pair<boost::shared_ptr<fostlib::mime>, int>,
             std::pair<fostlib::json, fostlib::json>> upsert(
-                std::pair<boost::shared_ptr<fostlib::mime>, int> (*)(
-                    std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> &&data,
-                    const fostlib::json &config
-                ),
                 const fostlib::json &data,
                 std::optional<std::size_t > row = {});
-        [[nodiscard]] auto upsert(std::size_t row, const fostlib::json &data) {
-            return upsert(nullptr, data, row);
-        }
         std::pair<fostlib::json, fostlib::json> update(const fostlib::json &data);
 
     private:
