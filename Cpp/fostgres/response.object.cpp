@@ -10,82 +10,20 @@
 
 #include <fostgres/fostgres.hpp>
 
-#include <f5/json/schema.hpp>
 #include <fost/insert>
 #include <fost/log>
 
 
 namespace {
 
-    std::pair<boost::shared_ptr<fostlib::mime>, int>  schema_check(
-        fostlib::pg::connection &cnx,
-        const fostlib::json &config, const fostgres::match &m,
-        fostlib::http::server::request &req,
-        const fostlib::json &method_config, const fostlib::json &body
-    ) {
-        if ( method_config.has_key("schema") ) {
-            f5::json::schema s{fostlib::url{}, method_config["schema"]};
-            if ( auto valid = s.validate(body); not valid ) {
-                const bool pretty = fostlib::coerce<fostlib::nullable<bool>>(
-                    config["pretty"]).value_or(true);
-                fostlib::json result;
-                fostlib::insert(result, "schema", method_config["schema"]);
-                auto e{(f5::json::validation::result::error)std::move(valid)};
-                fostlib::insert(result, "error", "assertion", e.assertion);
-                fostlib::insert(result, "error", "in-schema", e.spos);
-                fostlib::insert(result, "error", "in-data", e.dpos);
-                boost::shared_ptr<fostlib::mime> response(
-                        new fostlib::text_body(fostlib::json::unparse(result, pretty),
-                            fostlib::mime::mime_headers(), L"application/json"));
-                return std::make_pair(response, 422);
-            }
-        }
-        return std::make_pair(nullptr, 0);
-    }
 
-
-    std::pair<boost::shared_ptr<fostlib::mime>, int>  get(
-        fostlib::pg::connection &cnx,
-        std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> &&data,
-        const fostlib::json &config, const fostgres::match &m,
-        fostlib::http::server::request &req
-    ) {
-        const bool pretty = fostlib::coerce<fostlib::nullable<bool>>(config["pretty"]).value_or(true);
-        auto row = data.second.begin();
-        if ( row == data.second.end() ) { // TODO:Use data.second.empty() instead?
-            fostlib::json result;
-            insert(result, "error", "Not found");
-            boost::shared_ptr<fostlib::mime> response(
-                    new fostlib::text_body(fostlib::json::unparse(result, pretty),
-                        fostlib::mime::mime_headers(), L"application/json"));
-            return std::make_pair(response, 404);
-        }
-        fostlib::json result;
-        auto record = *row;
-        for ( std::size_t index{0}; index < record.size(); ++index ) {
-            if ( data.first[index].endswith("__tableoid") )
-                continue;
-            const auto parts = fostlib::split(data.first[index], "__");
-            fostlib::jcursor pos;
-            for ( const auto &p : parts ) pos /= p;
-            fostlib::insert(result, pos, record[index]);
-        }
-        if ( ++row != data.second.end() ) {
-            // TODO Return proper error
-            throw fostlib::exceptions::not_implemented(__func__,
-                "Too many rows returned");
-        }
-        boost::shared_ptr<fostlib::mime> response(
-                new fostlib::text_body(fostlib::json::unparse(result, pretty),
-                    fostlib::mime::mime_headers(), L"application/json"));
-        return std::make_pair(response, 200);
-    }
     std::pair<boost::shared_ptr<fostlib::mime>, int>  get(
         fostlib::pg::connection &cnx,
         const fostlib::json &config, const fostgres::match &m,
         fostlib::http::server::request &req
     ) {
-        return get(cnx, select_data(cnx, m.configuration["GET"], m, req), config, m, req);
+        return fostgres::response_object(
+            select_data(cnx, m.configuration["GET"], m, req), config);
     }
 
     fostlib::json calc_keys(const fostgres::match &m, const fostlib::json &config) {
@@ -114,18 +52,10 @@ namespace {
         fostlib::http::server::request &req,
         const fostlib::json &put_config, const fostlib::json &body
     ) {
-        auto error = schema_check(cnx, config, m, req, put_config, body);
+        auto error = fostgres::schema_check(cnx, config, m, req, put_config, body, fostlib::jcursor{});
         if ( error.first || error.second ) return error;
         if ( put_config.has_key("columns") ) {
-            fostgres::updater ins(put_config, cnx, m, req);
-            if ( ins.returning().size() ) {
-                auto data = ins.data(body);
-                auto rs = cnx.upsert(ins.relation.c_str(), data.first, data.second, ins.returning());
-                auto result = fostgres::column_names(std::move(rs));
-                return get(cnx, std::move(result), config, m, req);
-            } else {
-                ins.upsert(body);
-            }
+            return fostgres::updater{put_config, cnx, m, req}.upsert(body).first;
         } else {
             fostlib::string relation = fostlib::coerce<fostlib::string>(put_config["table"]);
             fostlib::json keys(calc_keys(m, put_config["keys"]));
@@ -187,7 +117,7 @@ namespace {
         }
         auto result = fostgres::column_names(cnx.insert(relation.c_str(), values, returning));
         cnx.commit();
-        return get(cnx, std::move(result), config, m, req);
+        return fostgres::response_object(std::move(result), config);
     }
     std::pair<boost::shared_ptr<fostlib::mime>, int>  patch(
         fostlib::pg::connection &cnx,
@@ -198,12 +128,12 @@ namespace {
             fostlib::json::parse(
                 fostlib::coerce<fostlib::string>(
                     fostlib::coerce<fostlib::utf8_string>(req.data()->data())))};
-        auto error = schema_check(cnx, config, m, req, m.configuration["PATCH"], body);
+        auto error = fostgres::schema_check(cnx, config, m, req, m.configuration["PATCH"], body, fostlib::jcursor{});
         if ( error.first || error.second ) return error;
 
         fostlib::string relation = fostlib::coerce<fostlib::string>(m.configuration["PATCH"]["table"]);
         if ( m.configuration["PATCH"].has_key("columns") ) {
-            fostgres::updater(m.configuration["PATCH"], cnx, m, req).update(body);
+            fostgres::updater{m.configuration["PATCH"], cnx, m, req}.update(body);
             cnx.commit();
         } else {
             fostlib::log::warning(fostgres::c_fostgres)
@@ -258,3 +188,38 @@ namespace {
 
 }
 
+
+std::pair<boost::shared_ptr<fostlib::mime>, int>  fostgres::response_object(
+    std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> &&data,
+    const fostlib::json &config
+) {
+    const bool pretty = fostlib::coerce<fostlib::nullable<bool>>(config["pretty"]).value_or(true);
+    auto row = data.second.begin();
+    if ( row == data.second.end() ) { // TODO:Use data.second.empty() instead?
+        fostlib::json result;
+        insert(result, "error", "Not found");
+        boost::shared_ptr<fostlib::mime> response(
+                new fostlib::text_body(fostlib::json::unparse(result, pretty),
+                    fostlib::mime::mime_headers(), L"application/json"));
+        return std::make_pair(response, 404);
+    }
+    fostlib::json result;
+    auto record = *row;
+    for ( std::size_t index{0}; index < record.size(); ++index ) {
+        if ( data.first[index].endswith("__tableoid") )
+            continue;
+        const auto parts = fostlib::split(data.first[index], "__");
+        fostlib::jcursor pos;
+        for ( const auto &p : parts ) pos /= p;
+        fostlib::insert(result, pos, record[index]);
+    }
+    if ( ++row != data.second.end() ) {
+        // TODO Return proper error
+        throw fostlib::exceptions::not_implemented(__func__,
+            "Too many rows returned");
+    }
+    boost::shared_ptr<fostlib::mime> response(
+            new fostlib::text_body(fostlib::json::unparse(result, pretty),
+                fostlib::mime::mime_headers(), L"application/json"));
+    return std::make_pair(response, 200);
+}

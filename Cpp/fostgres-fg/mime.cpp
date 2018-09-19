@@ -39,20 +39,22 @@ std::unique_ptr<fostlib::binary_body> fg::mime_from_argument(
     try {
         std::unique_ptr<fostlib::binary_body> body;
         expr = stack.resolve(data);
-        if ( expr.isatom() ) {
+        if ( const auto fn = fostlib::coerce<fostlib::nullable<f5::u8view>>(expr); fn ) {
             /// **TODO** This is a horrific nasty design. We should be sending
             /// the data resolved at this point as is, rather than guessing that
             /// might be meant to represent a filename. The expression should
             /// have already loaded the file data by now. Of course if we had
             /// anything but the JSON types to deal with this would be far far
             /// simpler.
-            auto filename = fostlib::coerce<boost::filesystem::path>(expr);
+            const boost::filesystem::path filename{
+                fn.value().data(),
+                fn.value().data() + fn.value().bytes()};
             auto filedata = fostlib::utf::load_file(filename);
             body.reset(new fostlib::binary_body(
                 filedata.std_str().c_str(), filedata.std_str().c_str() + filedata.std_str().length()));
             body->headers().set("Content-Type", fostlib::urlhandler::mime_type(filename));
         } else {
-            auto bodydata = fostlib::json::unparse(data, false);
+            auto bodydata = fostlib::json::unparse(expr, false);
             body.reset(new fostlib::binary_body(
                 bodydata.std_str().c_str(), bodydata.std_str().c_str() + bodydata.std_str().length()));
             body->headers().set("Content-Type", "application/json");
