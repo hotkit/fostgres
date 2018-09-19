@@ -18,10 +18,8 @@ namespace {
 
 
     std::pair<boost::shared_ptr<fostlib::mime>, int>  get(
-        fostlib::pg::connection &cnx,
         std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> &&data,
-        const fostlib::json &config, const fostgres::match &m,
-        fostlib::http::server::request &req
+        const fostlib::json &config
     ) {
         const bool pretty = fostlib::coerce<fostlib::nullable<bool>>(config["pretty"]).value_or(true);
         auto row = data.second.begin();
@@ -58,7 +56,7 @@ namespace {
         const fostlib::json &config, const fostgres::match &m,
         fostlib::http::server::request &req
     ) {
-        return get(cnx, select_data(cnx, m.configuration["GET"], m, req), config, m, req);
+        return get(select_data(cnx, m.configuration["GET"], m, req), config);
     }
 
     fostlib::json calc_keys(const fostgres::match &m, const fostlib::json &config) {
@@ -152,7 +150,7 @@ namespace {
         }
         auto result = fostgres::column_names(cnx.insert(relation.c_str(), values, returning));
         cnx.commit();
-        return get(cnx, std::move(result), config, m, req);
+        return get(std::move(result), config);
     }
     std::pair<boost::shared_ptr<fostlib::mime>, int>  patch(
         fostlib::pg::connection &cnx,

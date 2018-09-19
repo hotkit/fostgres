@@ -35,10 +35,8 @@ namespace fostgres {
             std::pair<boost::shared_ptr<fostlib::mime>, int>,
             std::pair<fostlib::json, fostlib::json>> upsert(
                 std::pair<boost::shared_ptr<fostlib::mime>, int> (*)(
-                    fostlib::pg::connection &cnx,
                     std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> &&data,
-                    const fostlib::json &config, const fostgres::match &m,
-                    fostlib::http::server::request &req
+                    const fostlib::json &config
                 ),
                 const fostlib::json &data,
                 std::optional<std::size_t > row = {});

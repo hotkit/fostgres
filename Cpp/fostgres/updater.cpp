@@ -60,10 +60,8 @@ std::pair<
     std::pair<fostlib::json, fostlib::json>
 > fostgres::updater::upsert(
     std::pair<boost::shared_ptr<fostlib::mime>, int> (*get)(
-        fostlib::pg::connection &cnx,
         std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> &&data,
-        const fostlib::json &config, const fostgres::match &m,
-        fostlib::http::server::request &req
+        const fostlib::json &config
     ),
     const fostlib::json &body,
     std::optional<std::size_t> row
@@ -81,7 +79,7 @@ std::pair<
     if ( get && returning_cols.size() ) {
         auto rs = cnx.upsert(relation.c_str(), d.first, d.second, returning_cols);
         auto result = fostgres::column_names(std::move(rs));
-        return {get(cnx, std::move(result), config, m, req), d};
+        return {get(std::move(result), config), d};
     } else {
         cnx.upsert(relation.c_str(), d.first, d.second);
     }
