@@ -11,4 +11,4 @@ add_subdirectory(fost-postgres)
 add_subdirectory(fost-web)
 add_subdirectory(.. fostgres)
 add_subdirectory(json-schema)
-
+add_subdirectory(libpqxx)
