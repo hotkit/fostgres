@@ -37,4 +37,5 @@ add_custom_target(fostgres-schema-validation-test-target
             fostgres-schema-validation-test
     )
 add_dependencies(stress fostgres-schema-validation-test-target)
+add_dependencies(pgtest fostgres-schema-validation-test-target)
 

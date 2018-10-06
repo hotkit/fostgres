@@ -94,3 +94,5 @@ add_custom_target(fg-tests DEPENDS
         test-user-avatar
     )
 add_dependencies(stress fg-tests)
+add_dependencies(pgtest fg-tests)
+
