@@ -30,7 +30,7 @@ script:
     - git clone https://github.com/KayEss/fost-boost.git
     - git clone https://github.com/KayEss/fost-crypto.git
     - git clone https://github.com/KayEss/fost-internet.git
-    - git clone https://github.com/KayEss/fost-postgres.git
+    - git clone -b develop https://github.com/KayEss/fost-postgres.git
     - git clone https://github.com/KayEss/fost-web.git
     - git clone https://github.com/KayEss/f5-cord.git
     - git clone -b develop https://github.com/KayEss/f5-threading.git
