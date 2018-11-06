@@ -1,0 +1,45 @@
+language: cpp
+sudo: required
+dist: xenial
+
+services:
+    - postgresql
+
+compiler:
+    - gcc
+    - clang
+
+env:
+    - CMAKE_BUILD_TYPE=Debug
+    - CMAKE_BUILD_TYPE=Release
+
+cache:
+  directories:
+    boost-cache
+
+install:
+    - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+    - sudo apt-get update -qq
+    - sudo apt-get install -qq -y ninja-build g++-8 libpq-dev postgresql-server-dev-all
+
+script:
+    - mkdir build.tmp && cd build.tmp
+    - 'if [ "$CXX" = "g++" ]; then export CC=gcc-8; export CXX=g++-8; fi'
+    - git clone https://github.com/KayEss/fost-base.git
+    - git clone https://github.com/KayEss/fost-beanbag.git
+    - git clone https://github.com/KayEss/fost-boost.git
+    - git clone https://github.com/KayEss/fost-crypto.git
+    - git clone https://github.com/KayEss/fost-internet.git
+    - git clone https://github.com/KayEss/fost-postgres.git
+    - git clone https://github.com/KayEss/fost-web.git
+    - git clone https://github.com/KayEss/f5-cord.git
+    - git clone https://github.com/KayEss/f5-threading.git
+    - git clone https://github.com/KayEss/json-schema.git
+    - git clone https://github.com/jtv/libpqxx.git
+    - ln -s ../../boost-cache fost-boost/boost
+    - cp ../.travis.CMakeLists.txt CMakeLists.txt
+    - cmake . -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -G Ninja
+    - ninja
+    - ninja check
+    - ninja pgtest
+

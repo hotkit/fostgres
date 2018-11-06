@@ -1,3 +1,6 @@
+2018-09-19  Kirit Saelensminde  <kirit@felspar.com>
+ Extend schema validation to fields and CSJ.
+
 2018-08-11  Kirit Saelensminde  <kirit@felspar.com>
  * Add JSON schema validation for object `PUT` and `PATCH`.
  * Fix the order of the expected & actual results for object request.
