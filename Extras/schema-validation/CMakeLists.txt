@@ -13,7 +13,7 @@ install(FILES
     DESTINATION share/fostgres/extras/schema-validation)
 
 
-if(TARGET stress)
+if(TARGET stress OR TARGET pgtest)
     add_custom_command(OUTPUT fostgres-schema-validation-test
             COMMAND fostgres-test fostgres-schema-validation-test
                 "-o" fostgres-schema-validation-test
@@ -37,6 +37,10 @@ if(TARGET stress)
             DEPENDS
                 fostgres-schema-validation-test
         )
-    add_dependencies(stress fostgres-schema-validation-test-target)
-    add_dependencies(pgtest fostgres-schema-validation-test-target)
+    if(TARGET stress)
+        add_dependencies(stress fostgres-schema-validation-test-target)
+    endif()
+    if(TARGET pgtest)
+        add_dependencies(pgtest fostgres-schema-validation-test-target)
+    endif()
 endif()

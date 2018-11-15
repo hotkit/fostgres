@@ -5,7 +5,7 @@ install(DIRECTORY tutorial
 install(DIRECTORY users
     DESTINATION share/fostgres/examples)
 
-if(TARGET stress)
+if(TARGET stress OR TARGET pgtest)
     ## It's not error to have empty script files that do nothing
     add_custom_command(OUTPUT test-comment
             COMMAND fostgres-test fostgres-test-comment -o test-comment
@@ -94,6 +94,10 @@ if(TARGET stress)
             test-users
             test-user-avatar
         )
-    add_dependencies(stress fg-tests)
-    add_dependencies(pgtest fg-tests)
+    if(TARGET stress)
+        add_dependencies(stress fg-tests)
+    endif()
+    if(TARGET pgtest)
+        add_dependencies(pgtest fg-tests)
+    endif()
 endif()
