@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.7)
 
+## Opt in to tests
+add_custom_target(check)
+add_custom_target(pgtest)
+
 add_subdirectory(fost-boost)
 add_subdirectory(fost-crypto)
 add_subdirectory(f5-cord)
