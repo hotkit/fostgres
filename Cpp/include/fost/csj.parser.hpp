@@ -20,31 +20,35 @@ namespace fostlib {
 
 
         template<typename Iterator>
-        struct headers_parser : boost::spirit::qi::grammar<Iterator, std::vector<string>()> {
+        struct headers_parser :
+        boost::spirit::qi::grammar<Iterator, std::vector<string>()> {
             using vector_type = std::vector<string>;
 
             boost::spirit::qi::rule<Iterator, vector_type()> top;
             json_string_parser<Iterator> str;
 
-            headers_parser()
-            : headers_parser::base_type(top) {
-                top = str %
-                    (*boost::spirit::qi::lit(' ') >> boost::spirit::qi::lit(',') >> *boost::spirit::qi::lit(' '));
+            headers_parser() : headers_parser::base_type(top) {
+                top = str
+                        % (*boost::spirit::qi::lit(' ')
+                           >> boost::spirit::qi::lit(',')
+                           >> *boost::spirit::qi::lit(' '));
             }
         };
 
 
         template<typename Iterator>
-        struct line_parser : boost::spirit::qi::grammar<Iterator, std::vector<json>()> {
+        struct line_parser :
+        boost::spirit::qi::grammar<Iterator, std::vector<json>()> {
             using vector_type = std::vector<json>;
 
             boost::spirit::qi::rule<Iterator, vector_type()> top;
             json_embedded_parser<Iterator> item;
 
-            line_parser()
-            : line_parser::base_type(top) {
-                top = item %
-                    (*boost::spirit::qi::lit(' ') >> boost::spirit::qi::lit(',') >> *boost::spirit::qi::lit(' '));
+            line_parser() : line_parser::base_type(top) {
+                top = item
+                        % (*boost::spirit::qi::lit(' ')
+                           >> boost::spirit::qi::lit(',')
+                           >> *boost::spirit::qi::lit(' '));
             }
         };
 
@@ -55,16 +59,17 @@ namespace fostlib {
             line_iter_t line_iter;
             line_iter_t::const_iterator li_pos, li_end;
             std::vector<fostlib::string> headers;
-            headers_parser<f5::const_u32u16_iterator<f5::u8view::const_iterator>> headers_p;
-            line_parser<f5::const_u32u16_iterator<f5::u8view::const_iterator>> line_p;
-        public:
+            headers_parser<f5::const_u32u16_iterator<f5::u8view::const_iterator>>
+                    headers_p;
+            line_parser<f5::const_u32u16_iterator<f5::u8view::const_iterator>>
+                    line_p;
+
+          public:
             /// Initialise from a string
             parser(f5::u8view);
 
             /// Return the header column names
-            const auto &header() const {
-                return headers;
-            }
+            const auto &header() const { return headers; }
 
             class const_iterator {
                 friend class parser;
@@ -73,24 +78,19 @@ namespace fostlib {
                 std::vector<fostlib::json> line;
 
                 const_iterator(const parser &, line_iter_t::const_iterator);
-            public:
+
+              public:
                 /// Return the current line
-                const std::vector<json> &operator * () const {
-                    return line;
-                }
+                const std::vector<json> &operator*() const { return line; }
                 /// Return the current line as JSON
                 json as_json() const;
 
                 /// Move to the next line
-                const_iterator &operator ++ ();
+                const_iterator &operator++();
 
                 /// Allow comparison
-                bool operator == (const_iterator i) const {
-                    return pos == i.pos;
-                }
-                bool operator != (const_iterator i) const {
-                    return pos != i.pos;
-                }
+                bool operator==(const_iterator i) const { return pos == i.pos; }
+                bool operator!=(const_iterator i) const { return pos != i.pos; }
             };
             friend class const_iterator;
 
@@ -104,4 +104,3 @@ namespace fostlib {
 
 
 }
-

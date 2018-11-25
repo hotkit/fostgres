@@ -15,25 +15,25 @@
 namespace {
 
 
-    f5::tsset<fg::register_builtins*> g_registrations;
+    f5::tsset<fg::register_builtins *> g_registrations;
 
 
-    fg::json progn(
-        fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end
-    ) {
+    fg::json
+            progn(fg::frame &stack,
+                  fg::json::const_iterator pos,
+                  fg::json::const_iterator end) {
         int64_t executed = 0u;
-        for ( ; pos != end; ++ pos ) {
-            call(stack, *pos);
-        }
+        for (; pos != end; ++pos) { call(stack, *pos); }
         return fg::json(executed);
     }
 
 
-    fg::json cat(
-        fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end
-    ) {
+    fg::json
+            cat(fg::frame &stack,
+                fg::json::const_iterator pos,
+                fg::json::const_iterator end) {
         fostlib::string catted;
-        for ( ; pos != end; ) {
+        for (; pos != end;) {
             catted += stack.resolve_string(stack.argument("string", pos, end));
         }
         return fg::json(catted);
@@ -41,37 +41,36 @@ namespace {
 
 
     /// Return the current binding (if there is no binding then error)
-    fg::json lookup(
-        fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end
-    ) {
+    fg::json
+            lookup(fg::frame &stack,
+                   fg::json::const_iterator pos,
+                   fg::json::const_iterator end) {
         auto name = stack.resolve_string(stack.argument("varname", pos, end));
         auto value = stack.lookup(name);
-        fostlib::log::debug(fg::c_fg)
-            ("", "Symbol value")
-            ("varname", name)
-            ("value", value);
+        fostlib::log::debug(fg::c_fg)("", "Symbol value")("varname", name)(
+                "value", value);
         return value;
     }
 
 
-    fg::json quote(
-        fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end
-    ) {
+    fg::json
+            quote(fg::frame &stack,
+                  fg::json::const_iterator pos,
+                  fg::json::const_iterator end) {
         return stack.argument("object", pos, end);
     }
 
 
     /// Bind a name to a value
-    fg::json set(
-        fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end
-    ) {
+    fg::json
+            set(fg::frame &stack,
+                fg::json::const_iterator pos,
+                fg::json::const_iterator end) {
         auto name = stack.resolve_string(stack.argument("varname", pos, end));
         auto value = stack.resolve(stack.argument("value", pos, end));
-        fostlib::log::debug(fg::c_fg)
-            ("", "set a value")
-            ("name", name)
-            ("value", value);
-        if ( stack.parent ) {
+        fostlib::log::debug(fg::c_fg)("", "set a value")("name", name)(
+                "value", value);
+        if (stack.parent) {
             stack.parent->symbols[name] = value;
         } else {
             stack.symbols[name] = value;
@@ -80,34 +79,31 @@ namespace {
     }
     /// Set a sub-value in the JSON at this symbol
     fg::json set_path(
-        fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end
-    ) {
+            fg::frame &stack,
+            fg::json::const_iterator pos,
+            fg::json::const_iterator end) {
         auto name = stack.resolve_string(stack.argument("varname", pos, end));
         auto path = stack.resolve(stack.argument("path", pos, end));
         auto value = stack.resolve(stack.argument("value", pos, end));
-        stack.symbols[name] =
-            fostlib::coerce<fostlib::jcursor>(path).set(stack.symbols[name], value);
-        fostlib::log::debug(fg::c_fg)
-            ("", "set a value")
-            ("name", name)
-            ("path", path)
-            ("value", value)
-            ("becomes", stack.symbols[name]);
+        stack.symbols[name] = fostlib::coerce<fostlib::jcursor>(path).set(
+                stack.symbols[name], value);
+        fostlib::log::debug(fg::c_fg)("", "set a value")("name", name)(
+                "path", path)("value", value)("becomes", stack.symbols[name]);
         return value;
     }
 
 
     /// Change the value of a setting
-    fg::json setting(
-        fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end
-    ) {
+    fg::json
+            setting(fg::frame &stack,
+                    fg::json::const_iterator pos,
+                    fg::json::const_iterator end) {
         auto domain = stack.resolve_string(stack.argument("domain", pos, end));
         auto name = stack.resolve_string(stack.argument("name", pos, end));
         auto value = stack.argument("value", pos, end);
         // Argh, fostlib::setting should be movable
         static std::vector<std::unique_ptr<fostlib::setting<fg::json>>> settings;
-        settings.push_back(
-            std::make_unique<fostlib::setting<fg::json>>(
+        settings.push_back(std::make_unique<fostlib::setting<fg::json>>(
                 "fostgres-test", domain, name, value));
         return value;
     }
@@ -137,10 +133,7 @@ fg::frame fg::builtins() {
     funcs.native["sql.file"] = lib::sql_file;
     funcs.native["sql.insert"] = lib::sql_insert;
 
-    g_registrations.for_each(
-        [&funcs](auto *f) {
-                (*f)(funcs);
-            });
+    g_registrations.for_each([&funcs](auto *f) { (*f)(funcs); });
 
     return funcs;
 }
@@ -157,7 +150,4 @@ fg::register_builtins::register_builtins(std::function<void(frame &)> lambda)
 }
 
 
-void fg::register_builtins::operator () (frame &f) const {
-    lambda(f);
-}
-
+void fg::register_builtins::operator()(frame &f) const { lambda(f); }

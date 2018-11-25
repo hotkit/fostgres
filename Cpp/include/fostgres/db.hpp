@@ -20,9 +20,10 @@ namespace fostgres {
     /// Postgres "time zone" is set to that name. If a subrole name is given
     /// then the role is switched to after the database connection has
     /// been made.
-    fostlib::pg::connection connection(const fostlib::json &config,
-        const fostlib::nullable<fostlib::string> &zoneinfo,
-        const fostlib::nullable<fostlib::string> &subrole = fostlib::null);
+    fostlib::pg::connection connection(
+            const fostlib::json &config,
+            const fostlib::nullable<fostlib::string> &zoneinfo,
+            const fostlib::nullable<fostlib::string> &subrole = fostlib::null);
 
 
 }

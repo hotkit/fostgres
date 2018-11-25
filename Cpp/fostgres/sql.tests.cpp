@@ -52,4 +52,3 @@ FSL_TEST_FUNCTION(env_missing_config) {
     fostlib::jcursor("host").del_key(c);
     FSL_CHECK_EQ(c, res);
 }
-

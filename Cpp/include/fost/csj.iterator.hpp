@@ -15,11 +15,7 @@
 namespace fostlib {
 
 
-    namespace csj {
-
-
-    }
+    namespace csj {}
 
 
 }
-

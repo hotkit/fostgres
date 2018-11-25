@@ -19,7 +19,8 @@
 
 
 namespace {
-    using responder_map = f5::tsmap<fostlib::string, fostgres::responder_function>;
+    using responder_map =
+            f5::tsmap<fostlib::string, fostgres::responder_function>;
 
     responder_map &g_responders() {
         static responder_map rm;
@@ -38,16 +39,15 @@ fostgres::responder::responder(fostlib::string name, responder_function fn) {
 */
 
 
-std::pair<boost::shared_ptr<fostlib::mime>, int>  fostgres::response(
-    const fostlib::json &config, const match &m, fostlib::http::server::request &req
-) {
-    auto fname = fostlib::coerce<fostlib::nullable<f5::u8view>>(m.configuration["return"]);
-    if ( fname ) {
+std::pair<boost::shared_ptr<fostlib::mime>, int> fostgres::response(
+        const fostlib::json &config,
+        const match &m,
+        fostlib::http::server::request &req) {
+    auto fname = fostlib::coerce<fostlib::nullable<f5::u8view>>(
+            m.configuration["return"]);
+    if (fname) {
         auto returner = g_responders().find(fname.value());
-        if ( returner ) {
-            return returner(config, m, req);
-        }
+        if (returner) { return returner(config, m, req); }
     }
     return response_csj(config, m, req);
 }
-

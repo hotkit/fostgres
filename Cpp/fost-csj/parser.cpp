@@ -11,18 +11,17 @@
 
 
 namespace {
-    template<typename P, typename Iter, typename Vec> inline
-    void parseline(
-        const P &parser, Iter &pos, Iter end, Vec &into
-    ) {
+    template<typename P, typename Iter, typename Vec>
+    inline void parseline(const P &parser, Iter &pos, Iter end, Vec &into) {
         into.clear();
-        if ( pos != end ) {
-            auto line_pos = f5::make_u32u16_iterator((*pos).begin(), (*pos).end());
-            if ( not boost::spirit::qi::parse(line_pos.first, line_pos.second, parser, into)
-                    || line_pos.first != line_pos.second )
-            {
-                throw fostlib::exceptions::not_implemented(__func__,
-                        "Could not parse row", *pos);
+        if (pos != end) {
+            auto line_pos =
+                    f5::make_u32u16_iterator((*pos).begin(), (*pos).end());
+            if (not boost::spirit::qi::parse(
+                        line_pos.first, line_pos.second, parser, into)
+                || line_pos.first != line_pos.second) {
+                throw fostlib::exceptions::not_implemented(
+                        __func__, "Could not parse row", *pos);
             }
         }
     }
@@ -36,13 +35,12 @@ namespace {
 
 fostlib::csj::parser::parser(f5::u8view str)
 : line_iter(splitter(str, '\n')),
-    li_pos(line_iter.begin()),
-    li_end(line_iter.end())
-{
+  li_pos(line_iter.begin()),
+  li_end(line_iter.end()) {
     parseline(headers_p, li_pos, li_end, headers);
-    if ( not headers.size() ) {
-        throw exceptions::not_implemented(__func__,
-            "No headers were found when parsing CSJ");
+    if (not headers.size()) {
+        throw exceptions::not_implemented(
+                __func__, "No headers were found when parsing CSJ");
     }
     ++li_pos;
 }
@@ -62,26 +60,28 @@ fostlib::csj::parser::const_iterator fostlib::csj::parser::end() const {
 
 
 fostlib::csj::parser::const_iterator::const_iterator(
-    const parser &o, line_iter_t::const_iterator p
-) : owner(o), pos(p) {
+        const parser &o, line_iter_t::const_iterator p)
+: owner(o), pos(p) {
     parseline(owner.line_p, pos, owner.li_end, line);
 }
 
 
-fostlib::csj::parser::const_iterator &fostlib::csj::parser::const_iterator::operator ++ () {
+fostlib::csj::parser::const_iterator &fostlib::csj::parser::const_iterator::
+        operator++() {
     parseline(owner.line_p, ++pos, owner.li_end, line);
-    if ( not line.size() ) {
+    if (not line.size()) {
         // We've hit a blank line. Make sure we only get them from now on
-        while ( pos != owner.li_end ) {
+        while (pos != owner.li_end) {
             parseline(owner.line_p, ++pos, owner.li_end, line);
-            if ( line.size() ) {
-                throw exceptions::not_implemented(__func__,
-                    "Empty line embedded in CSJ file");
+            if (line.size()) {
+                throw exceptions::not_implemented(
+                        __func__, "Empty line embedded in CSJ file");
             }
         }
-    } else if ( line.size() != owner.header().size() ) {
-        throw fostlib::exceptions::not_implemented(__func__,
-            "Number of columns didn't match number of headers", line);
+    } else if (line.size() != owner.header().size()) {
+        throw fostlib::exceptions::not_implemented(
+                __func__, "Number of columns didn't match number of headers",
+                line);
     }
     return *this;
 }
@@ -89,9 +89,8 @@ fostlib::csj::parser::const_iterator &fostlib::csj::parser::const_iterator::oper
 
 fostlib::json fostlib::csj::parser::const_iterator::as_json() const {
     fostlib::json row;
-    for ( std::size_t c{}; c != line.size(); ++c ) {
+    for (std::size_t c{}; c != line.size(); ++c) {
         fostlib::insert(row, owner.header()[c], line[c]);
     }
     return row;
 }
-

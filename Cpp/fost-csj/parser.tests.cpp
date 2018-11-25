@@ -52,7 +52,8 @@ FSL_TEST_FUNCTION(one_line_trailing_new_line) {
 
 
 FSL_TEST_FUNCTION(one_line_trailing_new_lines) {
-    fostlib::utf8_string str("\"h1\",\"h2\",\"h3\",\"h4\",\"h5\"\n1,2,3,4,5\n\n\n");
+    fostlib::utf8_string str(
+            "\"h1\",\"h2\",\"h3\",\"h4\",\"h5\"\n1,2,3,4,5\n\n\n");
     fostlib::csj::parser csj(str);
     auto line = *(csj.begin());
     FSL_CHECK_EQ(line.size(), 5u);
@@ -67,7 +68,8 @@ FSL_TEST_FUNCTION(one_line_trailing_new_lines) {
 
 
 FSL_TEST_FUNCTION(two_lines) {
-    fostlib::utf8_string str("\"h1\",\"h2\",\"h3\",\"h4\",\"h5\"\n1,2,3,4,5\n6,7,8,9,10");
+    fostlib::utf8_string str(
+            "\"h1\",\"h2\",\"h3\",\"h4\",\"h5\"\n1,2,3,4,5\n6,7,8,9,10");
     fostlib::csj::parser csj(str);
     auto line = *(++csj.begin());
     FSL_CHECK_EQ(line.size(), 5u);
@@ -82,7 +84,9 @@ FSL_TEST_FUNCTION(two_lines) {
 
 
 FSL_TEST_FUNCTION(two_lines_and_spaces) {
-    fostlib::utf8_string str("\"h1\",\"h2\",\"h3\",\"h4\",\"h5\"\n1,2, 3, 4,5\n6,7, \"8\",9,10\n");
+    fostlib::utf8_string str(
+            "\"h1\",\"h2\",\"h3\",\"h4\",\"h5\"\n1,2, 3, 4,5\n6,7, "
+            "\"8\",9,10\n");
     fostlib::csj::parser csj(str);
     auto line = *(++csj.begin());
     FSL_CHECK_EQ(line.size(), 5u);
@@ -94,4 +98,3 @@ FSL_TEST_FUNCTION(two_lines_and_spaces) {
     FSL_CHECK_EQ(*(iter++), fostlib::json(10));
     FSL_CHECK(iter == line.end());
 }
-

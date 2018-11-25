@@ -17,30 +17,29 @@ namespace {
 
 
     const class fostgres_sql : public fostlib::urlhandler::view {
-    public:
-        fostgres_sql()
-        : view("fostgres.sql") {
-        }
+      public:
+        fostgres_sql() : view("fostgres.sql") {}
 
-        std::pair<boost::shared_ptr<fostlib::mime>, int> operator () (
-            const fostlib::json &configuration, const fostlib::string &path,
-            fostlib::http::server::request &req,
-            const fostlib::host &
-        ) const {
+        std::pair<boost::shared_ptr<fostlib::mime>, int> operator()(
+                const fostlib::json &configuration,
+                const fostlib::string &path,
+                fostlib::http::server::request &req,
+                const fostlib::host &) const {
             auto m = fostgres::matcher(configuration["sql"], path);
-            if ( m ) {
+            if (m) {
                 try {
                     return fostgres::response(configuration, m.value(), req);
-                } catch ( fostlib::exceptions::exception &e ) {
-                    fostlib::insert(e.data(), "view", "matched", m.value().configuration);
+                } catch (fostlib::exceptions::exception &e) {
+                    fostlib::insert(
+                            e.data(), "view", "matched",
+                            m.value().configuration);
                     throw;
                 }
             }
-            throw fostlib::exceptions::not_implemented(__FUNCTION__,
-                "No match found -- should be 404");
+            throw fostlib::exceptions::not_implemented(
+                    __FUNCTION__, "No match found -- should be 404");
         }
     } c_fostgres_sql;
 
 
 }
-

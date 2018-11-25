@@ -17,12 +17,13 @@ namespace fg {
 
 
     /// Load a MIME from a filename
-    std::unique_ptr<fostlib::binary_body> mime_from_argument(frame &stack, const json &);
+    std::unique_ptr<fostlib::binary_body>
+            mime_from_argument(frame &stack, const json &);
 
 
     /// Compare two MIME results
-    void assert_comparable(const fostlib::mime &actual, const fostlib::mime &expected);
+    void assert_comparable(
+            const fostlib::mime &actual, const fostlib::mime &expected);
 
 
 }
-

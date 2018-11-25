@@ -24,14 +24,12 @@ namespace {
 
 
     void csv_string(std::string &into, const fostlib::string &str) {
-        if ( str.find_first_of("\"\n,") != fostlib::string::npos ) {
+        if (str.find_first_of("\"\n,") != fostlib::string::npos) {
             into += '"';
-            for ( auto ch : str.std_str() ) {
-                switch ( ch ) {
-                case '"':
-                    into += ch; // Double up this one
-                default:
-                    into += ch;
+            for (auto ch : str.std_str()) {
+                switch (ch) {
+                case '"': into += ch; // Double up this one
+                default: into += ch;
                 }
             }
             into += '"';
@@ -54,14 +52,17 @@ namespace {
             bool sent_first = false;
 
             csj_iterator(
-                csj_mime::output format,
-                std::vector<fostlib::string> &&columns,
-                fostlib::pg::recordset &&r)
-            : format(format), rs(std::move(r)), iter(rs.begin()), end(rs.end()) {
+                    csj_mime::output format,
+                    std::vector<fostlib::string> &&columns,
+                    fostlib::pg::recordset &&r)
+            : format(format),
+              rs(std::move(r)),
+              iter(rs.begin()),
+              end(rs.end()) {
                 current.reserve(64 * 1024);
-                for ( std::size_t index{0}; index < columns.size(); ++index ) {
-                    if ( index ) current += ',';
-                    switch ( format ) {
+                for (std::size_t index{0}; index < columns.size(); ++index) {
+                    if (index) current += ',';
+                    switch (format) {
                     case csj_mime::output::csj:
                         fostlib::json::unparse(current, columns[index]);
                         break;
@@ -71,25 +72,34 @@ namespace {
                     }
                 }
                 current += '\n';
-                if ( iter != end ) line();
+                if (iter != end) line();
             }
 
             void line() {
-                while ( iter != end && current.length() < 48 * 1024 ) {
+                while (iter != end && current.length() < 48 * 1024) {
                     auto record = *iter;
-                    for ( std::size_t index{0}; index < record.size(); ++index ) {
-                        if ( index ) current += ',';
-                        switch ( format ) {
+                    for (std::size_t index{0}; index < record.size(); ++index) {
+                        if (index) current += ',';
+                        switch (format) {
                         case csj_mime::output::csj:
-                            fostlib::json::unparse(current, record[index], false);
+                            fostlib::json::unparse(
+                                    current, record[index], false);
                             break;
                         case csj_mime::output::csv:
-                            if ( record[index].isnull() ) {
+                            if (record[index].isnull()) {
                                 // Do nothing -- null is an empty entry
-                            } else if ( not fostlib::coerce<fostlib::nullable<f5::u8view>>(record[index]) ) {
-                                csv_string(current, fostlib::json::unparse(record[index], false));
+                            } else if (not fostlib::coerce<
+                                               fostlib::nullable<f5::u8view>>(
+                                               record[index])) {
+                                csv_string(
+                                        current,
+                                        fostlib::json::unparse(
+                                                record[index], false));
                             } else {
-                                csv_string(current, fostlib::coerce<f5::u8view>(record[index]));
+                                csv_string(
+                                        current,
+                                        fostlib::coerce<f5::u8view>(
+                                                record[index]));
                             }
                             break;
                         }
@@ -99,18 +109,20 @@ namespace {
                 }
             }
 
-            fostlib::const_memory_block operator () () {
-                if ( !sent_first ) {
+            fostlib::const_memory_block operator()() {
+                if (!sent_first) {
                     sent_first = true;
                     return fostlib::const_memory_block(
-                        current.c_str(), current.c_str() + current.length());
-                } else if ( iter == end ) {
+                            current.c_str(),
+                            current.c_str() + current.length());
+                } else if (iter == end) {
                     return fostlib::const_memory_block();
                 } else {
                     current.clear();
                     line();
                     return fostlib::const_memory_block(
-                        current.c_str(), current.c_str() + current.length());
+                            current.c_str(),
+                            current.c_str() + current.length());
                 }
             }
         };
@@ -118,9 +130,9 @@ namespace {
         fostlib::nliteral mime_type(const fostlib::string &accept) {
             const auto csj_pos = accept.find("application/csj");
             const auto csv_pos = accept.find("application/csv");
-            if ( csj_pos < csv_pos ) {
+            if (csj_pos < csv_pos) {
                 return "application/csj";
-            } else if ( csv_pos < csj_pos ) {
+            } else if (csv_pos < csj_pos) {
                 return "application/csv";
             } else {
                 return "text/plain";
@@ -128,25 +140,26 @@ namespace {
         }
 
         csj_mime(
-            const fostlib::string &accept,
-            std::vector<fostlib::string> &&cols,
-            fostlib::pg::recordset &&rs)
+                const fostlib::string &accept,
+                std::vector<fostlib::string> &&cols,
+                fostlib::pg::recordset &&rs)
         : mime(fostlib::mime::mime_headers(), mime_type(accept)),
-            format(output::csj), columns(std::move(cols)), rs(std::move(rs))
-        {
-            if ( headers()["Content-Type"].value() == "application/csv" ) {
+          format(output::csj),
+          columns(std::move(cols)),
+          rs(std::move(rs)) {
+            if (headers()["Content-Type"].value() == "application/csv") {
                 format = output::csv;
             }
         }
 
         std::unique_ptr<iterator_implementation> iterator() const {
-            if ( done ) {
-                throw fostlib::exceptions::not_implemented(__func__,
-                    "The data can only be iterated over once");
+            if (done) {
+                throw fostlib::exceptions::not_implemented(
+                        __func__, "The data can only be iterated over once");
             }
             done = true;
-            return std::unique_ptr<iterator_implementation>(
-                new csj_iterator(format, std::move(columns), std::move(rs)));
+            return std::unique_ptr<iterator_implementation>(new csj_iterator(
+                    format, std::move(columns), std::move(rs)));
         }
 
         bool boundary_is_ok(const fostlib::string &) const {
@@ -158,26 +171,24 @@ namespace {
     };
 
 
-    std::pair<boost::shared_ptr<fostlib::mime>, int>  get(
-        const fostlib::json &config, const fostgres::match &m,
-        fostlib::http::server::request &req
-    ) {
+    std::pair<boost::shared_ptr<fostlib::mime>, int>
+            get(const fostlib::json &config,
+                const fostgres::match &m,
+                fostlib::http::server::request &req) {
         fostlib::pg::connection cnx(fostgres::connection(config, req));
         auto data = fostgres::select_data(cnx, m.configuration["GET"], m, req);
         return std::make_pair(
-            boost::shared_ptr<fostlib::mime>(
-                new csj_mime(
-                    req.headers()["Accept"].value(),
-                    std::move(data.first),
-                    std::move(data.second))),
-            200);
+                boost::shared_ptr<fostlib::mime>(new csj_mime(
+                        req.headers()["Accept"].value(), std::move(data.first),
+                        std::move(data.second))),
+                200);
     }
 
 
-    std::pair<boost::shared_ptr<fostlib::mime>, int>  patch(
-        const fostlib::json &config, const fostgres::match &m,
-        fostlib::http::server::request &req
-    ) {
+    std::pair<boost::shared_ptr<fostlib::mime>, int>
+            patch(const fostlib::json &config,
+                  const fostgres::match &m,
+                  fostlib::http::server::request &req) {
         auto logger = fostlib::log::debug(fostgres::c_fostgres);
         logger("", "CSJ PATCH");
         fostlib::json work_done{fostlib::json::object_t()};
@@ -192,24 +203,24 @@ namespace {
         logger("header", data.header());
 
         // Parse each line and send it to the database
-        for ( auto line(data.begin()), e(data.end()); line != e; ++line ) {
+        for (auto line(data.begin()), e(data.end()); line != e; ++line) {
             auto error = handler.upsert(line.as_json(), records).first;
-            if ( error.first) return error;
+            if (error.first) return error;
             ++records;
         }
         cnx.commit();
         fostlib::insert(work_done, "records", records);
-        boost::shared_ptr<fostlib::mime> response(
-                new fostlib::text_body(fostlib::json::unparse(work_done, true),
-                    fostlib::mime::mime_headers(), L"application/json"));
+        boost::shared_ptr<fostlib::mime> response(new fostlib::text_body(
+                fostlib::json::unparse(work_done, true),
+                fostlib::mime::mime_headers(), L"application/json"));
         return std::make_pair(response, 200);
     }
 
 
-    std::pair<boost::shared_ptr<fostlib::mime>, int>  put(
-        const fostlib::json &config, const fostgres::match &m,
-        fostlib::http::server::request &req
-    ) {
+    std::pair<boost::shared_ptr<fostlib::mime>, int>
+            put(const fostlib::json &config,
+                const fostgres::match &m,
+                fostlib::http::server::request &req) {
         auto logger = fostlib::log::debug(fostgres::c_fostgres);
         logger("", "CSJ PUT");
 
@@ -225,10 +236,11 @@ namespace {
         std::vector<std::pair<std::vector<fostlib::json>, bool>> dbkeys;
         std::vector<fostlib::string> key_names;
         {
-            auto rs = select_data(cnx, m.configuration["PUT"]["existing"], m, req);
-            for ( const auto &row : rs.second ) {
+            auto rs = select_data(
+                    cnx, m.configuration["PUT"]["existing"], m, req);
+            for (const auto &row : rs.second) {
                 std::vector<fostlib::json> keys;
-                for ( std::size_t index{}; index != row.size(); ++index ) {
+                for (std::size_t index{}; index != row.size(); ++index) {
                     keys.push_back(row[index]);
                 }
                 dbkeys.push_back(std::make_pair(std::move(keys), false));
@@ -250,19 +262,21 @@ namespace {
             key_match.reserve(key_names.size());
 
             // Parse each line and send it to the database
-            for ( auto line(data.begin()), e(data.end()); line != e; ++line ) {
+            for (auto line(data.begin()), e(data.end()); line != e; ++line) {
                 key_match.clear();
-                auto [error, inserted] = handler.upsert(line.as_json(), records);
-                if ( error.first ) return error;
+                auto [error, inserted] =
+                        handler.upsert(line.as_json(), records);
+                if (error.first) return error;
                 ++records;
                 // Look to see if we had this data in the database before
                 // and if so mark it as seen in the PUT body
-                for ( const auto &k : key_names ) {
+                for (const auto &k : key_names) {
                     key_match.push_back(inserted.first[k]);
                 }
                 auto found = std::lower_bound(
-                    dbkeys.begin(), dbkeys.end(), std::make_pair(key_match, false));
-                if ( found != dbkeys.end() && found->first == key_match ) {
+                        dbkeys.begin(), dbkeys.end(),
+                        std::make_pair(key_match, false));
+                if (found != dbkeys.end() && found->first == key_match) {
                     found->second = true;
                 }
             }
@@ -273,19 +287,22 @@ namespace {
         // Look through the initial keys to find any that weren't in the
         // incoming data so the rows can be deleted
         {
-            auto sql = fostlib::coerce<fostlib::string>(m.configuration["PUT"]["delete"]);
+            auto sql = fostlib::coerce<fostlib::string>(
+                    m.configuration["PUT"]["delete"]);
             auto sp = cnx.procedure(fostlib::coerce<fostlib::utf8_string>(sql));
-            std::vector<fostlib::json> keys(m.arguments.size() + key_names.size());
-            std::transform(m.arguments.begin(), m.arguments.end(), keys.begin(),
-                [&](const auto &arg) {
-                    return fostlib::json(arg);
-                });
+            std::vector<fostlib::json> keys(
+                    m.arguments.size() + key_names.size());
+            std::transform(
+                    m.arguments.begin(), m.arguments.end(), keys.begin(),
+                    [&](const auto &arg) { return fostlib::json(arg); });
             std::size_t deleted{0};
-            for ( const auto &record : dbkeys ) {
-                if ( not record.second ) {
+            for (const auto &record : dbkeys) {
+                if (not record.second) {
                     // The record wasn't "seen" during the upload so we're
                     // going to delete it.
-                    std::copy(record.first.begin(), record.first.end(), keys.begin() + m.arguments.size());
+                    std::copy(
+                            record.first.begin(), record.first.end(),
+                            keys.begin() + m.arguments.size());
                     sp.exec(keys);
                     ++deleted;
                 }
@@ -296,17 +313,17 @@ namespace {
 
         cnx.commit();
 
-        boost::shared_ptr<fostlib::mime> response(
-                new fostlib::text_body(fostlib::json::unparse(work_done, true),
-                    fostlib::mime::mime_headers(), L"application/json"));
+        boost::shared_ptr<fostlib::mime> response(new fostlib::text_body(
+                fostlib::json::unparse(work_done, true),
+                fostlib::mime::mime_headers(), L"application/json"));
         return std::make_pair(response, 200);
     }
 
 
-    std::pair<boost::shared_ptr<fostlib::mime>, int>  del(
-        const fostlib::json &config, const fostgres::match &m,
-        fostlib::http::server::request &req
-    ) {
+    std::pair<boost::shared_ptr<fostlib::mime>, int>
+            del(const fostlib::json &config,
+                const fostgres::match &m,
+                fostlib::http::server::request &req) {
         fostlib::pg::connection cnx{fostgres::connection(config, req)};
         auto sql = fostlib::coerce<fostlib::string>(m.configuration["DELETE"]);
         auto sp = cnx.procedure(fostlib::coerce<fostlib::utf8_string>(sql));
@@ -320,21 +337,20 @@ namespace {
 }
 
 
-std::pair<boost::shared_ptr<fostlib::mime>, int>  fostgres::response_csj(
-    const fostlib::json &config, const fostgres::match &m,
-    fostlib::http::server::request &req
-) {
-    if ( req.method() == "GET" ) {
+std::pair<boost::shared_ptr<fostlib::mime>, int> fostgres::response_csj(
+        const fostlib::json &config,
+        const fostgres::match &m,
+        fostlib::http::server::request &req) {
+    if (req.method() == "GET") {
         return get(config, m, req);
-    } else if ( req.method() == "PATCH" ) {
+    } else if (req.method() == "PATCH") {
         return patch(config, m, req);
-    } else if ( req.method() == "PUT" ) {
+    } else if (req.method() == "PUT") {
         return put(config, m, req);
-    } else if ( req.method() == "DELETE" ) {
+    } else if (req.method() == "DELETE") {
         return del(config, m, req);
     } else {
-        throw fostlib::exceptions::not_implemented(__FUNCTION__,
-            "Must use GET, HEAD, DELETE, PUT or PATCH");
+        throw fostlib::exceptions::not_implemented(
+                __FUNCTION__, "Must use GET, HEAD, DELETE, PUT or PATCH");
     }
 }
-
