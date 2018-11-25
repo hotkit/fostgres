@@ -15,9 +15,11 @@ target_link_libraries(fostgres f5-json-schema fostgres-core fost-csj)
 set_target_properties(fostgres PROPERTIES DEBUG_POSTFIX "-d")
 install(TARGETS fostgres LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 
-add_library(fostgres-smoke STATIC EXCLUDE_FROM_ALL
-        matcher.tests.cpp
-        sql.tests.cpp
-    )
-target_link_libraries(fostgres-smoke fostgres)
-smoke_test(fostgres-smoke)
+if(TARGET check)
+    add_library(fostgres-smoke STATIC EXCLUDE_FROM_ALL
+            matcher.tests.cpp
+            sql.tests.cpp
+        )
+    target_link_libraries(fostgres-smoke fostgres)
+    smoke_test(fostgres-smoke)
+endif()
