@@ -16,15 +16,19 @@ namespace fg {
 
 
     template<typename Iterator>
-    struct fg_parser : boost::spirit::qi::grammar<Iterator, std::vector<fostlib::json>()> {
-        boost::spirit::qi::rule<Iterator, std::vector<fostlib::json>()> top, inner_sexpr;
-        boost::spirit::qi::rule<Iterator, void()> space, newline, comment, linebreak;
-        boost::spirit::qi::rule<Iterator, std::string()> comment_p, identifier_seq;
-        boost::spirit::qi::rule<Iterator, fostlib::json()> identifier, inner_sexpr_json, full_sexpr, quoted_json;
+    struct fg_parser :
+    boost::spirit::qi::grammar<Iterator, std::vector<fostlib::json>()> {
+        boost::spirit::qi::rule<Iterator, std::vector<fostlib::json>()> top,
+                inner_sexpr;
+        boost::spirit::qi::rule<Iterator, void()> space, newline, comment,
+                linebreak;
+        boost::spirit::qi::rule<Iterator, std::string()> comment_p,
+                identifier_seq;
+        boost::spirit::qi::rule<Iterator, fostlib::json()> identifier,
+                inner_sexpr_json, full_sexpr, quoted_json;
         fostlib::json_embedded_parser<Iterator> json_p;
 
-        fg_parser()
-        : fg_parser::base_type(top) {
+        fg_parser() : fg_parser::base_type(top) {
             namespace qi = boost::spirit::qi;
 
             space = qi::lit(' ');
@@ -35,32 +39,39 @@ namespace fg {
 
             linebreak = *space >> -comment >> newline;
 
-            identifier_seq= +(qi::standard_wide::char_ - (space | newline | qi::lit(')') | qi::lit('#')));
-            identifier = identifier_seq[boost::phoenix::bind([](auto &v, auto &s) {
-                    v = fostlib::json(s);
-                }, qi::_val, qi::_1)];
+            identifier_seq =
+                    +(qi::standard_wide::char_
+                      - (space | newline | qi::lit(')') | qi::lit('#')));
+            identifier = identifier_seq[boost::phoenix::bind(
+                    [](auto &v, auto &s) { v = fostlib::json(s); }, qi::_val,
+                    qi::_1)];
 
-            quoted_json = json_p.array[boost::phoenix::bind([](auto &v, auto &a) {
-                    fostlib::json::array_t arr;
-                    arr.push_back(fostlib::json("quote"));
-                    arr.push_back(a);
-                    v = fostlib::json(std::move(arr));
-                }, qi::_val, qi::_1)];
+            quoted_json = json_p.array[boost::phoenix::bind(
+                    [](auto &v, auto &a) {
+                        fostlib::json::array_t arr;
+                        arr.push_back(fostlib::json("quote"));
+                        arr.push_back(a);
+                        v = fostlib::json(std::move(arr));
+                    },
+                    qi::_val, qi::_1)];
 
-            inner_sexpr = (json_p.object | quoted_json | json_p.atom | full_sexpr | identifier) % +space;
-            inner_sexpr_json = inner_sexpr[boost::phoenix::bind([](auto &v, auto &a) {
-                    fostlib::json::array_t arr;
-                    for ( auto &&l : a ) {
-                        arr.push_back(l);
-                    }
-                    v = arr;
-                }, qi::_val, qi::_1)];
-            full_sexpr = qi::lit('(') >> *space >> inner_sexpr_json >> *space >> qi::lit(')');
+            inner_sexpr = (json_p.object | quoted_json | json_p.atom
+                           | full_sexpr | identifier)
+                    % +space;
+            inner_sexpr_json = inner_sexpr[boost::phoenix::bind(
+                    [](auto &v, auto &a) {
+                        fostlib::json::array_t arr;
+                        for (auto &&l : a) { arr.push_back(l); }
+                        v = arr;
+                    },
+                    qi::_val, qi::_1)];
+            full_sexpr = qi::lit('(') >> *space >> inner_sexpr_json >> *space
+                    >> qi::lit(')');
 
-            top = qi::omit[*linebreak] >> -(inner_sexpr_json % +linebreak) >> qi::omit[*linebreak];
+            top = qi::omit[*linebreak] >> -(inner_sexpr_json % +linebreak)
+                    >> qi::omit[*linebreak];
         }
     };
 
 
 }
-

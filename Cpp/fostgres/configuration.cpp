@@ -7,5 +7,3 @@
 
 
 #include <fost/core>
-
-

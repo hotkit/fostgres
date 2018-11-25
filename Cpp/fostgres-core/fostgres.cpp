@@ -10,4 +10,3 @@
 
 
 const fostlib::module fostgres::c_fostgres("fostgres");
-

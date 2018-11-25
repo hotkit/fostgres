@@ -13,6 +13,4 @@
 FSL_TEST_SUITE(csj_iterator);
 
 
-FSL_TEST_FUNCTION(one_line) {
-}
-
+FSL_TEST_FUNCTION(one_line) {}

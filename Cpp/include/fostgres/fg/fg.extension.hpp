@@ -18,14 +18,14 @@ namespace fg {
     /// Register that new builtins should be added to the runtime
     class register_builtins {
         std::function<void(frame &)> lambda;
-    public:
+
+      public:
         /// Register a lambda that will be created when the initial
         /// frame is built before executing a script.
         register_builtins(std::function<void(frame &)>);
 
-        void operator () (frame &) const;
+        void operator()(frame &) const;
     };
 
 
 }
-

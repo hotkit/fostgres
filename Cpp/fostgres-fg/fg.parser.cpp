@@ -18,16 +18,16 @@ fostlib::json fg::parse(const boost::filesystem::path &filename) {
     std::vector<fostlib::json> script;
     auto pos = f5::make_u32u16_iterator(code.begin(), code.end());
     fg_parser<decltype(pos.first)> fg_p;
-    if ( boost::spirit::qi::parse(pos.first, pos.second, fg_p, script) && pos.first == pos.second ) {
+    if (boost::spirit::qi::parse(pos.first, pos.second, fg_p, script)
+        && pos.first == pos.second) {
         fostlib::json::array_t ret;
         ret.push_back(fostlib::json("progn"));
-        for ( auto &&line : script ) {
-            ret.push_back(line);
-        }
+        for (auto &&line : script) { ret.push_back(line); }
         return fostlib::json(ret);
     } else {
-        throw fostlib::exceptions::parse_error("Could not parse FG script",
-            fostlib::string(pos.first.u32_iterator(), pos.second.u32_iterator()));
+        throw fostlib::exceptions::parse_error(
+                "Could not parse FG script",
+                fostlib::string(
+                        pos.first.u32_iterator(), pos.second.u32_iterator()));
     }
 }
-

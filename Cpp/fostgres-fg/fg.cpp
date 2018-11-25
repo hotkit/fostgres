@@ -19,30 +19,27 @@ const fostlib::module fg::c_fg(fostgres::c_fostgres, "fg");
  */
 
 
-fg::program::program() {
-}
+fg::program::program() {}
 
 
 fg::program::program(boost::filesystem::path fn)
-: filename(std::move(fn)), code(parse(filename)) {
-}
+: filename(std::move(fn)), code(parse(filename)) {}
 
 
-void fg::program::operator () (frame &stack) const {
-    if ( not code.isarray() ) {
+void fg::program::operator()(frame &stack) const {
+    if (not code.isarray()) {
         throw nothing_loaded();
-    } else if ( code.size() <= 1 ) {
+    } else if (code.size() <= 1) {
         throw empty_script();
     } else {
-        stack.native["module.path.join"] = [this](
-                fg::frame &stack,
-                fg::json::const_iterator pos, fg::json::const_iterator end
-            ) {
-                auto path = fostlib::coerce<boost::filesystem::path>(
+        stack.native["module.path.join"] = [this](fg::frame &stack,
+                                                  fg::json::const_iterator pos,
+                                                  fg::json::const_iterator end) {
+            auto path = fostlib::coerce<boost::filesystem::path>(
                     stack.resolve_string(stack.argument("path", pos, end)));
-                auto result = fostlib::join_paths(filename.parent_path(), path);
-                return fostlib::coerce<fostlib::json>(result);
-            };
+            auto result = fostlib::join_paths(filename.parent_path(), path);
+            return fostlib::coerce<fostlib::json>(result);
+        };
         call(stack, code);
     }
 }
@@ -53,8 +50,7 @@ void fg::program::operator () (frame &stack) const {
  */
 
 
-fg::program::empty_script::empty_script() noexcept {
-}
+fg::program::empty_script::empty_script() noexcept {}
 
 
 fostlib::wliteral const fg::program::empty_script::message() const {
@@ -67,11 +63,9 @@ fostlib::wliteral const fg::program::empty_script::message() const {
  */
 
 
-fg::program::nothing_loaded::nothing_loaded() noexcept {
-}
+fg::program::nothing_loaded::nothing_loaded() noexcept {}
 
 
 fostlib::wliteral const fg::program::nothing_loaded::message() const {
     return L"No script has been loaded";
 }
-

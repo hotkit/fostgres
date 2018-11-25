@@ -31,8 +31,9 @@ namespace fg {
 
     /// A stack frame
     class frame {
-    public:
-        using builtin = std::function<json(frame &, json::const_iterator, json::const_iterator)>;
+      public:
+        using builtin = std::function<json(
+                frame &, json::const_iterator, json::const_iterator)>;
 
         frame(frame *parent);
 
@@ -41,7 +42,10 @@ namespace fg {
         std::map<fostlib::string, json> symbols;
 
         /// Pop an argument off the head of the args list
-        json argument(const fostlib::string &name, json::const_iterator &pos, json::const_iterator end);
+        json argument(
+                const fostlib::string &name,
+                json::const_iterator &pos,
+                json::const_iterator end);
 
         /// Turn an expression into a string
         fostlib::string resolve_string(const json &);
@@ -65,25 +69,26 @@ namespace fg {
     class program {
         boost::filesystem::path filename;
         json code;
-    public:
+
+      public:
         /// Construct an empty program that errors when run
         program();
         /// Parse the requested program
         explicit program(boost::filesystem::path);
 
         /// Execute this program
-        void operator () (frame &) const;
+        void operator()(frame &) const;
 
         /// Script not loaded
         class nothing_loaded : public fostlib::exceptions::exception {
-        public:
+          public:
             nothing_loaded() noexcept;
 
             fostlib::wliteral const message() const;
         };
         /// Exception for an empty script
         class empty_script : public fostlib::exceptions::exception {
-        public:
+          public:
             empty_script() noexcept;
 
             fostlib::wliteral const message() const;
@@ -94,15 +99,17 @@ namespace fg {
     /// Call a JSON s-expr
     json call(frame &parent, const fostlib::json &sexpr);
     /// Call a named function
-    json call(frame &parent, const fostlib::string &name,
-        json::const_iterator begin, json::const_iterator end);
+    json
+            call(frame &parent,
+                 const fostlib::string &name,
+                 json::const_iterator begin,
+                 json::const_iterator end);
 
 
     namespace lib {
-        extern frame::builtin contains, del, get, patch, post, put,
-            sql_file, sql_insert;
+        extern frame::builtin contains, del, get, patch, post, put, sql_file,
+                sql_insert;
     }
 
 
 }
-

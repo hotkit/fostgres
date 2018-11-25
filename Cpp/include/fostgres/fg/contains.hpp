@@ -22,13 +22,13 @@ namespace fg {
     /// be shorter. All other valuess (atoms) must be the same,
     /// although a null in sub means that the key doesn't have to
     /// exist in `super`.
-    fostlib::nullable<fostlib::jcursor> contains(const fostlib::json &super, const fostlib::json &sub);
+    fostlib::nullable<fostlib::jcursor>
+            contains(const fostlib::json &super, const fostlib::json &sub);
 
     /// If data is returned by the contains then we can throw an error
     /// in a standard format.
-    [[noreturn]]
-    void throw_contains_error(json expected, json actual, jcursor contains_error);
+    [[noreturn]] void throw_contains_error(
+            json expected, json actual, jcursor contains_error);
 
 
 }
-

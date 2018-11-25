@@ -10,14 +10,12 @@
 #include <fostgres/fg/fg.hpp>
 
 
-fg::frame::builtin fg::lib::contains =
-    [](fg::frame &stack, fg::json::const_iterator pos, fg::json::const_iterator end) {
-        auto data = stack.resolve(stack.argument("data", pos, end));
-        auto check = stack.resolve(stack.argument("check", pos, end));
-        auto result = fg::contains(data, check);
-        if ( result ) {
-            throw_contains_error(data, check, result.value());
-        }
-        return data;
-    };
-
+fg::frame::builtin fg::lib::contains = [](fg::frame &stack,
+                                          fg::json::const_iterator pos,
+                                          fg::json::const_iterator end) {
+    auto data = stack.resolve(stack.argument("data", pos, end));
+    auto check = stack.resolve(stack.argument("check", pos, end));
+    auto result = fg::contains(data, check);
+    if (result) { throw_contains_error(data, check, result.value()); }
+    return data;
+};

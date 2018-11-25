@@ -21,10 +21,8 @@ namespace fostgres {
     };
 
 
-    fostlib::nullable<match> matcher(
-        const fostlib::json &config,
-        const fostlib::string &path);
+    fostlib::nullable<match>
+            matcher(const fostlib::json &config, const fostlib::string &path);
 
 
 }
-

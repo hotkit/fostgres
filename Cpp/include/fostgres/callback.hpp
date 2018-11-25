@@ -18,24 +18,32 @@ namespace fostgres {
 
 
     fostlib::pg::connection connection(
-            fostlib::json, const fostlib::nullable<fostlib::string> &, const fostlib::http::server::request &);
+            fostlib::json,
+            const fostlib::nullable<fostlib::string> &,
+            const fostlib::http::server::request &);
 
 
     /// Register a callback to be called when a database connection
     /// is established.
-    using cnx_callback_fn = std::function<void(fostlib::pg::connection&, const fostlib::http::server::request&)>;
+    using cnx_callback_fn = std::function<void(
+            fostlib::pg::connection &, const fostlib::http::server::request &)>;
     /// Create a `const static` instance of this class giving it the lambda
     /// you want executed on each database connect.
     class register_cnx_callback {
         cnx_callback_fn cb;
-    public:
+
+      public:
         register_cnx_callback(cnx_callback_fn);
         ~register_cnx_callback();
 
-    private:
+      private:
         friend fostlib::pg::connection fostgres::connection(
-            fostlib::json, const fostlib::nullable<fostlib::string> &, const fostlib::http::server::request &);
-        void operator () (fostlib::pg::connection&c, const fostlib::http::server::request&r) const {
+                fostlib::json,
+                const fostlib::nullable<fostlib::string> &,
+                const fostlib::http::server::request &);
+        void operator()(
+                fostlib::pg::connection &c,
+                const fostlib::http::server::request &r) const {
             cb(c, r);
         }
     };

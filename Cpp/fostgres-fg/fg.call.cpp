@@ -11,30 +11,33 @@
 
 
 fg::json fg::call(frame &stack, const json &sexpr) {
-    if ( not sexpr.isarray() ) {
-            throw fostlib::exceptions::not_implemented(__func__,
-                "Script isn't an array/s-expression", sexpr);
-    } else if ( sexpr.size() == 0 ) {
-        throw fostlib::exceptions::not_implemented(__func__,
-            "The script was empty");
+    if (not sexpr.isarray()) {
+        throw fostlib::exceptions::not_implemented(
+                __func__, "Script isn't an array/s-expression", sexpr);
+    } else if (sexpr.size() == 0) {
+        throw fostlib::exceptions::not_implemented(
+                __func__, "The script was empty");
     } else {
-        return call(stack, stack.resolve_string(*sexpr.begin()), ++sexpr.begin(), sexpr.end());
+        return call(
+                stack, stack.resolve_string(*sexpr.begin()), ++sexpr.begin(),
+                sexpr.end());
     }
 }
 
 
 fg::json fg::call(
-    frame &stack,
-    const fostlib::string &name, json::const_iterator begin, json::const_iterator end
-) {
+        frame &stack,
+        const fostlib::string &name,
+        json::const_iterator begin,
+        json::const_iterator end) {
     try {
         frame::builtin function(stack.lookup_function(name));
         return function(stack, begin, end);
-    } catch ( fostlib::exceptions::exception &e ) {
+    } catch (fostlib::exceptions::exception &e) {
         // Built a stack frame
         fg::json sf;
         fostlib::push_back(sf, name);
-        for ( auto iter = begin; iter != end; ++iter ) {
+        for (auto iter = begin; iter != end; ++iter) {
             fostlib::push_back(sf, *iter);
         }
         // Add to the back trace
@@ -42,4 +45,3 @@ fg::json fg::call(
         throw;
     }
 }
-

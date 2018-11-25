@@ -19,12 +19,13 @@ namespace fostgres {
 
     /// Internal class used for PATCH and PUT
     class updater {
-    public:
+      public:
         const fostlib::string relation;
 
         updater(fostlib::json method_config,
-            fostlib::pg::connection &, const fostgres::match &,
-            fostlib::http::server::request &);
+                fostlib::pg::connection &,
+                const fostgres::match &,
+                fostlib::http::server::request &);
 
         /// Returning data
         const std::vector<fostlib::string> returning() const {
@@ -32,13 +33,14 @@ namespace fostgres {
         }
 
         [[nodiscard]] std::pair<
-            std::pair<boost::shared_ptr<fostlib::mime>, int>,
-            std::pair<fostlib::json, fostlib::json>> upsert(
-                const fostlib::json &data,
-                std::optional<std::size_t > row = {});
-        std::pair<fostlib::json, fostlib::json> update(const fostlib::json &data);
+                std::pair<boost::shared_ptr<fostlib::mime>, int>,
+                std::pair<fostlib::json, fostlib::json>>
+                upsert(const fostlib::json &data,
+                       std::optional<std::size_t> row = {});
+        std::pair<fostlib::json, fostlib::json>
+                update(const fostlib::json &data);
 
-    private:
+      private:
         fostlib::json config, col_config;
         std::vector<fostlib::string> returning_cols;
 
@@ -51,13 +53,14 @@ namespace fostgres {
     };
 
 
-    std::pair<boost::shared_ptr<fostlib::mime>, int>  schema_check(
-        fostlib::pg::connection &cnx,
-        const fostlib::json &config, const fostgres::match &m,
-        fostlib::http::server::request &req,
-        const fostlib::json &schema_config, const fostlib::json &instance,
-        fostlib::jcursor dpos);
+    std::pair<boost::shared_ptr<fostlib::mime>, int> schema_check(
+            fostlib::pg::connection &cnx,
+            const fostlib::json &config,
+            const fostgres::match &m,
+            fostlib::http::server::request &req,
+            const fostlib::json &schema_config,
+            const fostlib::json &instance,
+            fostlib::jcursor dpos);
 
 
 }
-
