@@ -131,7 +131,6 @@ namespace {
         if (not returning.size()) { returning.emplace_back("*"); }
         auto result = fostgres::column_names(
                 cnx.insert(relation.c_str(), values, returning));
-        cnx.commit();
         return fostgres::response_object(std::move(result), config);
     }
 
@@ -142,23 +141,34 @@ namespace {
                  fostlib::http::server::request &req) {
         fostlib::json body{fostlib::json::parse(fostlib::coerce<fostlib::string>(
                 fostlib::coerce<fostlib::utf8_string>(req.data()->data())))};
+        std::pair<boost::shared_ptr<fostlib::mime>, int> returning;
         auto const post_config = m.configuration["POST"];
-        if (post_config.has_key("table")) {
-            return proc_post(cnx, config, m, req, post_config, body);
+        if (post_config.isobject()) {
+            if (post_config.has_key("table")) {
+                returning = proc_post(cnx, config, m, req, post_config, body);
+            } else {
+                auto const fn_name = fostlib::coerce<fostlib::utf8_string>(
+                        fostlib::coerce<fostlib::string>(
+                                post_config["function"]));
+                fostlib::json args = post_config["args"];
+                std::vector<fostlib::json> arguments;
+                std::transform(
+                        args.begin(), args.end(), std::back_inserter(arguments),
+                        [&](const auto &s) {
+                            return fostgres::datum(s, {}, body, req).value();
+                        });
+                auto procedure = cnx.procedure(fn_name);
+                auto result = fostgres::column_names(procedure.exec(arguments));
+                returning =
+                        fostgres::response_object(std::move(result), config);
+            }
+        } else if (post_config.isarray()) {
+            for (const auto &cfg : post_config) {
+                returning = proc_post(cnx, config, m, req, cfg, body);
+            }
         }
-        auto const fn_name = fostlib::coerce<fostlib::utf8_string>(
-                fostlib::coerce<fostlib::string>(post_config["function"]));
-        fostlib::json args = post_config["args"];
-        std::vector<fostlib::json> arguments;
-        std::transform(
-                args.begin(), args.end(), std::back_inserter(arguments),
-                [&](const auto &s) {
-                    return fostgres::datum(s, {}, body, req).value();
-                });
-        auto procedure = cnx.procedure(fn_name);
-        auto result = fostgres::column_names(procedure.exec(arguments));
         cnx.commit();
-        return fostgres::response_object(std::move(result), config);
+        return returning;
     }
 
     std::pair<boost::shared_ptr<fostlib::mime>, int>
