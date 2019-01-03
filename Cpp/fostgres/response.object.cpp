@@ -92,6 +92,39 @@ namespace {
             return get(cnx, config, m, req);
         }
     }
+
+    std::pair<boost::shared_ptr<fostlib::mime>, int> proc_post(
+            fostlib::pg::connection &cnx,
+            const fostlib::json &config,
+            const fostgres::match &m,
+            fostlib::http::server::request &req,
+            const fostlib::json &post_config,
+            const fostlib::json &body) {
+        fostlib::string relation =
+                fostlib::coerce<fostlib::string>(post_config["table"]);
+        fostlib::json col_config = post_config["columns"];
+        fostlib::json values;
+        for (auto col_def = col_config.begin(); col_def != col_config.end();
+                ++col_def) {
+            const auto name =
+                    fostlib::coerce<fostlib::string>(col_def.key());
+            const auto data =
+                    fostgres::datum(name, *col_def, m.arguments, body, req);
+            if (data) { fostlib::insert(values, name, data.value()); }
+        }
+        const fostlib::json &ret_cols = post_config["returning"];
+        std::vector<fostlib::string> returning;
+        std::transform(
+                ret_cols.begin(), ret_cols.end(),
+                std::back_inserter(returning), [](const auto &s) {
+                    return fostlib::coerce<fostlib::string>(s);
+                });
+        if (not returning.size()) { returning.emplace_back("*"); }
+        auto result = fostgres::column_names(
+                cnx.insert(relation.c_str(), values, returning));
+        return fostgres::response_object(std::move(result), config);
+    }
+
     std::pair<boost::shared_ptr<fostlib::mime>, int>
             post(fostlib::pg::connection &cnx,
                  const fostlib::json &config,
@@ -99,30 +132,19 @@ namespace {
                  fostlib::http::server::request &req) {
         fostlib::json body{fostlib::json::parse(fostlib::coerce<fostlib::string>(
                 fostlib::coerce<fostlib::utf8_string>(req.data()->data())))};
-        fostlib::string relation = fostlib::coerce<fostlib::string>(
-                m.configuration["POST"]["table"]);
-        fostlib::json col_config = m.configuration["POST"]["columns"];
-        fostlib::json values;
-        for (auto col_def = col_config.begin(); col_def != col_config.end();
-             ++col_def) {
-            const auto name = fostlib::coerce<fostlib::string>(col_def.key());
-            const auto data =
-                    fostgres::datum(name, *col_def, m.arguments, body, req);
-            if (data) { fostlib::insert(values, name, data.value()); }
+        std::pair<boost::shared_ptr<fostlib::mime>, int> returning;
+        auto const post_config = m.configuration["POST"];
+        if (post_config.isobject()) {
+            returning = proc_post(cnx, config, m, req, post_config, body);
+        } else if (post_config.isarray()) {
+            for (const auto &cfg : post_config) {
+                returning = proc_post(cnx, config, m, req, cfg, body);
+            }
         }
-        const fostlib::json &ret_cols = m.configuration["POST"]["returning"];
-        std::vector<fostlib::string> returning;
-        std::transform(
-                ret_cols.begin(), ret_cols.end(), std::back_inserter(returning),
-                [](const auto &s) {
-                    return fostlib::coerce<fostlib::string>(s);
-                });
-        if (not returning.size()) { returning.emplace_back("*"); }
-        auto result = fostgres::column_names(
-                cnx.insert(relation.c_str(), values, returning));
         cnx.commit();
-        return fostgres::response_object(std::move(result), config);
+        return returning;
     }
+
     std::pair<boost::shared_ptr<fostlib::mime>, int>
             patch(fostlib::pg::connection &cnx,
                   const fostlib::json &config,
