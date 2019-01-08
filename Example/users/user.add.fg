@@ -13,6 +13,14 @@ GET users /test-user/password 200 {
         "salt": "I9kv4rSE"
     }
 
+# Schema validation errors
+PUT users /broken-user1 {
+        "email": "t@v",
+        "hashed": "l8hGztvkFceKl+nVTXsYXC3Bo43venuo",
+        "salt": "I9kv4rSE"
+    } 422 {}
+GET users /broken-user1 404
+
 # Add a user without a password
 #PUT users /another-user {"email": "another@example.com"} 200
 #GET users /another-user/password 404

@@ -12,6 +12,14 @@
                         "PUT": [
                             {
                                 "table": "users",
+                                "schema": {
+                                    "properties": {
+                                        "email": {
+                                            "type": "string",
+                                            "minLength": 4
+                                        }
+                                    }
+                                },
                                 "columns": {
                                     "username": {
                                         "key": true,
@@ -22,6 +30,12 @@
                             },
                             {
                                 "table": "passwords",
+                                "schema": {
+                                    "properties": {
+                                        "hashed": {},
+                                        "salt": {}
+                                    }
+                                },
                                 "columns": {
                                     "username": {
                                         "key": true,
