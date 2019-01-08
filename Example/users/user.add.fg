@@ -18,7 +18,7 @@ PUT users /broken-user1 {
         "email": "t@v",
         "hashed": "l8hGztvkFceKl+nVTXsYXC3Bo43venuo",
         "salt": "I9kv4rSE"
-    } 422 {}
+    } 422 {"error": {"assertion" : "minLength", "in-data" : ["email"]}}
 GET users /broken-user1 404
 
 # Add a user without a password
