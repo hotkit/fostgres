@@ -83,6 +83,7 @@ namespace {
         } else if (put_config.isarray()) {
             for (const auto &cfg : put_config) {
                 returning = proc_put(cnx, config, m, req, cfg, body);
+                if ( returning.second >= 400 ) break;
             }
         }
         cnx.commit();
