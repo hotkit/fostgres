@@ -83,7 +83,7 @@ namespace {
         } else if (put_config.isarray()) {
             for (const auto &cfg : put_config) {
                 returning = proc_put(cnx, config, m, req, cfg, body);
-                if ( returning.second >= 400 ) break;
+                if (returning.second >= 400) break;
             }
         }
         cnx.commit();
@@ -106,9 +106,8 @@ namespace {
         fostlib::json col_config = post_config["columns"];
         fostlib::json values;
         for (auto col_def = col_config.begin(); col_def != col_config.end();
-                ++col_def) {
-            const auto name =
-                    fostlib::coerce<fostlib::string>(col_def.key());
+             ++col_def) {
+            const auto name = fostlib::coerce<fostlib::string>(col_def.key());
             const auto data =
                     fostgres::datum(name, *col_def, m.arguments, body, req);
             if (data) { fostlib::insert(values, name, data.value()); }
@@ -116,8 +115,8 @@ namespace {
         const fostlib::json &ret_cols = post_config["returning"];
         std::vector<fostlib::string> returning;
         std::transform(
-                ret_cols.begin(), ret_cols.end(),
-                std::back_inserter(returning), [](const auto &s) {
+                ret_cols.begin(), ret_cols.end(), std::back_inserter(returning),
+                [](const auto &s) {
                     return fostlib::coerce<fostlib::string>(s);
                 });
         if (not returning.size()) { returning.emplace_back("*"); }
