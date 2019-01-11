@@ -1,8 +1,8 @@
-/*
-    Copyright 2016-2017, Felspar Co Ltd. http://support.felspar.com/
+/**
+    Copyright 2016-2019, Felspar Co Ltd. <http://support.felspar.com/>
+
     Distributed under the Boost Software License, Version 1.0.
-    See accompanying file LICENSE_1_0.txt or copy at
-        http://www.boost.org/LICENSE_1_0.txt
+    See <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 
@@ -59,9 +59,11 @@ namespace fostlib {
             line_iter_t line_iter;
             line_iter_t::const_iterator li_pos, li_end;
             std::vector<fostlib::string> headers;
-            headers_parser<f5::const_u32u16_iterator<f5::u8view::const_iterator>>
+            headers_parser<
+                    f5::cord::const_u32u16_iterator<f5::u8view::const_iterator>>
                     headers_p;
-            line_parser<f5::const_u32u16_iterator<f5::u8view::const_iterator>>
+            line_parser<
+                    f5::cord::const_u32u16_iterator<f5::u8view::const_iterator>>
                     line_p;
 
           public:
