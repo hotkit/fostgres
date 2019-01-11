@@ -26,10 +26,10 @@ fostlib::nullable<fostlib::json> fostgres::file_upload(
         hasher << data;
         auto const pathname =
                 fostlib::coerce<fostlib::hex_string>(hasher.digest());
-        auto const directory =
-                fostlib::coerce<boost::filesystem::path>(pathname.substr(0, 3));
-        auto const filename =
-                fostlib::coerce<boost::filesystem::path>(pathname.substr(3));
+        boost::filesystem::path const directory =
+                static_cast<std::string>(pathname.substr(0, 3));
+        boost::filesystem::path const filename =
+                static_cast<std::string>(pathname.substr(3));
         auto store_config = fostlib::setting<fostlib::json>::value(
                 "File storage",
                 fostlib::coerce<fostlib::string>(defn["store"]));
