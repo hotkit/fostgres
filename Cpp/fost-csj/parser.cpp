@@ -15,7 +15,8 @@ namespace {
     inline void parseline(const P &parser, Iter &pos, Iter end, Vec &into) {
         into.clear();
         if (pos != end) {
-            auto line_pos = f5::cord::make_u32u16_iterator((*pos).begin(), (*pos).end());
+            auto line_pos = f5::cord::make_u32u16_iterator(
+                    (*pos).begin(), (*pos).end());
             if (not boost::spirit::qi::parse(
                         line_pos.first, line_pos.second, parser, into)
                 || line_pos.first != line_pos.second) {
