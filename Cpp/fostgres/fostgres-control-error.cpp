@@ -27,7 +27,7 @@ namespace {
                 const fostlib::host &host) const {
             try {
                 return execute(config["execute"], path, req, host);
-            } catch (const pqxx::pqxx_exception& e) {
+            } catch (const pqxx::pqxx_exception &e) {
                 return execute(config[""], path, req, host);
             }
         }
