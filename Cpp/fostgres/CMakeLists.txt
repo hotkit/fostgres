@@ -2,6 +2,7 @@ add_library(fostgres
         configuration.cpp
         datum.cpp
         file.cpp
+        fostgres-control-error.cpp
         fostgres-sql.cpp
         matcher.cpp
         response.cpp
