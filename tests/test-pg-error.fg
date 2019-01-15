@@ -1,0 +1,11 @@
+
+PUT test-pg-error /fred {"email": "fred@mail.com"} 200 {"username": "fred", "email": "fred@mail.com"}
+
+# unique_violation
+PUT test-pg-error /barney {"email": "fred@mail.com"} 501
+
+# integrity_constraint_violation
+PUT test-pg-error /fred/friends/barney {"friend_type": "hangout"} 501
+
+PUT test-pg-error /barney {"email": "barney@mail.com"} 200 {"username": "barney", "email": "barney@mail.com"}
+PUT test-pg-error /fred/friends/barney {"friend_type": "hangout"} 200
