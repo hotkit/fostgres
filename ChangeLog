@@ -1,3 +1,7 @@
+2019-01-15  Tle Ekkul  <e.aryuth@gmail.com>
+ Add fostgres.control.pg-error view
+ Add fostgres-tests
+
 2019-01-03  Tle Ekkul  <e.aryuth@gmail.com>
  POST support configuration as an array
 
