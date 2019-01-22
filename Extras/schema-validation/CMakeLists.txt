@@ -2,7 +2,7 @@ add_library(fostgres-schema-loader
         loader.cpp
     )
 target_link_libraries(fostgres-schema-loader
-    fost-postgres f5-json-schema)
+    fostgres-core fost-postgres f5-json-schema)
 set_target_properties(fostgres-schema-loader
     PROPERTIES DEBUG_POSTFIX "-d")
 install(TARGETS fostgres-schema-loader
@@ -26,6 +26,8 @@ if(TARGET stress OR TARGET pgtest)
                 ${CMAKE_CURRENT_SOURCE_DIR}/test-view.json
             MAIN_DEPENDENCY schema-validation.fg
             DEPENDS
+                fostgres
+                fostgres-schema-loader
                 fostgres-test
                 schema-validation.fg
                 schema-validation.json
