@@ -26,6 +26,8 @@ if(TARGET stress OR TARGET pgtest)
                 ${CMAKE_CURRENT_SOURCE_DIR}/test-view.json
             MAIN_DEPENDENCY schema-validation.fg
             DEPENDS
+                fostgres
+                fostgres-schema-loader
                 fostgres-test
                 schema-validation.fg
                 schema-validation.json

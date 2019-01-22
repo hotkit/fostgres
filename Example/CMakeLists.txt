@@ -33,6 +33,7 @@ if(TARGET stress OR TARGET pgtest)
                 ${CMAKE_CURRENT_SOURCE_DIR}/films/film.t1.fg
             MAIN_DEPENDENCY films/film.t1.fg
             DEPENDS
+                fostgres
                 fostgres-test
                 films/films.tables.sql
                 films/view.film-slug.json
@@ -48,6 +49,7 @@ if(TARGET stress OR TARGET pgtest)
                 ${CMAKE_CURRENT_SOURCE_DIR}/films/films.fg
             MAIN_DEPENDENCY films/films.fg
             DEPENDS
+                fostgres
                 fostgres-test
                 films/films.tables.sql
                 films/view.film-slug.json
@@ -63,6 +65,7 @@ if(TARGET stress OR TARGET pgtest)
                 ${CMAKE_CURRENT_SOURCE_DIR}/users/user.add.fg
             MAIN_DEPENDENCY users/user.add.fg
             DEPENDS
+                fostgres
                 fostgres-test
                 users/users.tables.sql
                 users/view.users.json
@@ -78,6 +81,7 @@ if(TARGET stress OR TARGET pgtest)
                 ${CMAKE_CURRENT_SOURCE_DIR}/users/user.avatar.fg
             MAIN_DEPENDENCY users/user.avatar.fg
             DEPENDS
+                fostgres
                 fostgres-test
                 users/users.tables.sql
                 users/view.users.json
