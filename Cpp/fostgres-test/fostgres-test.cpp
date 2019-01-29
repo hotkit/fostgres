@@ -1,5 +1,5 @@
 /**
-    Copyright 2016-2018, Felspar Co Ltd. <http://support.felspar.com/>
+    Copyright 2016-2019, Felspar Co Ltd. <http://support.felspar.com/>
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -11,6 +11,8 @@
 #include <fost/dynlib>
 #include <fost/main>
 #include <fost/postgres>
+
+#include <pqxx/except.hxx>
 
 
 using namespace fostlib;
@@ -164,6 +166,9 @@ FSL_MAIN(L"fostgres-test", L"Fostgres testing environment")
         return 4;
     } catch (fostlib::exceptions::exception &e) {
         o << e << std::endl;
+    } catch (pqxx::sql_error &e) {
+        o << "Postgres error " << e.sqlstate() << std::endl;
+        o << e.what() << std::endl;
     } catch (std::exception &e) {
         o << "Caught std::exception\n\n" << e.what() << std::endl;
     } catch (...) { o << "Caught an unknown exception" << std::endl; }
