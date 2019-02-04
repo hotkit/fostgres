@@ -5,9 +5,6 @@
 
 ## Configuration
 
-* `response` -- The type of API. The URL to database mapping essentially must describe a resource that comprised either one or multiple rows in the relation/table.
-    * `object` -- The URL describes a single row in the database.
-    * `csj` (default) -- The URL describes multiple rows in the database.
 * `sql` -- The individual end points, see "End point configuration" below.
 
 The view first goes through the list of end point configurations looking for the first path match.
@@ -18,11 +15,16 @@ The view first goes through the list of end point configurations looking for the
 Each end point configuration consists of a number of keys:
 
 * `path` -- The path configuration to match against
+* `response` -- The type of API. The URL to database mapping essentially must describe a resource that comprised either one or multiple rows in the relation/table.
+    * `object` -- The URL describes a single row in the database.
+    * `csj` (default) -- The URL describes multiple rows in the database.
+* `precondition` -- A precondition expression that must be true.
 * `GET` -- Used for `GET` requests.
 * `PUT` -- Used for `PUT` requests.
 * `PATCH` -- Used for `PATCH` requests.
 * `POST` -- Used for `POST` requests.
 * `DELETE` -- Used for `DELETE` requests.
+
 
 #### Path configuration
 
@@ -43,16 +45,17 @@ Would match the following URLs:
 
 But would not match:
 
-    /location/one/two
-    /api/location/one
+    /location/one/two # Contains an extra path element on the end
+    /api/location/one # Doesn't have `location` as the first path element
 
 To match the first one use one of:
 
-    ["/location", 1, 2] (for two arguments)
-    ["/location", 1, "/two"] (for one argument)
+    ["/location", 1, 2] # for two arguments
+    ["/location", 1, "/two"] # for one argument
 
 And again, the second could have a one or two argument form:
 
-    ["/api", "/location", 1] (for one argument)
-    [2, "/location", 1] (for two arguments)
+    ["/api", "/location", 1] # for one argument
+    [2, "/location", 1] # for two arguments
+
 
