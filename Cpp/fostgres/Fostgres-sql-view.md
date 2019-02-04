@@ -26,7 +26,7 @@ Each end point configuration consists of a number of keys:
 * `DELETE` -- Used for `DELETE` requests.
 
 
-#### Path configuration
+#### Path configuration (match expressions)
 
 The path is a JSON array of path elements that are to be matched against. Two options exist:
 
@@ -63,25 +63,28 @@ And again, the second could have a one or two argument form:
 
 Preconditions are used to describe relationships between the data that must be true. For example, if you want the match captures `1` and `2` to be equal you can use the following:
 
-    "precondition": ["eq", 1, 2]
+    "precondition": ["eq", ["match", 1], ["match", 2]]
 
 If they are not equal then a 422 response will be generated. The logs will contain details of the failed expression, but this detail will not be returned to the client.
 
 Headers can be examined by using a `jcursor` to fetch the wanted field:
 
-    "precondition": ["eq", 1, ["request", "headers", "__user"]]
+    "precondition": ["eq", ["match", 1], [ "header", "__user"]]
 
 This checks that the matched URL part `1` is the same as the `__user` header (as would be set by Odin).
 
 The `eq` operator itself is variadic and can be given many items that must all be equal to each other:
 
-    "precondition": ["eq", 1, 2, ["request", "headers", "__user"]]
+    "precondition": ["eq",
+        ["match", 1], ["match", 2], ["header", "__user"]]
 
 This means that the matches `1` and `2` must be equal to each other, and be equal to the `__user` header value.
 
 As well as `eq`, the operators `or` and `and` are also available. Again, they are both variaded, with `or` returning true if any of the sub-expressions are true, and `and` returns true so long as all sub-expresssions are true.
 
-    "precondition": ["or", ["eq", 1, 2], ["eq", 1, ["request", "headers", "__user"]]]
+    "precondition": ["or",
+        ["eq", ["match", 1], ["match", 2]],
+        ["eq", 1, ["header", "__user"]]]
 
 This precondition passes if either `1` and `2` are equal or if  `1` is equal to the `__user` header.
 
