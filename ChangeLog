@@ -1,3 +1,6 @@
+2019-02-05  Kirit Saelensminde  <kirit@felspar.com>
+ Fixed a bug in the HTTP tests not doing name look ups correctly.
+
 2019-01-22  Kirit Saelensminde  <kirit@felspar.com>
  Add debug logging of the database JSON schema loader.
 
