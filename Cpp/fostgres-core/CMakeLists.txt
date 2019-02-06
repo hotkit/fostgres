@@ -1,6 +1,7 @@
 add_library(fostgres-core
         dbconnect.cpp
         fostgres.cpp
+        fsigma.cpp
         iteration.cpp
     )
 target_include_directories(fostgres-core PUBLIC ../include)

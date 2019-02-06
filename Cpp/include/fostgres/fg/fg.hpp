@@ -1,8 +1,8 @@
-/*
-    Copyright 2016-2017 Felspar Co Ltd. http://support.felspar.com/
+/**
+    Copyright 2016-2019 Felspar Co Ltd. <http://support.felspar.com/>
+
     Distributed under the Boost Software License, Version 1.0.
-    See accompanying file LICENSE_1_0.txt or copy at
-        http://www.boost.org/LICENSE_1_0.txt
+    See <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 
@@ -10,6 +10,7 @@
 
 
 #include <fost/file>
+#include <fostgres/fsigma.hpp>
 
 
 namespace fg {
@@ -24,41 +25,6 @@ namespace fg {
 
     /// Parse an fg script and return its JSON representation
     json parse(const boost::filesystem::path &);
-
-
-    class program;
-
-
-    /// A stack frame
-    class frame {
-      public:
-        using builtin = std::function<json(
-                frame &, json::const_iterator, json::const_iterator)>;
-
-        frame(frame *parent);
-
-        frame *parent;
-        std::map<fostlib::string, builtin> native;
-        std::map<fostlib::string, json> symbols;
-
-        /// Pop an argument off the head of the args list
-        json argument(
-                const fostlib::string &name,
-                json::const_iterator &pos,
-                json::const_iterator end);
-
-        /// Turn an expression into a string
-        fostlib::string resolve_string(const json &);
-        /// Turn an expression into an integer
-        int64_t resolve_int(const json &);
-        /// Expect that the JSON represents executable code
-        json resolve(const json &);
-
-        /// Lookup a symbol
-        json lookup(const fostlib::string &name) const;
-        /// Resolve a function
-        builtin lookup_function(const fostlib::string &name) const;
-    };
 
 
     /// Return the builtin functions for the fg environment
@@ -94,16 +60,6 @@ namespace fg {
             fostlib::wliteral const message() const;
         };
     };
-
-
-    /// Call a JSON s-expr
-    json call(frame &parent, const fostlib::json &sexpr);
-    /// Call a named function
-    json
-            call(frame &parent,
-                 const fostlib::string &name,
-                 json::const_iterator begin,
-                 json::const_iterator end);
 
 
     namespace lib {

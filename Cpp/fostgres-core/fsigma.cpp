@@ -1,26 +1,27 @@
-/*
-    Copyright 2016-2017 Felspar Co Ltd. http://support.felspar.com/
+/**
+    Copyright 2016-2019, Felspar Co Ltd. <http://support.felspar.com/>
+
     Distributed under the Boost Software License, Version 1.0.
-    See accompanying file LICENSE_1_0.txt or copy at
-        http://www.boost.org/LICENSE_1_0.txt
+    See <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 
-#include <fostgres/fg/fg.hpp>
+#include <fostgres/fsigma.hpp>
+#include <fost/push_back>
 
 
-/*
-    fg::program
+/**
+    ## fg::frame
  */
 
 
 fg::frame::frame(frame *f) : parent(f) {}
 
 
-fg::json fg::frame::argument(
+fostlib::json fg::frame::argument(
         const fostlib::string &name,
-        json::const_iterator &pos,
-        json::const_iterator end) {
+        fostlib::json::const_iterator &pos,
+        fostlib::json::const_iterator end) {
     if (pos == end) {
         throw fostlib::exceptions::not_implemented(
                 __func__, "Argument not found", name);
@@ -32,7 +33,7 @@ fg::json fg::frame::argument(
 }
 
 
-fostlib::string fg::frame::resolve_string(const json &code) {
+fostlib::string fg::frame::resolve_string(const fostlib::json &code) {
     if (code.isatom()) {
         return fostlib::coerce<fostlib::string>(code);
     } else if (code.isarray()) {
@@ -45,7 +46,7 @@ fostlib::string fg::frame::resolve_string(const json &code) {
 }
 
 
-int64_t fg::frame::resolve_int(const json &code) {
+int64_t fg::frame::resolve_int(const fostlib::json &code) {
     if (code.isatom()) {
         return fostlib::coerce<int64_t>(code);
     } else {
@@ -55,7 +56,7 @@ int64_t fg::frame::resolve_int(const json &code) {
 }
 
 
-fg::json fg::frame::resolve(const json &code) {
+fostlib::json fg::frame::resolve(const fostlib::json &code) {
     /// S-expressions are always a JSON array. Everything else is a literal
     /// and doesn't need to be resolved.
     if (code.isarray()) {
@@ -68,7 +69,7 @@ fg::json fg::frame::resolve(const json &code) {
 
 
 /// This is dynamic rather than lexical scoping, which is.... not great
-fg::json fg::frame::lookup(const fostlib::string &name) const {
+fostlib::json fg::frame::lookup(const fostlib::string &name) const {
     auto fnp = symbols.find(name);
     if (fnp == symbols.end()) {
         if (parent) {
@@ -96,5 +97,47 @@ fg::frame::builtin
         }
     } else {
         return fnp->second;
+    }
+}
+
+
+/**
+    ## fg::call
+ */
+
+
+fostlib::json fg::call(frame &stack, const fostlib::json &sexpr) {
+    if (not sexpr.isarray()) {
+        throw fostlib::exceptions::not_implemented(
+                __func__, "Script isn't an array/s-expression", sexpr);
+    } else if (sexpr.size() == 0) {
+        throw fostlib::exceptions::not_implemented(
+                __func__, "The script was empty");
+    } else {
+        return call(
+                stack, stack.resolve_string(*sexpr.begin()), ++sexpr.begin(),
+                sexpr.end());
+    }
+}
+
+
+fostlib::json fg::call(
+        frame &stack,
+        const fostlib::string &name,
+        fostlib::json::const_iterator begin,
+        fostlib::json::const_iterator end) {
+    try {
+        frame::builtin function(stack.lookup_function(name));
+        return function(stack, begin, end);
+    } catch (fostlib::exceptions::exception &e) {
+        // Built a stack frame
+        fostlib::json sf;
+        fostlib::push_back(sf, name);
+        for (auto iter = begin; iter != end; ++iter) {
+            fostlib::push_back(sf, *iter);
+        }
+        // Add to the back trace
+        fostlib::push_back(e.data(), "fg", "backtrace", sf);
+        throw;
     }
 }

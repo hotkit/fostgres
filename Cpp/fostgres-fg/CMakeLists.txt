@@ -5,8 +5,6 @@ add_library(fostgres-fg
         fg.builtin.checks.cpp
         fg.builtin.http.cpp
         fg.builtin.sql.cpp
-        fg.call.cpp
-        fg.frame.cpp
         fg.parser.cpp
         fg.testserver.cpp
         mime.cpp
