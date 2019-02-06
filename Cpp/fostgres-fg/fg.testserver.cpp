@@ -1,5 +1,5 @@
 /**
-    Copyright 2016-2018 Felspar Co Ltd. <https://support.felspar.com/>
+    Copyright 2016-2019 Felspar Co Ltd. <https://support.felspar.com/>
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -24,7 +24,7 @@ namespace {
                     __func__, "Requested path is empty");
         }
         fostlib::host host("localhost");
-        auto headers = stack.symbols["testserver.headers"];
+        auto headers = stack.lookup("testserver.headers");
         for (auto h(headers.begin()); h != headers.end(); ++h) {
             req.headers().set(
                     fostlib::coerce<fostlib::string>(h.key()),
