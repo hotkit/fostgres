@@ -11,7 +11,7 @@
 
 #include <fostgres/matcher.hpp>
 #include <fostgres/response.hpp>
-
+#include "precondition.hpp"
 
 namespace {
 
@@ -27,6 +27,10 @@ namespace {
                 const fostlib::host &) const {
             auto m = fostgres::matcher(configuration["sql"], path);
             if (m) {
+                if (m.value().configuration.has_key("precondition")){
+                    /// TODO: Pass the json body
+                    auto stack = fostgres::preconditions(req, m.value().arguments, fostlib::json{});
+                }
                 try {
                     return fostgres::response(configuration, m.value(), req);
                 } catch (fostlib::exceptions::exception &e) {
