@@ -34,9 +34,7 @@ FSL_TEST_FUNCTION(header) {
 }
 
 FSL_TEST_FUNCTION(match) {
-    fostlib::mime::mime_headers header;
-    fostlib::http::server::request req(
-            "GET", "/", std::make_unique<fostlib::binary_body>(header));
+    fostlib::http::server::request req{"GET", "/"};
     std::vector<fostlib::string> matched_args;
     matched_args.push_back("first-arg");
     matched_args.push_back("second-arg");
@@ -62,4 +60,57 @@ FSL_TEST_FUNCTION(match) {
     FSL_CHECK_EQ(
             fsigma::call(stack, "match", args.begin(), args.end()),
             fostlib::json{});
+}
+
+FSL_TEST_FUNCTION(eq) {
+    fostlib::mime::mime_headers heads;
+    heads.add("UserID", "test");
+    fostlib::http::server::request req{
+            "GET", "/", std::make_unique<fostlib::binary_body>(heads)};
+    std::vector<fostlib::string> matched_args;
+    matched_args.push_back("test");
+    auto stack = fostgres::preconditions(req, matched_args, fostlib::json{});
+
+    /// eq will return the evaluating value
+    fostlib::json args;
+    fostlib::push_back(args, 1);
+    FSL_CHECK_EQ(
+            fsigma::call(stack, "eq", args.begin(), args.end()),
+            fostlib::json{1});
+
+    fostlib::jcursor{0}.set(args, fostlib::json{"random string"});
+    FSL_CHECK_EQ(
+            fsigma::call(stack, "eq", args.begin(), args.end()),
+            fostlib::json{"random string"});
+
+    /// return evaluating value when values are 
+    /// equals ["random string", "random string"]
+    fostlib::push_back(args, fostlib::json{"random string"});
+    FSL_CHECK_EQ(
+            fsigma::call(stack, "eq", args.begin(), args.end()),
+            fostlib::json{"random string"});
+
+    /// return null when values are not equals
+    /// ["random string", "random string", "other-string"]
+    fostlib::push_back(args, fostlib::json{"other-string"});
+    FSL_CHECK_EQ(
+            fsigma::call(stack, "eq", args.begin(), args.end()),
+            fostlib::json{});
+
+    /// eq evaluate the arguments before compare
+    /// [ ["match", 1], ["header", "Authorization"] ]
+    fostlib::json m;
+    fostlib::push_back(m, "match");
+    fostlib::push_back(m, 1);
+
+    fostlib::json h;
+    fostlib::push_back(h, "header");
+    fostlib::push_back(h, "UserID");
+    
+    fostlib::json ar;
+    fostlib::push_back(ar, m);
+    fostlib::push_back(ar, h);
+    FSL_CHECK_EQ(
+        fsigma::call(stack, "eq", ar.begin(), ar.end()),
+        fostlib::json{"test"});
 }
