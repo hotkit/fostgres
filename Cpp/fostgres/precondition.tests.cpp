@@ -99,17 +99,11 @@ FSL_TEST_FUNCTION(eq) {
 
     /// eq evaluate the arguments before compare
     /// [ ["match", 1], ["header", "Authorization"] ]
-    fostlib::json m;
-    fostlib::push_back(m, "match");
-    fostlib::push_back(m, 1);
-
-    fostlib::json h;
-    fostlib::push_back(h, "header");
-    fostlib::push_back(h, "UserID");
-    
     fostlib::json ar;
-    fostlib::push_back(ar, m);
-    fostlib::push_back(ar, h);
+    fostlib::push_back(ar, 0, "match");
+    fostlib::push_back(ar, 0, 1);
+    fostlib::push_back(ar, 1, "header");
+    fostlib::push_back(ar, 1, "UserID");
     FSL_CHECK_EQ(
         fsigma::call(stack, "eq", ar.begin(), ar.end()),
         fostlib::json{"test"});
