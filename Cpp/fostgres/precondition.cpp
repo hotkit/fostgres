@@ -9,13 +9,14 @@
 #include "precondition.hpp"
 
 
-fsigma::frame
-        fostgres::preconditions(const fostlib::http::server::request &req) {
-    fsigma::frame f{nullptr};
+namespace {
 
-    f.native["header"] =
-            [&req](fsigma::frame &stack, fostlib::json::const_iterator pos,
-                   fostlib::json::const_iterator end) -> fostlib::json {
+
+    fostlib::json
+            header(const fostlib::http::server::request &req,
+                   fsigma::frame &stack,
+                   fostlib::json::const_iterator pos,
+                   fostlib::json::const_iterator end) {
         auto const name =
                 stack.resolve_string(stack.argument("name", pos, end));
         if (req.headers().exists(name)) {
@@ -23,6 +24,20 @@ fsigma::frame
         } else {
             return fostlib::json{};
         }
+    }
+
+
+}
+
+
+fsigma::frame
+        fostgres::preconditions(const fostlib::http::server::request &req) {
+    fsigma::frame f{nullptr};
+
+    f.native["header"] = [&req](fsigma::frame &stack,
+                                fostlib::json::const_iterator pos,
+                                fostlib::json::const_iterator end) {
+        return header(req, stack, pos, end);
     };
 
     return f;
