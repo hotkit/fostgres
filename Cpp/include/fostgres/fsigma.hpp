@@ -12,7 +12,7 @@
 #include <fost/core>
 
 
-namespace fg {
+namespace fsigma {
 
 
     /// A stack frame

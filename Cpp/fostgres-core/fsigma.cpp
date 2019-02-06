@@ -11,14 +11,14 @@
 
 
 /**
-    ## fg::frame
+    ## fsigma::frame
  */
 
 
-fg::frame::frame(frame *f) : parent(f) {}
+fsigma::frame::frame(frame *f) : parent(f) {}
 
 
-fostlib::json fg::frame::argument(
+fostlib::json fsigma::frame::argument(
         const fostlib::string &name,
         fostlib::json::const_iterator &pos,
         fostlib::json::const_iterator end) {
@@ -33,7 +33,7 @@ fostlib::json fg::frame::argument(
 }
 
 
-fostlib::string fg::frame::resolve_string(const fostlib::json &code) {
+fostlib::string fsigma::frame::resolve_string(const fostlib::json &code) {
     if (code.isatom()) {
         return fostlib::coerce<fostlib::string>(code);
     } else if (code.isarray()) {
@@ -46,7 +46,7 @@ fostlib::string fg::frame::resolve_string(const fostlib::json &code) {
 }
 
 
-int64_t fg::frame::resolve_int(const fostlib::json &code) {
+int64_t fsigma::frame::resolve_int(const fostlib::json &code) {
     if (code.isatom()) {
         return fostlib::coerce<int64_t>(code);
     } else {
@@ -56,7 +56,7 @@ int64_t fg::frame::resolve_int(const fostlib::json &code) {
 }
 
 
-fostlib::json fg::frame::resolve(const fostlib::json &code) {
+fostlib::json fsigma::frame::resolve(const fostlib::json &code) {
     /// S-expressions are always a JSON array. Everything else is a literal
     /// and doesn't need to be resolved.
     if (code.isarray()) {
@@ -69,7 +69,7 @@ fostlib::json fg::frame::resolve(const fostlib::json &code) {
 
 
 /// This is dynamic rather than lexical scoping, which is.... not great
-fostlib::json fg::frame::lookup(const fostlib::string &name) const {
+fostlib::json fsigma::frame::lookup(const fostlib::string &name) const {
     auto fnp = symbols.find(name);
     if (fnp == symbols.end()) {
         if (parent) {
@@ -85,8 +85,8 @@ fostlib::json fg::frame::lookup(const fostlib::string &name) const {
 
 
 /// This is dynamic rather than lexical scoping, which is.... not great
-fg::frame::builtin
-        fg::frame::lookup_function(const fostlib::string &name) const {
+fsigma::frame::builtin
+        fsigma::frame::lookup_function(const fostlib::string &name) const {
     auto fnp = native.find(name);
     if (fnp == native.end()) {
         if (parent) {
@@ -102,11 +102,11 @@ fg::frame::builtin
 
 
 /**
-    ## fg::call
+    ## fsigma::call
  */
 
 
-fostlib::json fg::call(frame &stack, const fostlib::json &sexpr) {
+fostlib::json fsigma::call(frame &stack, const fostlib::json &sexpr) {
     if (not sexpr.isarray()) {
         throw fostlib::exceptions::not_implemented(
                 __func__, "Script isn't an array/s-expression", sexpr);
@@ -121,7 +121,7 @@ fostlib::json fg::call(frame &stack, const fostlib::json &sexpr) {
 }
 
 
-fostlib::json fg::call(
+fostlib::json fsigma::call(
         frame &stack,
         const fostlib::string &name,
         fostlib::json::const_iterator begin,

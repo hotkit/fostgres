@@ -19,6 +19,7 @@ namespace fg {
     const extern fostlib::module c_fg;
 
 
+    using frame = fsigma::frame;
     using json = fostlib::json;
     using jcursor = fostlib::jcursor;
 
