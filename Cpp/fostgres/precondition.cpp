@@ -12,5 +12,18 @@
 fsigma::frame
         fostgres::preconditions(const fostlib::http::server::request &req) {
     fsigma::frame f{nullptr};
+
+    f.native["header"] =
+            [&req](fsigma::frame &stack, fostlib::json::const_iterator pos,
+                   fostlib::json::const_iterator end) -> fostlib::json {
+        auto const name =
+                stack.resolve_string(stack.argument("name", pos, end));
+        if (req.headers().exists(name)) {
+            return fostlib::json{req.headers()[name].value()};
+        } else {
+            return fostlib::json{};
+        }
+    };
+
     return f;
 }
