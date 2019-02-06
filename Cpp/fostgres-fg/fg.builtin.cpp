@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2017 Felspar Co Ltd. http://support.felspar.com/
+    Copyright 2016-2019 Felspar Co Ltd. http://support.felspar.com/
     Distributed under the Boost Software License, Version 1.0.
     See accompanying file LICENSE_1_0.txt or copy at
         http://www.boost.org/LICENSE_1_0.txt
@@ -133,6 +133,16 @@ fg::frame fg::builtins() {
     funcs.native["sql.file"] = lib::sql_file;
     funcs.native["sql.insert"] = lib::sql_insert;
 
+    /**
+     * We don't register the native functions or symbols that
+     * plugins want to expose, rather, we register a lambda
+     * that is going to add the native builtin or symbol that is
+     * going to be used.
+     *
+     * So this looks a bit odd because we need to call each
+     * of the registration lambdas passing in the stack frame
+     * that we care about.
+     */
     g_registrations.for_each([&funcs](auto *f) { (*f)(funcs); });
 
     return funcs;
