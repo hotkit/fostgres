@@ -20,7 +20,7 @@ FSL_TEST_FUNCTION(header) {
     fostlib::http::server::request req(
             "GET", "/", std::make_unique<fostlib::binary_body>(heads));
     auto stack = fostgres::preconditions(
-            req, std::vector<fostlib::string>{}, fostlib::json{});
+            req, std::vector<fostlib::string>{});
 
     fostlib::json args;
     fostlib::push_back(args, "Content-Type");
@@ -38,7 +38,7 @@ FSL_TEST_FUNCTION(match) {
     std::vector<fostlib::string> matched_args;
     matched_args.push_back("first-arg");
     matched_args.push_back("second-arg");
-    auto stack = fostgres::preconditions(req, matched_args, fostlib::json{});
+    auto stack = fostgres::preconditions(req, matched_args);
 
     /// Can retrieve arguments from matcher
     fostlib::json args;
@@ -69,7 +69,7 @@ FSL_TEST_FUNCTION(eq) {
             "GET", "/", std::make_unique<fostlib::binary_body>(heads)};
     std::vector<fostlib::string> matched_args;
     matched_args.push_back("test");
-    auto stack = fostgres::preconditions(req, matched_args, fostlib::json{});
+    auto stack = fostgres::preconditions(req, matched_args);
 
     /// eq will return the evaluating value
     fostlib::json args;

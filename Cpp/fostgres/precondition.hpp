@@ -20,8 +20,7 @@ namespace fostgres {
     /// Returns the base frame with the available preconditions
     fsigma::frame preconditions(
             const fostlib::http::server::request &,
-            const std::vector<fostlib::string> &,
-            const fostlib::json &);
+            const std::vector<fostlib::string> &);
 
 
 }

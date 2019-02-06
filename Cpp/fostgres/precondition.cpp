@@ -60,8 +60,7 @@ namespace {
 
 fsigma::frame fostgres::preconditions(
         const fostlib::http::server::request &req,
-        const std::vector<fostlib::string> &args,
-        const fostlib::json &body) {
+        const std::vector<fostlib::string> &args) {
     fsigma::frame f{nullptr};
 
     f.native["header"] = [&req](fsigma::frame &stack,

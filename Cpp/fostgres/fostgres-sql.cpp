@@ -28,8 +28,7 @@ namespace {
             auto m = fostgres::matcher(configuration["sql"], path);
             if (m) {
                 if (m.value().configuration.has_key("precondition")){
-                    /// TODO: Pass the json body
-                    auto stack = fostgres::preconditions(req, m.value().arguments, fostlib::json{});
+                    auto stack = fostgres::preconditions(req, m.value().arguments);
                 }
                 try {
                     return fostgres::response(configuration, m.value(), req);
