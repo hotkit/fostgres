@@ -1,3 +1,6 @@
+2019-02-07  Tle Ekkul  <e.aryuth@gmail.com>
+ fostgres.sql supporting precondition
+
 2019-02-05  Kirit Saelensminde  <kirit@felspar.com>
  Fixed a bug in the HTTP tests not doing name look ups correctly.
 
