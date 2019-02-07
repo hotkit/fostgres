@@ -87,4 +87,3 @@ The operators `or`(WIP) and `and`(WIP) will be availabled in the future. Again, 
         ["eq", 1, ["header", "__user"]]]
 
 This precondition passes if either `1` and `2` are equal or if  `1` is equal to the `__user` header.
-
