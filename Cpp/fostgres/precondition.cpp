@@ -41,11 +41,12 @@ namespace {
 
     fostlib::json
             eq(fsigma::frame &stack,
-                fostlib::json::const_iterator pos,
-                fostlib::json::const_iterator end) {
+               fostlib::json::const_iterator pos,
+               fostlib::json::const_iterator end) {
         auto const val = stack.resolve(stack.argument("value", pos, end));
         while (pos != end) {
-            if(val != stack.resolve(stack.argument("comparing_value", pos, end))){
+            if (val
+                != stack.resolve(stack.argument("comparing_value", pos, end))) {
                 return fostlib::json{};
             }
         }
@@ -73,8 +74,7 @@ fsigma::frame fostgres::preconditions(
         return match(args, stack, pos, end);
     };
 
-    f.native["eq"] = [](fsigma::frame &stack,
-                        fostlib::json::const_iterator pos,
+    f.native["eq"] = [](fsigma::frame &stack, fostlib::json::const_iterator pos,
                         fostlib::json::const_iterator end) {
         return eq(stack, pos, end);
     };

@@ -27,20 +27,26 @@ namespace {
                 const fostlib::host &host) const {
             auto m = fostgres::matcher(configuration["sql"], path);
             if (m) {
-                if (m.value().configuration.has_key("precondition")){
-                    fostlib::json precondition_config = m.value().configuration["precondition"];
+                if (m.value().configuration.has_key("precondition")) {
+                    fostlib::json precondition_config =
+                            m.value().configuration["precondition"];
                     fostlib::json precondition_predicates;
-                    if (precondition_config.isobject()){
+                    if (precondition_config.isobject()) {
                         precondition_predicates = precondition_config["check"];
                     } else {
                         precondition_predicates = precondition_config;
                     }
-                    auto stack = fostgres::preconditions(req, m.value().arguments);
-                    const auto res = fsigma::call(stack, precondition_predicates);
-                    if (res.isnull()){
+                    auto stack =
+                            fostgres::preconditions(req, m.value().arguments);
+                    const auto res =
+                            fsigma::call(stack, precondition_predicates);
+                    if (res.isnull()) {
                         // precondition predicate result is Falsy
-                        if (precondition_config.isobject() && precondition_config.has_key("failed")){
-                            return execute(precondition_config["failed"], path, req, host);
+                        if (precondition_config.isobject()
+                            && precondition_config.has_key("failed")) {
+                            return execute(
+                                    precondition_config["failed"], path, req,
+                                    host);
                         }
                         /// Fallback to 403
                         fostlib::json config;

@@ -19,8 +19,7 @@ FSL_TEST_FUNCTION(header) {
     heads.add("Content-Type", "application/json");
     fostlib::http::server::request req(
             "GET", "/", std::make_unique<fostlib::binary_body>(heads));
-    auto stack = fostgres::preconditions(
-            req, std::vector<fostlib::string>{});
+    auto stack = fostgres::preconditions(req, std::vector<fostlib::string>{});
 
     fostlib::json args;
     fostlib::push_back(args, "Content-Type");
@@ -83,7 +82,7 @@ FSL_TEST_FUNCTION(eq) {
             fsigma::call(stack, "eq", args.begin(), args.end()),
             fostlib::json{"random string"});
 
-    /// return evaluating value when values are 
+    /// return evaluating value when values are
     /// equals ["random string", "random string"]
     fostlib::push_back(args, fostlib::json{"random string"});
     FSL_CHECK_EQ(
@@ -105,6 +104,6 @@ FSL_TEST_FUNCTION(eq) {
     fostlib::push_back(ar, 1, "header");
     fostlib::push_back(ar, 1, "UserID");
     FSL_CHECK_EQ(
-        fsigma::call(stack, "eq", ar.begin(), ar.end()),
-        fostlib::json{"test"});
+            fsigma::call(stack, "eq", ar.begin(), ar.end()),
+            fostlib::json{"test"});
 }
