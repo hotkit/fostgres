@@ -22,5 +22,13 @@ There are two main components, the to-do list and the to-do items on the list. W
     );
 
 
+## Running the tests
+
+You can install a suitable version of Fostgres using the Fost snap.
+
+    sudo snap install fost --devmode --edge
+    alias fostgrest-test=fost.fostgres-test
+
+
 [Continue the tutorial](./page1.md)
 

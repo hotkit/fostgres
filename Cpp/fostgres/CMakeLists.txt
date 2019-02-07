@@ -5,6 +5,7 @@ add_library(fostgres
         fostgres-control-error.cpp
         fostgres-sql.cpp
         matcher.cpp
+        precondition.cpp
         response.cpp
         response.csj.cpp
         response.json-csv.cpp
@@ -19,6 +20,7 @@ install(TARGETS fostgres LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 if(TARGET check)
     add_library(fostgres-smoke STATIC EXCLUDE_FROM_ALL
             matcher.tests.cpp
+            precondition.tests.cpp
             sql.tests.cpp
         )
     target_link_libraries(fostgres-smoke fostgres)

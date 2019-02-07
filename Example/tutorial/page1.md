@@ -60,7 +60,7 @@ Let's see if we can retrieve the todo list. Change the test script:
 
     GET todo-list /Create%20tutorial 200
 
-This last line means we want to test a view called `todo-list` and fetch a URL `/Create%20tutorial`. This GET request should give us a 200 response status. To do actually get anything we'll also need to have a view. Let's build this up in stages:
+This last line means we want to test a view called `todo-list` and fetch a URL `/Create%20tutorial`. This GET request should give us a 200 response status. To actually get anything we'll also need to have a view. Let's build this up in stages:
 
     {"webserver": {
     }}
@@ -110,7 +110,7 @@ In practice the `return": "object"` really means that the API is talking about a
 
 And then run it:
 
-    fostgres-test todo libfostgres.so schema1.sql views1.json tests3.fg
+    fostgres-test todo fostgres.so schema1.sql views1.json tests3.fg
     Fostgres testing environment
     Copyright (C) 2016, Felspar Co. Ltd.
     Going to be using database todo
