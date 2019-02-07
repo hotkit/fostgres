@@ -33,10 +33,8 @@ namespace {
                   fostlib::json::const_iterator end) {
         auto const arg_idx =
                 stack.resolve_int(stack.argument("arg_idx", pos, end));
-        if (arg_idx) {
-            if (arg_idx > 0 && arg_idx <= args.size()) {
-                return fostlib::json{args[arg_idx - 1]};
-            }
+        if (arg_idx > 0 && arg_idx <= args.size()) {
+            return fostlib::json{args[arg_idx - 1]};
         }
         return fostlib::json{};
     }
