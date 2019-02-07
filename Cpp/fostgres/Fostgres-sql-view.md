@@ -80,7 +80,7 @@ The `eq` operator itself is variadic and can be given many items that must all b
 
 This means that the matches `1` and `2` must be equal to each other, and be equal to the `__user` header value.
 
-As well as `eq`, the operators `or` and `and` are also available. Again, they are both variaded, with `or` returning true if any of the sub-expressions are true, and `and` returns true so long as all sub-expresssions are true.
+The operators `or`(WIP) and `and`(WIP) will be availabled in the future. Again, they are both variaded, with `or` returning true if any of the sub-expressions are true, and `and` returns true so long as all sub-expresssions are true.
 
     "precondition": ["or",
         ["eq", ["match", 1], ["match", 2]],
