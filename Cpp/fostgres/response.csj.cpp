@@ -1,5 +1,5 @@
 /**
-    Copyright 2016-2018, Felspar Co Ltd. <https://support.felspar.com/>
+    Copyright 2016-2019, Felspar Co Ltd. <https://support.felspar.com/>
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -26,7 +26,7 @@ namespace {
     void csv_string(std::string &into, const fostlib::string &str) {
         if (str.find_first_of("\"\n,") != fostlib::string::npos) {
             into += '"';
-            for (auto ch : str.std_str()) {
+            for (auto ch : str.memory()) {
                 switch (ch) {
                 case '"': into += ch; // Double up this one
                 default: into += ch;
@@ -34,7 +34,7 @@ namespace {
             }
             into += '"';
         } else {
-            into += str.std_str();
+            into += static_cast<std::string_view>(str);
         }
     }
 

@@ -1,5 +1,5 @@
 /**
-    Copyright 2016-2018 Felspar Co Ltd. <https://support.felspar.com/>
+    Copyright 2016-2019 Felspar Co Ltd. <https://support.felspar.com/>
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -50,15 +50,13 @@ std::unique_ptr<fostlib::binary_body>
                     fn.value().data(), fn.value().data() + fn.value().bytes()};
             auto filedata = fostlib::utf::load_file(filename);
             body.reset(new fostlib::binary_body(
-                    filedata.std_str().c_str(),
-                    filedata.std_str().c_str() + filedata.std_str().length()));
+                    filedata.memory().begin(), filedata.memory().end()));
             body->headers().set(
                     "Content-Type", fostlib::urlhandler::mime_type(filename));
         } else {
             auto bodydata = fostlib::json::unparse(expr, false);
             body.reset(new fostlib::binary_body(
-                    bodydata.std_str().c_str(),
-                    bodydata.std_str().c_str() + bodydata.std_str().length()));
+                    bodydata.memory().begin(), bodydata.memory().end()));
             body->headers().set("Content-Type", "application/json");
         }
         return body;

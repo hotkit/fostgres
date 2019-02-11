@@ -1,8 +1,8 @@
-/*
-    Copyright 2016-2017, Felspar Co Ltd. http://support.felspar.com/
+/**
+    Copyright 2016-2019, Felspar Co Ltd. <http://support.felspar.com/>
+
     Distributed under the Boost Software License, Version 1.0.
-    See accompanying file LICENSE_1_0.txt or copy at
-        http://www.boost.org/LICENSE_1_0.txt
+    See <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 
@@ -15,8 +15,8 @@ namespace {
     inline void parseline(const P &parser, Iter &pos, Iter end, Vec &into) {
         into.clear();
         if (pos != end) {
-            auto line_pos =
-                    f5::make_u32u16_iterator((*pos).begin(), (*pos).end());
+            auto line_pos = f5::cord::make_u32u16_iterator(
+                    (*pos).begin(), (*pos).end());
             if (not boost::spirit::qi::parse(
                         line_pos.first, line_pos.second, parser, into)
                 || line_pos.first != line_pos.second) {
