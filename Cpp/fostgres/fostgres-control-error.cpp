@@ -1,8 +1,8 @@
-/*
-    Copyright 2019, Felspar Co Ltd. http://support.felspar.com/
+/**
+    Copyright 2019, Felspar Co Ltd. <http://support.felspar.com/>
+
     Distributed under the Boost Software License, Version 1.0.
-    See accompanying file LICENSE_1_0.txt or copy at
-        http://www.boost.org/LICENSE_1_0.txt
+    See <http://www.boost.org/LICENSE_1_0.txt>
 */
 #include <pqxx/except>
 
@@ -27,7 +27,14 @@ namespace {
                 const fostlib::host &host) const {
             try {
                 return execute(config["execute"], path, req, host);
-            } catch (const pqxx::pqxx_exception &e) {
+            } catch (pqxx::sql_error const &e) {
+                if (config.has_key(e.sqlstate().c_str())) {
+                    return execute(
+                            config[e.sqlstate().c_str()], path, req, host);
+                } else {
+                    return execute(config[""], path, req, host);
+                }
+            } catch (pqxx::pqxx_exception const &e) {
                 return execute(config[""], path, req, host);
             }
         }

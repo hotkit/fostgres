@@ -1,0 +1,49 @@
+{
+    "webserver": {
+        "views/test-pg-sql":  {
+            "view": "fostgres.sql",
+            "configuration": {
+                "sql": [
+                    {
+                        "return": "object",
+                        "path": [1],
+                        "GET": "SELECT * FROM users WHERE username=$1",
+                        "PUT": [
+                            {
+                                "table": "users",
+                                "columns": {
+                                    "username": {
+                                        "key": true,
+                                        "source": 1
+                                    },
+                                    "email": {}
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "return": "object",
+                        "path": [1, "/friends", 2],
+                        "GET": "SELECT * FROM friends WHERE username=$1 and friend=$2",
+                        "PUT": [
+                            {
+                                "table": "friends",
+                                "columns": {
+                                    "username": {
+                                        "key": true,
+                                        "source": 1
+                                    },
+                                    "friend": {
+                                        "key": true,
+                                        "source": 2
+                                    },
+                                    "friend_type": {}
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -88,6 +88,21 @@ if(TARGET stress OR TARGET pgtest)
                 users/user.avatar.fg
         )
 
+    add_custom_command(OUTPUT test-pg-error
+            COMMAND fostgres-test fostgres-test-pg-error -o test-pg-error
+                ${CMAKE_CURRENT_SOURCE_DIR}/../Configuration/log-show-all.json
+                $<TARGET_SONAME_FILE:fostgres>
+                ${CMAKE_CURRENT_SOURCE_DIR}/errors/test-pg-error.sql
+                ${CMAKE_CURRENT_SOURCE_DIR}/errors/test-pg-error-view.json
+                ${CMAKE_CURRENT_SOURCE_DIR}/errors/test-pg-error.fg
+            MAIN_DEPENDENCY errors/test-pg-error.fg
+            DEPENDS
+                fostgres-test
+                errors/test-pg-error.sql
+                errors/test-pg-error-view.json
+                errors/test-pg-error.fg
+        )
+
     ## Because of the way cmake works we need this stuff at the end to
     ## actually make the above commands run when things change.
     add_custom_target(fg-tests DEPENDS
@@ -95,6 +110,7 @@ if(TARGET stress OR TARGET pgtest)
             test-empty
             test-films
             test-film-t1
+            test-pg-error
             test-users
             test-user-avatar
         )
