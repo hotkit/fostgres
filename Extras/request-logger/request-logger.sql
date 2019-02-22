@@ -4,6 +4,7 @@ CREATE TABLE request_log (
     started timestamp with time zone DEFAULT now(),
     request_headers JSON NOT NULL,
     messages JSON NOT NULL,
+    duration float NOT NULL,
     exception text NULL,
     status int NULL,
     response_headers JSON NULL
