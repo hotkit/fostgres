@@ -1,0 +1,9 @@
+## # Request logging tests
+
+setting webserver views/rq-log {
+        "view": "fostgres.request-logging",
+        "configuration": {
+        }
+    }
+
+GET rq-log / 501
