@@ -1,8 +1,7 @@
 add_library(fostgres-request-logger
         logger.cpp
     )
-target_link_libraries(fostgres-request-logger
-    fost-urlhandler)
+target_link_libraries(fostgres-request-logger fostgres)
 set_target_properties(fostgres-request-logger
     PROPERTIES DEBUG_POSTFIX "-d")
 install(TARGETS fostgres-request-logger
@@ -16,12 +15,14 @@ if(TARGET stress OR TARGET pgtest)
                 $<TARGET_SONAME_FILE:fostgres>
                 $<TARGET_SONAME_FILE:fostgres-request-logger>
                 ${CMAKE_CURRENT_SOURCE_DIR}/request-logger.fg
+                ${CMAKE_CURRENT_SOURCE_DIR}/request-logger.sql
                 MAIN_DEPENDENCY request-logger.fg
             DEPENDS
                 fostgres
                 fostgres-request-logger
                 fostgres-test
                 request-logger.fg
+                request-logger.sql
         )
     add_custom_target(fostgres-request-logger-test-target
             DEPENDS

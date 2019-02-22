@@ -8,9 +8,13 @@
 
 #include <fost/log>
 #include <fost/urlhandler>
+#include <fostgres/fostgres.hpp>
 
 
 namespace {
+
+
+    fostlib::module const c_rqlog{fostgres::c_fostgres, "request-logger"};
 
 
     class capture_copy {
@@ -41,7 +45,13 @@ namespace {
                 fostlib::http::server::request &req,
                 const fostlib::host &host) const {
             fostlib::log::scoped_sink<capture_copy> logs;
-            throw fostlib::exceptions::not_implemented(__PRETTY_FUNCTION__);
+            {
+                auto logger = fostlib::log::debug(c_rqlog);
+                try {
+                    throw fostlib::exceptions::not_implemented(
+                            __PRETTY_FUNCTION__);
+                } catch (...) { throw; }
+            }
         }
     } c_request_logger;
 

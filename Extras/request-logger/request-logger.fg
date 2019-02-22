@@ -3,7 +3,26 @@
 setting webserver views/rq-log {
         "view": "fostgres.request-logging",
         "configuration": {
+            "view": "fostgres.response.200"
         }
     }
 
+setting webserver views/message {
+        "view": "fostgres.sql",
+        "configuration": {
+            "sql": [{
+                "path": ["/latest"],
+                "return": "object",
+                "GET": "SELECT * FROM request_log ORDER BY started DESC LIMIT 1"
+            }]
+        }
+    }
+
+## The messages start empty
+GET message /latest 404
+
+
+## Log a simple message
 GET rq-log / 501
+
+
