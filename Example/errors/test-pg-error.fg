@@ -1,11 +1,60 @@
+## # Handling Postgres errors
+
+
+## ## Setting a global error handler
+setting webserver views/test-pg-error {
+            "view": "fostgres.control.pg-error",
+            "configuration": {
+                "execute": "test-pg-sql",
+                "": "fost.response.503"
+            }
+        }
 
 PUT test-pg-error /fred {"email": "fred@mail.com"} 200 {"username": "fred", "email": "fred@mail.com"}
 
 # unique_violation
 PUT test-pg-error /barney {"email": "fred@mail.com"} 503
-
 # integrity_constraint_violation
 PUT test-pg-error /fred/friends/barney {"friend_type": "hangout"} 503
 
+## ## Handling specific error codes
+##
+## The list of error code names can be found in the
+## [Postgres source](https://github.com/postgres/postgres/blob/97c39498e5ca9208d3de5a443a2282923619bf91/src/backend/utils/errcodes.txt)
+## and in the
+## [Postgres documentation](https://www.postgresql.org/docs/current/errcodes-appendix.html).
+
+## ### Handle the unique violation
+setting webserver views/test-pg-error {
+            "view": "fostgres.control.pg-error",
+            "configuration": {
+                "execute": "test-pg-sql",
+                "23505": "fost.response.503",
+                "": "fost.response.500"
+            }
+        }
+
+# unique_violation
+PUT test-pg-error /barney {"email": "fred@mail.com"} 503
+# integrity_constraint_violation
+PUT test-pg-error /fred/friends/barney {"friend_type": "hangout"} 500
+
+## ### Handle the integrity violation
+setting webserver views/test-pg-error {
+            "view": "fostgres.control.pg-error",
+            "configuration": {
+                "execute": "test-pg-sql",
+                "23503": "fost.response.503",
+                "": "fost.response.500"
+            }
+        }
+
+# unique_violation
+PUT test-pg-error /barney {"email": "fred@mail.com"} 500
+# integrity_constraint_violation
+PUT test-pg-error /fred/friends/barney {"friend_type": "hangout"} 503
+
+
+## ## Non-error cases work
 PUT test-pg-error /barney {"email": "barney@mail.com"} 200 {"username": "barney", "email": "barney@mail.com"}
 PUT test-pg-error /fred/friends/barney {"friend_type": "hangout"} 200
