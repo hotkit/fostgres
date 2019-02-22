@@ -14,6 +14,10 @@ setting webserver views/message {
                 "path": ["/latest"],
                 "return": "object",
                 "GET": "SELECT * FROM request_log ORDER BY started DESC LIMIT 1"
+            }, {
+                "path": ["/all"],
+                "GET": "SELECT * FROM request_log",
+                "DELETE": "DELETE FROM request_log"
             }]
         }
     }
@@ -21,6 +25,19 @@ setting webserver views/message {
 ## The messages start empty
 GET message /latest 404
 
-
 ## Log a simple message
 GET rq-log / 200
+GET message /latest 200 {
+        "request_headers": {
+            "Content-Type" : "application/x-empty",
+            "__remote_addr" : "127.0.0.1"
+        },
+        "exception": null,
+        "status": 200,
+        "response_headers": {
+            "Content-Length": "67",
+            "Content-Transfer-Encoding" : "8bit",
+            "Content-Type" : "text/html; charset=\"utf-8\""
+        }
+    }
+DELETE message /all 200

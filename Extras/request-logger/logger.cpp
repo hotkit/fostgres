@@ -10,6 +10,7 @@
 #include <fost/log>
 #include <fost/urlhandler>
 #include <fostgres/fostgres.hpp>
+#include <fostgres/sql.hpp>
 
 #include "nonce.hpp"
 
@@ -22,15 +23,15 @@ namespace {
 
     class capture_copy {
         bool pass_on;
+        fostlib::json messages;
 
       public:
-        using result_type = std::vector<fostlib::json> const &;
-        std::vector<fostlib::json> messages;
+        using result_type = fostlib::json;
 
         capture_copy(bool pass_on = true) : pass_on{pass_on} {}
 
         bool operator()(const fostlib::log::message &m) {
-            messages.push_back(fostlib::coerce<fostlib::json>(m));
+            fostlib::push_back(messages, fostlib::coerce<fostlib::json>(m));
             return pass_on;
         }
 
@@ -49,16 +50,27 @@ namespace {
                 const fostlib::host &host) const {
             fostlib::log::scoped_sink<capture_copy> logs;
             auto const rqid = rqlog::reference();
+            fostlib::json row;
+            fostlib::insert(row, "id", rqid);
+            fostlib::insert(row, "request_headers", req.headers());
             req.headers().add("__request_id", rqid);
+            std::pair<boost::shared_ptr<fostlib::mime>, int> response;
             {
-                std::pair<boost::shared_ptr<fostlib::mime>, int> response;
                 auto logger = fostlib::log::debug(c_rqlog);
                 logger("request", "id", rqid);
                 try {
                     response = view::execute(config["view"], path, req, host);
+                    response.first->headers().add("Fostgres-Request-ID", rqid);
                 } catch (...) { throw; }
-                return response;
             }
+            fostlib::pg::connection cnx(fostgres::connection(config, req));
+            fostlib::insert(row, "response_headers", response.first->headers());
+            fostlib::insert(row, "status", response.second);
+            fostlib::insert(
+                    row, "messages", fostlib::json::unparse(logs(), false));
+            cnx.insert("request_log", row);
+            cnx.commit();
+            return response;
         }
     } c_request_logger;
 
