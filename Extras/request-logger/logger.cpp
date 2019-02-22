@@ -48,6 +48,7 @@ namespace {
                 const fostlib::string &path,
                 fostlib::http::server::request &req,
                 const fostlib::host &host) const {
+            fostlib::pg::connection cnx(fostgres::connection(config, req));
             fostlib::log::scoped_sink<capture_copy> logs;
             auto const rqid = rqlog::reference();
             fostlib::json row;
@@ -73,7 +74,6 @@ namespace {
                     fostlib::insert(row, "exception", "**unknown**");
                 }
             }
-            fostlib::pg::connection cnx(fostgres::connection(config, req));
             fostlib::insert(
                     row, "messages", fostlib::json::unparse(logs(), false));
             cnx.insert("request_log", row);
