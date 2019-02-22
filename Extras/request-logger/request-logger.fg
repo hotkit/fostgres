@@ -3,7 +3,7 @@
 setting webserver views/rq-log {
         "view": "fostgres.request-logging",
         "configuration": {
-            "view": "fostgres.response.200"
+            "view": "fost.response.200"
         }
     }
 
@@ -23,6 +23,4 @@ GET message /latest 404
 
 
 ## Log a simple message
-GET rq-log / 501
-
-
+GET rq-log / 200

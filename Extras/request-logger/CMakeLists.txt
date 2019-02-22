@@ -1,5 +1,6 @@
 add_library(fostgres-request-logger
         logger.cpp
+        nonce.cpp
     )
 target_link_libraries(fostgres-request-logger fostgres)
 set_target_properties(fostgres-request-logger

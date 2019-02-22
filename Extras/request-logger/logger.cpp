@@ -6,9 +6,12 @@
 */
 
 
+#include "nonce.hpp"
 #include <fost/log>
 #include <fost/urlhandler>
 #include <fostgres/fostgres.hpp>
+
+#include "nonce.hpp"
 
 
 namespace {
@@ -45,12 +48,16 @@ namespace {
                 fostlib::http::server::request &req,
                 const fostlib::host &host) const {
             fostlib::log::scoped_sink<capture_copy> logs;
+            auto const rqid = rqlog::reference();
+            req.headers().add("__request_id", rqid);
             {
+                std::pair<boost::shared_ptr<fostlib::mime>, int> response;
                 auto logger = fostlib::log::debug(c_rqlog);
+                logger("request", "id", rqid);
                 try {
-                    throw fostlib::exceptions::not_implemented(
-                            __PRETTY_FUNCTION__);
+                    response = view::execute(config["view"], path, req, host);
                 } catch (...) { throw; }
+                return response;
             }
         }
     } c_request_logger;
