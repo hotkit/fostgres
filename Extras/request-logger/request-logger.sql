@@ -5,6 +5,6 @@ CREATE TABLE request_log (
     request_headers JSON NOT NULL,
     messages JSON NOT NULL,
     exception text NULL,
-    status int NOT NULL,
-    response_headers JSON NOT NULL
+    status int NULL,
+    response_headers JSON NULL
 );

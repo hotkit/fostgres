@@ -41,3 +41,25 @@ GET message /latest 200 {
         }
     }
 DELETE message /all 200
+
+setting webserver views/rq-log {
+        "view": "control.exception.catch",
+        "configuration": {
+            "try": {
+                "view": "fostgres.request-logging",
+                "configuration": {
+                    "view": "test.throw"
+                }
+            },
+            "catch": {
+                "std::exception": "fost.response.500"
+            }
+        }
+    }
+GET rq-log / 500
+GET message /latest 200 {
+        "exception": "Null configuration given to test.throw",
+        "status": null,
+        "response_headers": null
+    }
+

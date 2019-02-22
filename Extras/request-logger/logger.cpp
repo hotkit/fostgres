@@ -55,21 +55,30 @@ namespace {
             fostlib::insert(row, "request_headers", req.headers());
             req.headers().add("__request_id", rqid);
             std::pair<boost::shared_ptr<fostlib::mime>, int> response;
+            std::exception_ptr exception;
             {
                 auto logger = fostlib::log::debug(c_rqlog);
                 logger("request", "id", rqid);
                 try {
                     response = view::execute(config["view"], path, req, host);
                     response.first->headers().add("Fostgres-Request-ID", rqid);
-                } catch (...) { throw; }
+                    fostlib::insert(
+                            row, "response_headers", response.first->headers());
+                    fostlib::insert(row, "status", response.second);
+                } catch (std::exception const &e) {
+                    exception = std::current_exception();
+                    fostlib::insert(row, "exception", e.what());
+                } catch (...) {
+                    exception = std::current_exception();
+                    fostlib::insert(row, "exception", "**unknown**");
+                }
             }
             fostlib::pg::connection cnx(fostgres::connection(config, req));
-            fostlib::insert(row, "response_headers", response.first->headers());
-            fostlib::insert(row, "status", response.second);
             fostlib::insert(
                     row, "messages", fostlib::json::unparse(logs(), false));
             cnx.insert("request_log", row);
             cnx.commit();
+            if (exception) { std::rethrow_exception(exception); }
             return response;
         }
     } c_request_logger;
