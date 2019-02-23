@@ -27,6 +27,12 @@ namespace {
                 const fostlib::host &host) const {
             try {
                 return execute(config["execute"], path, req, host);
+            } catch (pqxx::serialization_failure const &e) {
+                if (config.has_key("40001")) {
+                    return execute(config["40001"], path, req, host);
+                } else {
+                    return execute(config[""], path, req, host);
+                }
             } catch (pqxx::sql_error const &e) {
                 if (config.has_key(e.sqlstate().c_str())) {
                     return execute(
