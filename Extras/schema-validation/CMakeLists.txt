@@ -8,7 +8,7 @@ set_target_properties(fostgres-schema-loader
 install(TARGETS fostgres-schema-loader
     LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 install(FILES
-        schema-validation-001.sql
+        001-initial.blue.sql
         schema-validation.json
     DESTINATION share/fostgres/extras/schema-validation)
 
@@ -19,19 +19,19 @@ if(TARGET stress OR TARGET pgtest)
                 "-o" fostgres-schema-validation-test
                 $<TARGET_SONAME_FILE:fostgres>
                 $<TARGET_SONAME_FILE:fostgres-schema-loader>
+                ${CMAKE_CURRENT_SOURCE_DIR}/001-initial.blue.sql
                 ${CMAKE_CURRENT_SOURCE_DIR}/schema-validation.fg
                 ${CMAKE_CURRENT_SOURCE_DIR}/schema-validation.json
-                ${CMAKE_CURRENT_SOURCE_DIR}/schema-validation-001.sql
                 ${CMAKE_CURRENT_SOURCE_DIR}/test-table.sql
                 ${CMAKE_CURRENT_SOURCE_DIR}/test-view.json
             MAIN_DEPENDENCY schema-validation.fg
             DEPENDS
+                001-initial.blue.sql
                 fostgres
                 fostgres-schema-loader
                 fostgres-test
                 schema-validation.fg
                 schema-validation.json
-                schema-validation-001.sql
                 test-table.sql
                 test-view.json
         )
