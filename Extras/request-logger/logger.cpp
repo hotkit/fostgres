@@ -76,6 +76,7 @@ namespace {
                     fostlib::insert(row, "exception", "**unknown**");
                 }
             }
+            fostlib::log::flush();
             fostlib::insert(
                     row, "messages", fostlib::json::unparse(logs(), false));
             fostlib::insert(row, "duration", time.seconds());
