@@ -37,6 +37,12 @@ GET message /latest 200 {
         }
     }
 
+## Reconfigure the view to throw inside the request-logging view. This is
+## used to ensure that exceptions are properly tracked. This is **not**
+## the recommended configuraiton because it loses the request ID in the
+## response headers. You should configure the `control.exception.catch`
+## view to be inside the `fostgres.request-logging` view. See the
+## [README](./README.md) for details
 setting webserver views/rq-log {
         "view": "control.exception.catch",
         "configuration": {
