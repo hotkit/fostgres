@@ -10,11 +10,14 @@ setting webserver views/rq-log {
 setting webserver views/message {
         "view": "fostgres.sql",
         "configuration": {
-            "sql": {
+            "sql": [{
                 "path": ["/latest"],
                 "return": "object",
                 "GET": "SELECT * FROM request_log ORDER BY started DESC LIMIT 1"
-            }
+            }, {
+                "path": [],
+                "DELETE": "DELETE FROM request_log"
+            }]
         }
     }
 
@@ -37,6 +40,8 @@ GET message /latest 200 {
             "Content-Type" : "text/html; charset=\"utf-8\""
         }
     }
+# Delete old messages
+DELETE message / 200
 
 ## Reconfigure the view to throw inside the request-logging view. This is
 ## used to ensure that exceptions are properly tracked. This is **not**
