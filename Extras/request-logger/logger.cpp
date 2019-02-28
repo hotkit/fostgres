@@ -7,6 +7,7 @@
 
 
 #include "nonce.hpp"
+#include <fost/datetime>
 #include <fost/log>
 #include <fost/timer>
 #include <fost/urlhandler>
@@ -49,7 +50,6 @@ namespace {
                 const fostlib::string &path,
                 fostlib::http::server::request &req,
                 const fostlib::host &host) const {
-            fostlib::pg::connection cnx(fostgres::connection(config, req));
             fostlib::timer time;
             fostlib::log::scoped_sink<capture_copy> logs;
             auto const rqid = rqlog::reference();
@@ -80,9 +80,17 @@ namespace {
             fostlib::log::flush();
             fostlib::insert(
                     row, "messages", fostlib::json::unparse(logs(), false));
+            fostlib::insert(row, "started", time.started());
             fostlib::insert(row, "duration", time.seconds());
-            cnx.insert("request_log", row);
-            cnx.commit();
+            try {
+                fostlib::pg::connection cnx(fostgres::connection(config, req));
+                cnx.insert("request_log", row);
+                cnx.commit();
+            } catch (...) {
+                fostlib::log::error(c_rqlog)(
+                        "",
+                        "Error saving log message to database")("data", row);
+            }
             if (exception) { std::rethrow_exception(exception); }
             return response;
         }
