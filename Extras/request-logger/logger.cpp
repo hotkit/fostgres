@@ -57,7 +57,7 @@ namespace {
             fostlib::insert(row, "id", rqid);
             fostlib::insert(row, "request_path", path);
             fostlib::insert(row, "request_headers", req.headers());
-            req.headers().add("__request_id", rqid);
+            req.headers().add("Fostgres-Request-ID", rqid);
             std::pair<boost::shared_ptr<fostlib::mime>, int> response;
             std::exception_ptr exception;
             {
