@@ -22,12 +22,13 @@ setting webserver views/message {
 GET message /latest 404
 
 ## Log a simple message
-GET rq-log / 200
+GET rq-log /test1 200
 GET message /latest 200 {
         "request_headers": {
             "Content-Type" : "application/x-empty",
             "__remote_addr" : "127.0.0.1"
         },
+        "request_path": "test1",
         "exception": null,
         "status": 200,
         "response_headers": {
@@ -57,8 +58,9 @@ setting webserver views/rq-log {
             }
         }
     }
-GET rq-log / 500
+GET rq-log /test2 500
 GET message /latest 200 {
+        "request_path": "test2",
         "exception": "Null configuration given to test.throw",
         "status": null,
         "response_headers": null

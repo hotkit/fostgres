@@ -55,6 +55,7 @@ namespace {
             auto const rqid = rqlog::reference();
             fostlib::json row;
             fostlib::insert(row, "id", rqid);
+            fostlib::insert(row, "request_path", path);
             fostlib::insert(row, "request_headers", req.headers());
             req.headers().add("__request_id", rqid);
             std::pair<boost::shared_ptr<fostlib::mime>, int> response;
