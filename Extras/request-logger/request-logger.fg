@@ -1,0 +1,73 @@
+## # Request logging tests
+
+setting webserver views/rq-log {
+        "view": "fostgres.request-logging",
+        "configuration": {
+            "view": "fost.response.200"
+        }
+    }
+
+setting webserver views/message {
+        "view": "fostgres.sql",
+        "configuration": {
+            "sql": [{
+                "path": ["/latest"],
+                "return": "object",
+                "GET": "SELECT * FROM request_log ORDER BY started DESC LIMIT 1"
+            }, {
+                "path": [],
+                "DELETE": "DELETE FROM request_log"
+            }]
+        }
+    }
+
+## The messages start empty
+GET message /latest 404
+
+## Log a simple message
+GET rq-log /test1 200
+GET message /latest 200 {
+        "request_headers": {
+            "Content-Type" : "application/x-empty",
+            "__remote_addr" : "127.0.0.1"
+        },
+        "request_path": "test1",
+        "exception": null,
+        "status": 200,
+        "response_headers": {
+            "Content-Length": "67",
+            "Content-Transfer-Encoding" : "8bit",
+            "Content-Type" : "text/html; charset=\"utf-8\""
+        }
+    }
+# Delete old messages
+DELETE message / 200
+
+## Reconfigure the view to throw inside the request-logging view. This is
+## used to ensure that exceptions are properly tracked. This is **not**
+## the recommended configuraiton because it loses the request ID in the
+## response headers. You should configure the `control.exception.catch`
+## view to be inside the `fostgres.request-logging` view. See the
+## [README](./README.md) for details
+setting webserver views/rq-log {
+        "view": "control.exception.catch",
+        "configuration": {
+            "try": {
+                "view": "fostgres.request-logging",
+                "configuration": {
+                    "view": "test.throw"
+                }
+            },
+            "catch": {
+                "std::exception": "fost.response.500"
+            }
+        }
+    }
+GET rq-log /test2 500
+GET message /latest 200 {
+        "request_path": "test2",
+        "exception": "Null configuration given to test.throw",
+        "status": null,
+        "response_headers": null
+    }
+
