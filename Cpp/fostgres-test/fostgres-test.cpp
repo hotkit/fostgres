@@ -170,7 +170,8 @@ FSL_MAIN(L"fostgres-test", L"Fostgres testing environment")
         o << "Postgres error " << e.sqlstate() << std::endl;
         o << e.what() << std::endl;
     } catch (std::exception &e) {
-        o << "Caught std::exception\n\n" << e.what() << std::endl;
+        o << "Caught std::exception " << typeid(e).name() << "\n\n"
+          << e.what() << std::endl;
     } catch (...) { o << "Caught an unknown exception" << std::endl; }
     return 1;
 }
