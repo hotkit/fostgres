@@ -58,3 +58,40 @@ PUT test-pg-error /fred/friends/barney {"friend_type": "hangout"} 503
 ## ## Non-error cases work
 PUT test-pg-error /barney {"email": "barney@mail.com"} 200 {"username": "barney", "email": "barney@mail.com"}
 PUT test-pg-error /fred/friends/barney {"friend_type": "hangout"} 200
+
+
+## ## Retrying serialisation errors
+
+## If we start with a view that throws a serialisation error like this:
+
+setting webserver views/throw-serialisation {
+            "view": "test.throw",
+            "configuration": {
+                "exception": "pqxx::serialization_failure"
+            }
+        }
+
+## We can wrap it in a error handling view in order to catch the error and
+## return a 503 instead of the 500
+
+setting webserver views/serialisation-catch {
+            "view": "fostgres.control.pg-error",
+            "configuration": {
+                "execute": "throw-serialisation",
+                "40001": "fost.response.503",
+                "": "fost.response.500"
+            }
+        }
+GET serialisation-catch / 503
+
+
+## We can also retry the serialisation error.
+
+setting webserver views/test-pg-retry {
+            "view": "fostgres.control.retry",
+            "configuration": {
+                "try": "throw-serialisation",
+                "error": "fost.response.503"
+            }
+        }
+GET test-pg-retry / 503

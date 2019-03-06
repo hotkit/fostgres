@@ -21,11 +21,28 @@ namespace {
                 const fostlib::string &path,
                 fostlib::http::server::request &req,
                 const fostlib::host &host) const {
-            try {
-                return execute(config["execute"], path, req, host);
-            } catch (...) {
-                throw fostlib::exceptions::not_implemented(__PRETTY_FUNCTION__);
+            using namespace std::chrono_literals;
+            std::pair<boost::shared_ptr<fostlib::mime>, int> response{nullptr,
+                                                                      0};
+            std::size_t retries = 0u;
+            while (not response.second) {
+                try {
+                    response = execute(config["try"], path, req, host);
+                } catch (...) {
+                    if (retries >= 3) {
+                        response = execute(config["error"], path, req, host);
+                    } else {
+                        std::this_thread::sleep_for(25ms);
+                    }
+                }
+                ++retries;
             }
+            if (retries) {
+                response.first->headers().add(
+                        "Fostgres-serialisation-retries",
+                        fostlib::coerce<fostlib::string>(retries));
+            }
+            return response;
         }
     } c_fostgres_control_retry;
 
