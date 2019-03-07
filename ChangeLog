@@ -1,3 +1,6 @@
+2019-03-07  Kirit Saelensminde  <kirit@felspar.com>
+ Add a new view to retry Postgres serialisation errors.
+
 2019-02-22  Kirit Saelensminde  <kirit@felspar.com>
  Add a request logging middleware that stores the per-request log to the database.
 
