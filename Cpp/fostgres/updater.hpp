@@ -56,15 +56,17 @@ namespace fostgres {
         std::pair<boost::shared_ptr<fostlib::mime>, int>
                 update(intermediate_data, std::optional<std::size_t> row = {});
 
+        action perform() const { return deduced_action; }
+
         /// The old APIs which combine the UPDATE/INSERT with the
         /// data processing.
         [[nodiscard]] std::pair<
                 std::pair<boost::shared_ptr<fostlib::mime>, int>,
                 std::pair<fostlib::json, fostlib::json>>
-                upsert(const fostlib::json &data,
+                upsert(const fostlib::json &body_row,
                        std::optional<std::size_t> row = {});
         std::pair<fostlib::json, fostlib::json>
-                update(const fostlib::json &data);
+                update(const fostlib::json &body_row);
 
       private:
         action deduced_action;

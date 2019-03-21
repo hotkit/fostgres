@@ -19,4 +19,4 @@ PATCH film.slug /iawl {"title": "It's a Wonder Life"} 200 {"title": "It's a Wond
 ## ## Edit films
 ## Once the films are in the database, we can now edit them without needing
 ## all of the fields specified.
-#PATCH film.slug.error / (module.path.join films.edit.csj) 200 {"records": 3}
+PATCH film.slug / (module.path.join films.edit.csj) 200 {"records": 3}

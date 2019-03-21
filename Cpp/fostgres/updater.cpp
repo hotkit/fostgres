@@ -42,6 +42,7 @@ fostgres::updater::updater(
 
 std::pair<fostlib::json, fostlib::json>
         fostgres::updater::data(const fostlib::json &body) {
+    deduced_action = action::do_default;
     fostlib::json keys, values;
     for (const auto &col_def : col_config.object()) {
         const auto &key = col_def.first;
