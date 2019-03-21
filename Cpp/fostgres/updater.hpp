@@ -32,6 +32,32 @@ namespace fostgres {
             return returning_cols;
         }
 
+        /// ## Tracking of `UPDATE` versus `INSERT ON CONFLICT UPDATE`
+        enum class action { do_default, insertable, updateable };
+        /// The default action is required to support the difference in
+        /// default behaviour between CSJ and object `PATCH` requests.
+        /// CSJ has always defaulted to performing the `INSERT` statement,
+        /// and the object requests have done the `UPDATE`. We need to
+        /// keep the default for the object requests so that we don't break
+        /// old `PATCH` configurations.
+        ///
+        /// The new behaviour for object `PATCH` will be supported if
+        /// the configuration contains the new columns configuration:
+        ///     "insert": "required"
+
+        /// Break apart the data into the key and value parts
+        using intermediate_data = std::pair<fostlib::json, fostlib::json>;
+        intermediate_data data(const fostlib::json &data);
+
+        /// Perform an INSERT and potentially return a response
+        [[nodiscard]] std::pair<boost::shared_ptr<fostlib::mime>, int>
+                insert(intermediate_data, std::optional<std::size_t> row = {});
+        /// Perform an update
+        std::pair<boost::shared_ptr<fostlib::mime>, int>
+                update(intermediate_data, std::optional<std::size_t> row = {});
+
+        /// The old APIs which combine the UPDATE/INSERT with the
+        /// data processing.
         [[nodiscard]] std::pair<
                 std::pair<boost::shared_ptr<fostlib::mime>, int>,
                 std::pair<fostlib::json, fostlib::json>>
@@ -41,15 +67,13 @@ namespace fostgres {
                 update(const fostlib::json &data);
 
       private:
+        action deduced_action;
         fostlib::json config, col_config;
         std::vector<fostlib::string> returning_cols;
 
         fostlib::pg::connection &cnx;
         const fostgres::match &m;
         fostlib::http::server::request &req;
-
-        /// Break apart the data into the key and value parts
-        std::pair<fostlib::json, fostlib::json> data(const fostlib::json &data);
     };
 
 
