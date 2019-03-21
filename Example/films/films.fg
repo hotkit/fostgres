@@ -1,4 +1,14 @@
-# Add some films
+## # Add some films
+
+## We can't add films if we don't supply all of the required fields.
+#PATCH film.slug.error / (module.path.join films.edit.csj) 422
+
+## With the correct fields we can create the three new films
 PATCH film.slug / (module.path.join films.csj) 200 {"records": 3}
 GET film.slug /iawl 200 {"title": "It's a Wonderful Life"}
 PATCH film.slug /iawl {"title": "It's a Wonder Life"} 200 {"title": "It's a Wonder Life"}
+
+## Once they are in the database, we can now edit them without needing
+## all of the fields specified.
+#PATCH film.slug.error / (module.path.join films.edit.csj) 200 {"records": 3}
+
