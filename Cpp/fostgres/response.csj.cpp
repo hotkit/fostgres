@@ -207,8 +207,8 @@ namespace {
             std::pair<boost::shared_ptr<fostlib::mime>, int> error;
             auto linedata = handler.data(line.as_json());
             switch (handler.perform()) {
-            case fostgres::updater::action::do_default:
-                [[fallthrough]] case fostgres::updater::action::insertable :
+            case fostgres::updater::action::do_default: [[fallthrough]];
+            case fostgres::updater::action::insertable:
                 error = handler.insert(linedata, records);
                 break;
             case fostgres::updater::action::updateable:
