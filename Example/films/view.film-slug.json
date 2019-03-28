@@ -130,12 +130,19 @@
                                     "key": true
                                 },
                                 "title": {},
-                                "released": {},
-                                "length_minutes": {}
+                                "released": {"insert": "required"},
+                                "length_minutes": {"insert": "required"}
                             }
                         }
                     }
                 ]
+            }
+        },
+        "views/film.slug.error": {
+            "view": "fostgres.control.pg-error",
+            "configuration": {
+                "execute": "film.slug",
+                "23502": "fost.response.500"
             }
         }
     }

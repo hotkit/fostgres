@@ -53,6 +53,8 @@ if(TARGET stress OR TARGET pgtest)
                 fostgres-test
                 films/films.tables.sql
                 films/view.film-slug.json
+                films/films.csj
+                films/films.edit.csj
                 films/films.fg
         )
 
