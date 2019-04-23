@@ -23,6 +23,7 @@ fostgres::updater::updater(
         const fostgres::match &m,
         fostlib::http::server::request &req)
 : relation(fostlib::coerce<fostlib::string>(mconf["table"])),
+  deduced_action(action::do_default),
   config(m.configuration),
   col_config(mconf["columns"]),
   cnx(cnx),
@@ -41,13 +42,14 @@ fostgres::updater::updater(
 
 std::pair<fostlib::json, fostlib::json>
         fostgres::updater::data(const fostlib::json &body) {
+    deduced_action = action::do_default;
     fostlib::json keys, values;
     for (const auto &col_def : col_config.object()) {
         const auto &key = col_def.first;
         auto data =
                 fostgres::datum(key, col_def.second, m.arguments, body, req);
         if (col_def.second["key"].get(false)) {
-            // Key column
+            /// Key column. We must have data for this.
             if (data) {
                 fostlib::insert(keys, key, data.value());
             } else {
@@ -56,20 +58,26 @@ std::pair<fostlib::json, fostlib::json>
                         key);
             }
         } else if (data) {
-            // Value column
+            /// Value column with data
             fostlib::insert(values, key, data.value());
+        } else {
+            /// There is no data for this column. We will skip it in the
+            /// update/insert.
+            if (col_def.second["insert"] == "required") {
+                /// Because there is no value for this column, and it
+                /// is marked as required for insert we suggest a forced
+                /// update for this.
+                deduced_action = action::updateable;
+            }
         }
     }
     return std::make_pair(keys, values);
 }
 
 
-std::pair<
-        std::pair<boost::shared_ptr<fostlib::mime>, int>,
-        std::pair<fostlib::json, fostlib::json>>
-        fostgres::updater::upsert(
-                const fostlib::json &body, std::optional<std::size_t> row) {
-    auto d = data(body);
+std::pair<boost::shared_ptr<fostlib::mime>, int> fostgres::updater::insert(
+        fostgres::updater::intermediate_data d,
+        std::optional<std::size_t> row) {
     for (const auto &col_def : col_config.object()) {
         const bool allow_schema = fostlib::coerce<std::optional<bool>>(
                                           col_def.second["allow$schema"])
@@ -81,24 +89,40 @@ std::pair<
                 cnx, config, m, req, col_def.second, instance,
                 (row ? fostlib::jcursor{*row} : fostlib::jcursor{})
                         / col_def.first);
-        if (error.first) return {error, d};
+        if (error.first) return error;
     }
     if (returning_cols.size()) {
         auto rs =
                 cnx.upsert(relation.c_str(), d.first, d.second, returning_cols);
         auto result = fostgres::column_names(std::move(rs));
-        return {response_object(std::move(result), config), d};
+        return response_object(std::move(result), config);
     } else {
         cnx.upsert(relation.c_str(), d.first, d.second);
     }
-    return {{nullptr, 0}, d};
+    return {nullptr, 0};
 }
 
 
+std::pair<boost::shared_ptr<fostlib::mime>, int> fostgres::updater::update(
+        fostgres::updater::intermediate_data d,
+        std::optional<std::size_t> row) {
+    cnx.update(relation.c_str(), d.first, d.second);
+    return {nullptr, 0};
+}
+
+
+std::pair<
+        std::pair<boost::shared_ptr<fostlib::mime>, int>,
+        std::pair<fostlib::json, fostlib::json>>
+        fostgres::updater::upsert(
+                const fostlib::json &body, std::optional<std::size_t> row) {
+    auto d = data(body);
+    return {insert(d, row), d};
+}
 std::pair<fostlib::json, fostlib::json>
         fostgres::updater::update(const fostlib::json &body) {
     auto d = data(body);
-    cnx.update(relation.c_str(), d.first, d.second);
+    update(d);
     return d;
 }
 
