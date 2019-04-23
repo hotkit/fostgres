@@ -34,12 +34,12 @@ namespace {
                     } else {
                         std::this_thread::sleep_for(25ms);
                     }
+                    ++retries;
                 }
-                ++retries;
             }
             if (retries) {
                 response.first->headers().add(
-                        "Fostgres-serialisation-retries",
+                        "Fostgres-pg-serialisation-retries",
                         fostlib::coerce<fostlib::string>(retries));
             }
             return response;
