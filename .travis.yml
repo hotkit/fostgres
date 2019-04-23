@@ -25,13 +25,13 @@ install:
 script:
     - mkdir build.tmp && cd build.tmp
     - 'if [ "$CXX" = "g++" ]; then export CC=gcc-8; export CXX=g++-8; fi'
-    - git clone https://github.com/KayEss/fost-base.git -b feature/dynlib-fix
+    - git clone https://github.com/KayEss/fost-base.git
     - git clone https://github.com/KayEss/fost-beanbag.git
     - git clone https://github.com/KayEss/fost-boost.git
     - git clone https://github.com/KayEss/fost-crypto.git
     - git clone https://github.com/KayEss/fost-internet.git
     - git clone https://github.com/KayEss/fost-postgres.git
-    - git clone https://github.com/KayEss/fost-web.git -b feature/fix-throw-plugins
+    - git clone https://github.com/KayEss/fost-web.git
     - git clone https://github.com/KayEss/f5-cord.git
     - git clone https://github.com/KayEss/f5-threading.git
     - git clone https://github.com/KayEss/json-schema.git
