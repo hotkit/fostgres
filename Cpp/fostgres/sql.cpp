@@ -266,8 +266,8 @@ std::pair<std::vector<fostlib::string>, fostlib::pg::recordset>
     } else {
         return m.arguments.size()
                 ? fostgres::sql(
-                          cnx, fostlib::coerce<fostlib::string>(select),
-                          m.arguments)
+                        cnx, fostlib::coerce<fostlib::string>(select),
+                        m.arguments)
                 : fostgres::sql(cnx, fostlib::coerce<fostlib::string>(select));
     }
 }

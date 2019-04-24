@@ -20,16 +20,15 @@ namespace {
             get(const fostlib::json &config,
                 const fostgres::match &m,
                 fostlib::http::server::request &req) {
-        auto data = m.arguments.size()
-                ? fostgres::sql(
-                          config, req,
-                          fostlib::coerce<fostlib::string>(
-                                  m.configuration["GET"]),
-                          m.arguments)
-                : fostgres::sql(
-                          config, req,
-                          fostlib::coerce<fostlib::string>(
-                                  m.configuration["GET"]));
+        auto data = m.arguments.size() ? fostgres::sql(
+                            config, req,
+                            fostlib::coerce<fostlib::string>(
+                                    m.configuration["GET"]),
+                            m.arguments)
+                                       : fostgres::sql(
+                                               config, req,
+                                               fostlib::coerce<fostlib::string>(
+                                                       m.configuration["GET"]));
         fostlib::json result;
         fostlib::insert(
                 result, "@context",
