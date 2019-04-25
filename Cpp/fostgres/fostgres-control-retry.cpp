@@ -8,6 +8,9 @@
 
 #include <fostgres/response.hpp>
 
+#include <chrono>
+#include <thread>
+
 
 namespace {
 
