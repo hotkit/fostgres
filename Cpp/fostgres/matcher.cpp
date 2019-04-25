@@ -1,8 +1,8 @@
-/*
-    Copyright 2016, Felspar Co Ltd. http://support.felspar.com/
+/**
+    Copyright 2016-2019, Felspar Co Ltd. <http://support.felspar.com/>
+
     Distributed under the Boost Software License, Version 1.0.
-    See accompanying file LICENSE_1_0.txt or copy at
-        http://www.boost.org/LICENSE_1_0.txt
+    See <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 
@@ -23,7 +23,10 @@ namespace {
             for (std::size_t index{0}; index < o.size(); ++index) {
                 auto s = fostlib::coerce<fostlib::string>(o[index]);
                 if (s.length() && s[0] == '/') {
-                    if (parts[index] != s.c_str() + 1) { return fostlib::null; }
+                    if (parts[index]
+                        != (static_cast<f5::u8view>(s)).substr(1)) {
+                        return fostlib::null;
+                    }
                 } else {
                     const auto n = fostlib::coerce<unsigned int>(o[index]);
                     if (n > 0) {
@@ -32,8 +35,7 @@ namespace {
                         // placing it at position (n-1) in the arguments array
                         if (n > m.arguments.size()) { m.arguments.resize(n); }
                         m.arguments[n - 1] = fostlib::coerce<fostlib::string>(
-                                fostlib::url::filepath_string(
-                                        parts[index].c_str()));
+                                fostlib::url::filepath_string(parts[index]));
                     } else {
                         throw fostlib::exceptions::not_implemented(
                                 __FUNCTION__,
