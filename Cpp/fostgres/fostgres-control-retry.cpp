@@ -31,7 +31,8 @@ namespace {
                     if (retries >= 3) {
                         response = execute(config["error"], path, req, host);
                     } else {
-                        std::this_thread::sleep_for(std::chrono::milliseconds{25});
+                        std::this_thread::sleep_for(
+                                std::chrono::milliseconds{25});
                     }
                     ++retries;
                 }
