@@ -21,7 +21,6 @@ namespace {
                 const fostlib::string &path,
                 fostlib::http::server::request &req,
                 const fostlib::host &host) const {
-            using namespace std::chrono_literals;
             std::pair<boost::shared_ptr<fostlib::mime>, int> response{nullptr,
                                                                       0};
             std::size_t retries = 0u;
@@ -32,7 +31,7 @@ namespace {
                     if (retries >= 3) {
                         response = execute(config["error"], path, req, host);
                     } else {
-                        std::this_thread::sleep_for(25ms);
+                        std::this_thread::sleep_for(std::chrono::milliseconds{25});
                     }
                     ++retries;
                 }
