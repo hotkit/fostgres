@@ -3,6 +3,7 @@ add_library(fostgres
         datum.cpp
         file.cpp
         fostgres-control-error.cpp
+        fostgres-control-retry.cpp
         fostgres-sql.cpp
         matcher.cpp
         precondition.cpp

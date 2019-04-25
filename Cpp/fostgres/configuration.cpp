@@ -1,9 +1,25 @@
-/*
-    Copyright 2015-2016, Felspar Co Ltd. http://support.felspar.com/
+/**
+    Copyright 2015-2019, Felspar Co Ltd. <http://support.felspar.com/>
+
     Distributed under the Boost Software License, Version 1.0.
-    See accompanying file LICENSE_1_0.txt or copy at
-        http://www.boost.org/LICENSE_1_0.txt
+    See <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 
 #include <fost/core>
+#include <fost/test-throw-view.hpp>
+
+#include <pqxx/except>
+
+
+namespace {
+
+
+    fostlib::urlhandler::test_throw_plugin const c_serialisation{
+            "pqxx::serialization_failure", [](fostlib::string msg) {
+                throw pqxx::serialization_failure{
+                        static_cast<std::string>(msg)};
+            }};
+
+
+}

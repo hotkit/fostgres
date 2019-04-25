@@ -1,0 +1,12 @@
+## # Automatic retries
+
+setting webserver views/test-pg-retry {
+        "view": "fostgres.control.retry",
+        "configuration": {
+            "execute": {
+                "view": "fostgres.sql",
+                "configuration": {
+                }
+            }
+        }
+    }
