@@ -6,15 +6,13 @@
 */
 
 
-#include "nonce.hpp"
+#include <fost/crypto>
 #include <fost/datetime>
 #include <fost/log>
 #include <fost/timer>
 #include <fost/urlhandler>
 #include <fostgres/fostgres.hpp>
 #include <fostgres/sql.hpp>
-
-#include "nonce.hpp"
 
 
 namespace {
@@ -52,12 +50,13 @@ namespace {
                 const fostlib::host &host) const {
             fostlib::timer time;
             fostlib::log::scoped_sink<capture_copy> logs;
-            auto const rqid = rqlog::reference();
+            auto const rqid = fostlib::timestamp_nonce24b64u();
             fostlib::json row;
             fostlib::insert(row, "id", rqid);
             fostlib::insert(row, "request_path", path);
             fostlib::insert(row, "request_headers", req.headers());
-            req.headers().add("Fostgres-Request-ID", rqid);
+            req.headers().add(
+                    "Fostgres-Request-ID", rqid.underlying().underlying());
             std::pair<boost::shared_ptr<fostlib::mime>, int> response;
             std::exception_ptr exception;
             {
@@ -65,7 +64,9 @@ namespace {
                 logger("request", "id", rqid);
                 try {
                     response = view::execute(config["view"], path, req, host);
-                    response.first->headers().add("Fostgres-Request-ID", rqid);
+                    response.first->headers().add(
+                            "Fostgres-Request-ID",
+                            rqid.underlying().underlying());
                     fostlib::insert(
                             row, "response_headers", response.first->headers());
                     fostlib::insert(row, "status", response.second);
