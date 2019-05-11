@@ -22,7 +22,7 @@ namespace {
             fostgres::match m{conf};
             for (std::size_t index{0}; index < o.size(); ++index) {
                 auto s = fostlib::coerce<fostlib::string>(o[index]);
-                if (s.length() && s[0] == '/') {
+                if (s.starts_with("/")) {
                     if (parts[index]
                         != (static_cast<f5::u8view>(s)).substr(1)) {
                         return fostlib::null;
