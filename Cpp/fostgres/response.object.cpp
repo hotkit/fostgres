@@ -1,5 +1,5 @@
 /**
-    Copyright 2016-2018, Felspar Co Ltd. <https://support.felspar.com/>
+    Copyright 2016-2019, Felspar Co Ltd. <https://support.felspar.com/>
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -65,7 +65,7 @@ namespace {
                     fostlib::coerce<fostlib::string>(put_config["table"]);
             fostlib::json keys(calc_keys(m, put_config["keys"]));
             fostlib::json values(calc_values(body, put_config["attributes"]));
-            cnx.upsert(relation.c_str(), keys, values);
+            cnx.upsert(relation.shrink_to_fit(), keys, values);
         }
         return std::make_pair(nullptr, 0);
     }
@@ -121,7 +121,7 @@ namespace {
                 });
         if (not returning.size()) { returning.emplace_back("*"); }
         auto result = fostgres::column_names(
-                cnx.insert(relation.c_str(), values, returning));
+                cnx.insert(relation.shrink_to_fit(), values, returning));
         return fostgres::response_object(std::move(result), config);
     }
 
@@ -172,7 +172,7 @@ namespace {
             fostlib::json keys(calc_keys(m, m.configuration["PATCH"]["keys"]));
             fostlib::json values(
                     calc_values(body, m.configuration["PATCH"]["attributes"]));
-            cnx.update(relation.c_str(), keys, values).commit();
+            cnx.update(relation.shrink_to_fit(), keys, values).commit();
         }
         return get(cnx, config, m, req);
     }
