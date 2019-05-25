@@ -14,7 +14,7 @@ add_library(fostgres
         sql.cpp
         updater.cpp
     )
-target_link_libraries(fostgres f5-json-schema fostgres-core fost-csj)
+target_link_libraries(fostgres fostgres-core f5-json-schema fost-csj)
 set_target_properties(fostgres PROPERTIES DEBUG_POSTFIX "-d")
 install(TARGETS fostgres LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 
