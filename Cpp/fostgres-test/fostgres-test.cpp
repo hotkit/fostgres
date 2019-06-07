@@ -167,7 +167,31 @@ FSL_MAIN(L"fostgres-test", L"Fostgres testing environment")
         o << "No script was specified on the command line" << std::endl;
         return 4;
     } catch (fostlib::exceptions::exception &e) {
-        o << e << std::endl;
+        fostlib::json error = e.data();
+        if(error.has_key(fostlib::jcursor{"fg", "backtrace"})) {
+            auto backtrace = error["fg"]["backtrace"];
+            auto printbt = [backtrace, &o, &e]() {
+                o << e.message() << std::endl;
+                o << "Backtrace: " << backtrace << std::endl;
+            };
+            if(backtrace.has_key(fostlib::jcursor{0, 0})) {
+                auto const place = script.source_for(fostlib::coerce<f5::u8view>(backtrace[0][0]));
+                if(place) {
+                    o << place->filename << ":" << e.message() << '\n' << place->source << std::endl;
+                } else {
+                    printbt();
+                }
+            } else {
+                printbt();
+            }
+            fostlib::jcursor{"fg", "backtrace"}.del_key(error);
+            if(error["fg"] == fostlib::json::object_t{}) {
+                fostlib::jcursor{"fg"}.del_key(error);
+            }
+        } else {
+            o << e.message() << std::endl;
+        }
+        o << error << std::endl;
     } catch (pqxx::sql_error &e) {
         o << "Postgres error " << e.sqlstate() << std::endl;
         o << e.what() << std::endl;
