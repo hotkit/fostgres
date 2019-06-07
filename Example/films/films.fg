@@ -1,0 +1,14 @@
+## # Add some films
+
+## There are no films to start with
+GET films / 200 {"columns": ["slug"], "rows": []}
+
+## Define a film and add it to the database
+set t1.film {
+        "slug": "t1",
+        "title": "Terminator",
+        "released": "1984-10-26"
+    }
+PUT films /t1 (lookup t1.film) 200 (lookup t1.film)
+## We now have one film in the list
+GET films / 200 {"columns": ["slug"], "rows": [["t1"]]}

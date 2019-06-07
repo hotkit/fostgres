@@ -24,6 +24,23 @@ if(TARGET stress OR TARGET pgtest)
                 empty.fg
         )
 
+    add_custom_command(OUTPUT example-films
+            COMMAND fostgres-test fostgres-example-films -o example-films
+                ${CMAKE_CURRENT_SOURCE_DIR}/../Configuration/log-show-all.json
+                $<TARGET_SONAME_FILE:fostgres>
+                ${CMAKE_CURRENT_SOURCE_DIR}/films/films.fg
+                ${CMAKE_CURRENT_SOURCE_DIR}/films/films.tables.sql
+                ${CMAKE_CURRENT_SOURCE_DIR}/films/views.json
+            MAIN_DEPENDENCY films/films.fg
+            DEPENDS
+                fostgres
+                fostgres-test
+                films/films.fg
+                films/films.tables.sql
+                films/views.json
+        )
+
+
     add_custom_command(OUTPUT example-users
             COMMAND fostgres-test fostgres-example-users -o example-users
                 ${CMAKE_CURRENT_SOURCE_DIR}/../Configuration/log-show-all.json
@@ -87,6 +104,7 @@ if(TARGET stress OR TARGET pgtest)
     add_custom_target(fg-examples DEPENDS
             example-comment
             example-empty
+            example-films
             example-pg-error
             example-pg-retry
             example-users
