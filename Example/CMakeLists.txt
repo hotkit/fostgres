@@ -7,16 +7,16 @@ install(DIRECTORY users
 
 if(TARGET stress OR TARGET pgtest)
     ## It's not error to have empty script files that do nothing
-    add_custom_command(OUTPUT test-comment
-            COMMAND fostgres-test fostgres-test-comment -o test-comment
+    add_custom_command(OUTPUT example-comment
+            COMMAND fostgres-test fostgres-example-comment -o example-comment
                 ${CMAKE_CURRENT_SOURCE_DIR}/comment.fg
             MAIN_DEPENDENCY comment.fg
             DEPENDS
                 fostgres-test
                 comment.fg
         )
-    add_custom_command(OUTPUT test-empty
-            COMMAND fostgres-test fostgres-test-empty -o test-empty
+    add_custom_command(OUTPUT example-empty
+            COMMAND fostgres-test fostgres-example-empty -o example-empty
                 ${CMAKE_CURRENT_SOURCE_DIR}/empty.fg
             MAIN_DEPENDENCY empty.fg
             DEPENDS
@@ -24,8 +24,8 @@ if(TARGET stress OR TARGET pgtest)
                 empty.fg
         )
 
-    add_custom_command(OUTPUT test-users
-            COMMAND fostgres-test fostgres-test-users -o test-users
+    add_custom_command(OUTPUT example-users
+            COMMAND fostgres-test fostgres-example-users -o example-users
                 ${CMAKE_CURRENT_SOURCE_DIR}/../Configuration/log-show-all.json
                 $<TARGET_SONAME_FILE:fostgres>
                 ${CMAKE_CURRENT_SOURCE_DIR}/users/users.tables.sql
@@ -40,8 +40,8 @@ if(TARGET stress OR TARGET pgtest)
                 users/user.add.fg
         )
 
-    add_custom_command(OUTPUT test-user-avatar
-            COMMAND fostgres-test fostgres-test-user-avatar -o test-user-avatar
+    add_custom_command(OUTPUT example-user-avatar
+            COMMAND fostgres-test fostgres-example-user-avatar -o example-user-avatar
                 ${CMAKE_CURRENT_SOURCE_DIR}/../Configuration/log-show-all.json
                 $<TARGET_SONAME_FILE:fostgres>
                 ${CMAKE_CURRENT_SOURCE_DIR}/users/users.tables.sql
@@ -56,8 +56,8 @@ if(TARGET stress OR TARGET pgtest)
                 users/user.avatar.fg
         )
 
-    add_custom_command(OUTPUT test-pg-error
-            COMMAND fostgres-test fostgres-test-pg-error -o test-pg-error
+    add_custom_command(OUTPUT example-pg-error
+            COMMAND fostgres-test fostgres-example-pg-error -o example-pg-error
                 ${CMAKE_CURRENT_SOURCE_DIR}/../Configuration/log-show-all.json
                 $<TARGET_SONAME_FILE:fostgres>
                 ${CMAKE_CURRENT_SOURCE_DIR}/errors/test-pg-error.sql
@@ -71,8 +71,8 @@ if(TARGET stress OR TARGET pgtest)
                 errors/test-pg-error.fg
         )
 
-    add_custom_command(OUTPUT test-pg-retry
-            COMMAND fostgres-test fostgres-test-pg-retry -o test-pg-retry
+    add_custom_command(OUTPUT example-pg-retry
+            COMMAND fostgres-test fostgres-example-pg-retry -o example-pg-retry
                 ${CMAKE_CURRENT_SOURCE_DIR}/../Configuration/log-show-all.json
                 $<TARGET_SONAME_FILE:fostgres>
                 ${CMAKE_CURRENT_SOURCE_DIR}/errors/test-retry.fg
@@ -85,12 +85,12 @@ if(TARGET stress OR TARGET pgtest)
     ## Because of the way cmake works we need this stuff at the end to
     ## actually make the above commands run when things change.
     add_custom_target(fg-examples DEPENDS
-            test-comment
-            test-empty
-            test-pg-error
-            test-pg-retry
-            test-users
-            test-user-avatar
+            example-comment
+            example-empty
+            example-pg-error
+            example-pg-retry
+            example-users
+            example-user-avatar
         )
     if(TARGET stress)
         add_dependencies(stress fg-examples)
