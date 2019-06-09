@@ -99,27 +99,6 @@ namespace fostgres {
     template<typename T>
     using ordered_keys = std::vector<T>;
 
-    struct put_records_seen {
-        using storage_type =
-                std::vector<std::pair<std::vector<fostlib::json>, bool>>;
-        storage_type records;
-
-        put_records_seen(std::size_t number_of_keys) {
-            key_match.reserve(number_of_keys);
-        }
-
-        auto size() const noexcept { return records.size(); }
-
-        /// Look to see if we had this data in the database before
-        /// and if so mark it as seen in the PUT body
-        bool
-                record(ordered_keys<fostlib::string> &key_names,
-                       std::pair<fostlib::json, fostlib::json> const &inserted);
-
-      private:
-        std::vector<fostlib::json> key_match;
-    };
-
     /**
      *  Create a SELECT statement to collect all the associated keys
      *  in the database. We need to SELECT across the keys not in
@@ -128,20 +107,35 @@ namespace fostgres {
      *  The bool is set to true when the key has been seen. Those still
      *  false by the end of the PUT need to be deleted.
      */
-    std::pair<ordered_keys<fostlib::string>, put_records_seen> current_keys(
-            fostlib::pg::connection &cnx,
-            const fostlib::json &config,
-            const match &,
-            fostlib::http::server::request &);
+    struct put_records_seen {
+        using storage_type =
+                std::vector<std::pair<std::vector<fostlib::json>, bool>>;
+        storage_type records;
 
-    /// Look through the initial keys to find any that weren't in the
-    /// incoming data in the PUT body so the rows can be deleted
-    std::size_t delete_left_over_records(
-            fostlib::pg::connection &cnx,
-            f5::u8view delete_sql,
-            const match &,
-            ordered_keys<fostlib::string> const &,
-            put_records_seen &);
+        put_records_seen(
+                fostlib::pg::connection &,
+                f5::u8view select_sql,
+                const match &,
+                fostlib::http::server::request &);
+
+        /// The number of records in the database before processing the
+        /// PUT request.
+        auto size() const noexcept { return records.size(); }
+
+        /// Look to see if we had this data in the database before
+        /// and if so mark it as seen in the PUT body
+        bool record(std::pair<fostlib::json, fostlib::json> const &inserted);
+
+        /// Look through the initial keys to find any that weren't in the
+        /// incoming data in the PUT body so the rows can be deleted
+        std::size_t delete_left_over_records(f5::u8view delete_sql);
+
+      private:
+        fostlib::pg::connection &cnx;
+        match const &m;
+        std::vector<fostlib::json> key_match;
+        ordered_keys<fostlib::string> key_names;
+    };
 
 
 }

@@ -238,8 +238,9 @@ namespace {
         fostgres::updater handler{m.configuration["PUT"], cnx, m, req};
         fostlib::json work_done{fostlib::json::object_t()};
 
-        auto [key_names, dbkeys] =
-                current_keys(cnx, m.configuration["PUT"]["existing"], m, req);
+        auto const select_sql =
+                fostlib::coerce<f5::u8view>(m.configuration["PUT"]["existing"]);
+        fostgres::put_records_seen dbkeys{cnx, select_sql, m, req};
         fostlib::insert(work_done, "selected", dbkeys.size());
         logger("selected", dbkeys.size());
 
@@ -257,7 +258,7 @@ namespace {
                         handler.upsert(line.as_json(), records);
                 if (error.first) return error;
                 ++records;
-                dbkeys.record(key_names, inserted);
+                dbkeys.record(inserted);
             }
             fostlib::insert(work_done, "records", records);
             logger("records", records);
@@ -266,10 +267,9 @@ namespace {
         // Look through the initial keys to find any that weren't in the
         // incoming data so the rows can be deleted
         {
-            auto sql = fostlib::coerce<f5::u8view>(
+            auto const sql = fostlib::coerce<f5::u8view>(
                     m.configuration["PUT"]["delete"]);
-            std::size_t const deleted = fostgres::delete_left_over_records(
-                    cnx, sql, m, key_names, dbkeys);
+            std::size_t const deleted = dbkeys.delete_left_over_records(sql);
             fostlib::insert(work_done, "deleted", deleted);
             logger("deleted", deleted);
         }
