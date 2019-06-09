@@ -258,7 +258,7 @@ namespace {
                         handler.upsert(line.as_json(), records);
                 if (error.first) return error;
                 ++records;
-                dbkeys.record(inserted);
+                dbkeys.record(inserted.first);
             }
             fostlib::insert(work_done, "records", records);
             logger("records", records);

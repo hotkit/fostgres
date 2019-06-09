@@ -182,13 +182,12 @@ std::pair<boost::shared_ptr<fostlib::mime>, int> fostgres::schema_check(
  * ## Updating
  */
 
+
 fostgres::put_records_seen::put_records_seen(
         fostlib::pg::connection &c,
         f5::u8view select_sql,
         const match &mm,
-        fostlib::http::server::request &req
-
-        )
+        fostlib::http::server::request &req)
 : cnx{c}, m{mm} {
     auto rs = select_data(cnx, select_sql, m, req);
     for (const auto &row : rs.second) {
@@ -204,10 +203,9 @@ fostgres::put_records_seen::put_records_seen(
 }
 
 
-bool fostgres::put_records_seen::record(
-        std::pair<fostlib::json, fostlib::json> const &inserted) {
+bool fostgres::put_records_seen::record(fostlib::json const &inserted) {
     key_match.clear();
-    for (const auto &k : key_names) { key_match.push_back(inserted.first[k]); }
+    for (const auto &k : key_names) { key_match.push_back(inserted[k]); }
     auto found = std::lower_bound(
             records.begin(), records.end(), std::make_pair(key_match, false));
     if (found != records.end() && found->first == key_match) {

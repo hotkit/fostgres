@@ -124,7 +124,7 @@ namespace fostgres {
 
         /// Look to see if we had this data in the database before
         /// and if so mark it as seen in the PUT body
-        bool record(std::pair<fostlib::json, fostlib::json> const &inserted);
+        bool record(fostlib::json const &inserted);
 
         /// Look through the initial keys to find any that weren't in the
         /// incoming data in the PUT body so the rows can be deleted
