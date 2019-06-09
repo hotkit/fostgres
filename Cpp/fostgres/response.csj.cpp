@@ -238,28 +238,10 @@ namespace {
         fostgres::updater handler{m.configuration["PUT"], cnx, m, req};
         fostlib::json work_done{fostlib::json::object_t()};
 
-        // Create a SELECT statement to collect all the associated keys
-        // in the database. We need to SELECT across the keys not in
-        // the body data and store the keys that are in the body data
-        /// The bool is set to true when the key has been seen. Those still
-        /// false by the end of the PUT need to be deleted.
-        std::vector<std::pair<std::vector<fostlib::json>, bool>> dbkeys;
-        std::vector<fostlib::string> key_names;
-        {
-            auto rs = select_data(
-                    cnx, m.configuration["PUT"]["existing"], m, req);
-            for (const auto &row : rs.second) {
-                std::vector<fostlib::json> keys;
-                for (std::size_t index{}; index != row.size(); ++index) {
-                    keys.push_back(row[index]);
-                }
-                dbkeys.push_back(std::make_pair(std::move(keys), false));
-            }
-            std::sort(dbkeys.begin(), dbkeys.end());
-            key_names = std::move(rs.first);
-            fostlib::insert(work_done, "selected", dbkeys.size());
-            logger("selected", dbkeys.size());
-        }
+        auto [key_names, dbkeys] =
+                current_keys(cnx, m.configuration["PUT"], m, req);
+        fostlib::insert(work_done, "selected", dbkeys.size());
+        logger("selected", dbkeys.size());
 
         // Process the incoming data and put it into the database. Also
         // record the keys seen
@@ -297,26 +279,10 @@ namespace {
         // Look through the initial keys to find any that weren't in the
         // incoming data so the rows can be deleted
         {
-            auto sql = fostlib::coerce<fostlib::string>(
+            auto sql = fostlib::coerce<f5::u8view>(
                     m.configuration["PUT"]["delete"]);
-            auto sp = cnx.procedure(fostlib::coerce<fostlib::utf8_string>(sql));
-            std::vector<fostlib::json> keys(
-                    m.arguments.size() + key_names.size());
-            std::transform(
-                    m.arguments.begin(), m.arguments.end(), keys.begin(),
-                    [&](const auto &arg) { return fostlib::json(arg); });
-            std::size_t deleted{0};
-            for (const auto &record : dbkeys) {
-                if (not record.second) {
-                    // The record wasn't "seen" during the upload so we're
-                    // going to delete it.
-                    std::copy(
-                            record.first.begin(), record.first.end(),
-                            keys.begin() + m.arguments.size());
-                    sp.exec(keys);
-                    ++deleted;
-                }
-            }
+            std::size_t const deleted = fostgres::delete_left_over_records(
+                    cnx, sql, m, key_names, dbkeys);
             fostlib::insert(work_done, "deleted", deleted);
             logger("deleted", deleted);
         }

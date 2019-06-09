@@ -176,3 +176,54 @@ std::pair<boost::shared_ptr<fostlib::mime>, int> fostgres::schema_check(
         return ok;
     }
 }
+
+/**
+ * ## Updating
+ */
+
+
+auto fostgres::current_keys(
+        fostlib::pg::connection &cnx,
+        const fostlib::json &config,
+        const match &m,
+        fostlib::http::server::request &req)
+        -> std::pair<ordered_keys<fostlib::string>, put_records_seen> {
+    put_records_seen dbkeys;
+    auto rs = select_data(cnx, config["existing"], m, req);
+    for (const auto &row : rs.second) {
+        std::vector<fostlib::json> keys;
+        for (std::size_t index{}; index != row.size(); ++index) {
+            keys.push_back(row[index]);
+        }
+        dbkeys.push_back(std::make_pair(std::move(keys), false));
+    }
+    std::sort(dbkeys.begin(), dbkeys.end());
+    return {std::move(rs.first), std::move(dbkeys)};
+}
+
+
+std::size_t fostgres::delete_left_over_records(
+        fostlib::pg::connection &cnx,
+        f5::u8view delete_sql,
+        const match &m,
+        ordered_keys<fostlib::string> const &key_names,
+        put_records_seen &dbkeys) {
+    auto sp = cnx.procedure(fostlib::utf8_string{delete_sql});
+    std::vector<fostlib::json> keys(m.arguments.size() + key_names.size());
+    std::transform(
+            m.arguments.begin(), m.arguments.end(), keys.begin(),
+            [&](const auto &arg) { return fostlib::json(arg); });
+    std::size_t deleted{0};
+    for (const auto &record : dbkeys) {
+        if (not record.second) {
+            // The record wasn't "seen" during the upload so we're
+            // going to delete it.
+            std::copy(
+                    record.first.begin(), record.first.end(),
+                    keys.begin() + m.arguments.size());
+            sp.exec(keys);
+            ++deleted;
+        }
+    }
+    return deleted;
+}

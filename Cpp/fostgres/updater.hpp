@@ -1,5 +1,5 @@
 /**
-    Copyright 2016-2018, Felspar Co Ltd. <https://support.felspar.com/>
+    Copyright 2016-2019, Felspar Co Ltd. <https://support.felspar.com/>
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -87,6 +87,42 @@ namespace fostgres {
             const fostlib::json &schema_config,
             const fostlib::json &instance,
             fostlib::jcursor dpos);
+
+
+    /**
+     * ## PUT handling
+     *
+     * Handle PUT requests for array sequences. Used by CSJ bodies and by
+     * JSON arrays in the JSON object requests.
+     */
+
+    template<typename T>
+    using ordered_keys = std::vector<T>;
+    using put_records_seen =
+            std::vector<std::pair<std::vector<fostlib::json>, bool>>;
+
+    /**
+     *  Create a SELECT statement to collect all the associated keys
+     *  in the database. We need to SELECT across the keys not in
+     *  the body data and store the keys that are in the body data
+     *
+     *  The bool is set to true when the key has been seen. Those still
+     *  false by the end of the PUT need to be deleted.
+     */
+    std::pair<ordered_keys<fostlib::string>, put_records_seen> current_keys(
+            fostlib::pg::connection &cnx,
+            const fostlib::json &config,
+            const match &,
+            fostlib::http::server::request &);
+
+    /// Look through the initial keys to find any that weren't in the
+    /// incoming data in the PUT body so the rows can be deleted
+    std::size_t delete_left_over_records(
+            fostlib::pg::connection &cnx,
+            f5::u8view delete_sql,
+            const match &,
+            ordered_keys<fostlib::string> const &,
+            put_records_seen &);
 
 
 }
