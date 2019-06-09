@@ -52,12 +52,13 @@ void fg::program::operator()(frame &stack) const {
 
 
 auto fg::program::source_for(f5::u8view s) const -> std::optional<location> {
-    if(s.shares_allocation_with(source)) {
+    if (s.shares_allocation_with(source)) {
         /// This can never happen because of the way boost::spirit works.
         /// See the note in [parser.hpp](../include/fostgres/fg/parser.hpp)
-        throw fostlib::exceptions::not_implemented(__PRETTY_FUNCTION__,
-            "This code has (until now) been impossible to reach");
-        //return location{filename, s, 1, 1};
+        throw fostlib::exceptions::not_implemented(
+                __PRETTY_FUNCTION__,
+                "This code has (until now) been impossible to reach");
+        // return location{filename, s, 1, 1};
     } else {
         return {};
     }
