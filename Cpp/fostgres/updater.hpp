@@ -98,8 +98,27 @@ namespace fostgres {
 
     template<typename T>
     using ordered_keys = std::vector<T>;
-    using put_records_seen =
-            std::vector<std::pair<std::vector<fostlib::json>, bool>>;
+
+    struct put_records_seen {
+        using storage_type =
+                std::vector<std::pair<std::vector<fostlib::json>, bool>>;
+        storage_type records;
+
+        put_records_seen(std::size_t number_of_keys) {
+            key_match.reserve(number_of_keys);
+        }
+
+        auto size() const noexcept { return records.size(); }
+
+        /// Look to see if we had this data in the database before
+        /// and if so mark it as seen in the PUT body
+        bool
+                record(ordered_keys<fostlib::string> &key_names,
+                       std::pair<fostlib::json, fostlib::json> const &inserted);
+
+      private:
+        std::vector<fostlib::json> key_match;
+    };
 
     /**
      *  Create a SELECT statement to collect all the associated keys

@@ -188,17 +188,32 @@ auto fostgres::current_keys(
         const match &m,
         fostlib::http::server::request &req)
         -> std::pair<ordered_keys<fostlib::string>, put_records_seen> {
-    put_records_seen dbkeys;
-    auto rs = select_data(cnx, config["existing"], m, req);
+    auto rs = select_data(cnx, config, m, req);
+    put_records_seen dbkeys{rs.first.size()};
     for (const auto &row : rs.second) {
         std::vector<fostlib::json> keys;
         for (std::size_t index{}; index != row.size(); ++index) {
             keys.push_back(row[index]);
         }
-        dbkeys.push_back(std::make_pair(std::move(keys), false));
+        dbkeys.records.push_back(std::make_pair(std::move(keys), false));
     }
-    std::sort(dbkeys.begin(), dbkeys.end());
+    std::sort(dbkeys.records.begin(), dbkeys.records.end());
     return {std::move(rs.first), std::move(dbkeys)};
+}
+
+
+bool fostgres::put_records_seen::record(
+        ordered_keys<fostlib::string> &key_names,
+        std::pair<fostlib::json, fostlib::json> const &inserted) {
+    key_match.clear();
+    for (const auto &k : key_names) { key_match.push_back(inserted.first[k]); }
+    auto found = std::lower_bound(
+            records.begin(), records.end(), std::make_pair(key_match, false));
+    if (found != records.end() && found->first == key_match) {
+        found->second = true;
+        return true;
+    }
+    return false;
 }
 
 
@@ -214,7 +229,7 @@ std::size_t fostgres::delete_left_over_records(
             m.arguments.begin(), m.arguments.end(), keys.begin(),
             [&](const auto &arg) { return fostlib::json(arg); });
     std::size_t deleted{0};
-    for (const auto &record : dbkeys) {
+    for (const auto &record : dbkeys.records) {
         if (not record.second) {
             // The record wasn't "seen" during the upload so we're
             // going to delete it.

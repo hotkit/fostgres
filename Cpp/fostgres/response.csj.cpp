@@ -239,7 +239,7 @@ namespace {
         fostlib::json work_done{fostlib::json::object_t()};
 
         auto [key_names, dbkeys] =
-                current_keys(cnx, m.configuration["PUT"], m, req);
+                current_keys(cnx, m.configuration["PUT"]["existing"], m, req);
         fostlib::insert(work_done, "selected", dbkeys.size());
         logger("selected", dbkeys.size());
 
@@ -250,27 +250,14 @@ namespace {
             fostlib::csj::parser data(f5::u8view(req.data()->data()));
             logger("header", data.header());
             std::size_t records{};
-            std::vector<fostlib::json> key_match;
-            key_match.reserve(key_names.size());
 
             // Parse each line and send it to the database
             for (auto line(data.begin()), e(data.end()); line != e; ++line) {
-                key_match.clear();
                 auto [error, inserted] =
                         handler.upsert(line.as_json(), records);
                 if (error.first) return error;
                 ++records;
-                // Look to see if we had this data in the database before
-                // and if so mark it as seen in the PUT body
-                for (const auto &k : key_names) {
-                    key_match.push_back(inserted.first[k]);
-                }
-                auto found = std::lower_bound(
-                        dbkeys.begin(), dbkeys.end(),
-                        std::make_pair(key_match, false));
-                if (found != dbkeys.end() && found->first == key_match) {
-                    found->second = true;
-                }
+                dbkeys.record(key_names, inserted);
             }
             fostlib::insert(work_done, "records", records);
             logger("records", records);
