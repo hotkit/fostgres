@@ -77,26 +77,26 @@ if(TARGET stress OR TARGET pgtest)
             COMMAND fostgres-test fostgres-example-pg-error -o example-pg-error
                 ${CMAKE_CURRENT_SOURCE_DIR}/../Configuration/log-show-all.json
                 $<TARGET_SONAME_FILE:fostgres>
-                ${CMAKE_CURRENT_SOURCE_DIR}/errors/test-pg-error.sql
-                ${CMAKE_CURRENT_SOURCE_DIR}/errors/test-pg-error-view.json
-                ${CMAKE_CURRENT_SOURCE_DIR}/errors/test-pg-error.fg
-            MAIN_DEPENDENCY errors/test-pg-error.fg
+                ${CMAKE_CURRENT_SOURCE_DIR}/errors/pg-error.sql
+                ${CMAKE_CURRENT_SOURCE_DIR}/errors/pg-error-view.json
+                ${CMAKE_CURRENT_SOURCE_DIR}/errors/pg-error.fg
+            MAIN_DEPENDENCY errors/pg-error.fg
             DEPENDS
                 fostgres-test
-                errors/test-pg-error.sql
-                errors/test-pg-error-view.json
-                errors/test-pg-error.fg
+                errors/pg-error.sql
+                errors/pg-error-view.json
+                errors/pg-error.fg
         )
 
     add_custom_command(OUTPUT example-pg-retry
             COMMAND fostgres-test fostgres-example-pg-retry -o example-pg-retry
                 ${CMAKE_CURRENT_SOURCE_DIR}/../Configuration/log-show-all.json
                 $<TARGET_SONAME_FILE:fostgres>
-                ${CMAKE_CURRENT_SOURCE_DIR}/errors/test-retry.fg
-            MAIN_DEPENDENCY errors/test-retry.fg
+                ${CMAKE_CURRENT_SOURCE_DIR}/errors/retry.fg
+            MAIN_DEPENDENCY errors/retry.fg
             DEPENDS
                 fostgres-test
-                errors/test-retry.fg
+                errors/retry.fg
         )
 
     ## Because of the way cmake works we need this stuff at the end to
