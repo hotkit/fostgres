@@ -16,8 +16,9 @@
                                     "slug": {"type": "string"},
                                     "title": {"type": "string"},
                                     "released": {"type": "string"},
-                                    "length_minutes": {"type": "integer"}
-                                }
+                                    "length_minutes": {"type": ["integer", "null"]}
+                                },
+                                "required": ["title", "released"]
                             },
                             "columns": {
                                 "slug": {
