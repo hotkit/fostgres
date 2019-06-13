@@ -18,3 +18,10 @@ GET films / 200 {"columns": ["slug"], "rows": [["t1"]]}
 ## Invalid JSON gives us a schema violation
 PUT films /invalid [] 422 {"schema": {"type" : "object"},
     "error": {"assertion": "type", "in-schema": [], "in-data": []}}
+PUT films /invalid {
+        "slug": "t1",
+        "title": "Terminator",
+        "released": "1984-10-26",
+        "tags": [1]
+    } 422 {"schema": {},
+        "error": {"assertion": "type", "in-schema": [], "in-data": []}}

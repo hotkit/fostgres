@@ -65,8 +65,14 @@ namespace {
                 fostlib::coerce<fostlib::jcursor>(put_config["array"]);
         std::size_t records{};
         for (auto const &item : body[array_position]) {
+            if (auto const error = fostgres::schema_check(
+                        cnx, config, m, req, put_config, item,
+                        fostlib::jcursor{});
+                error.first || error.second) {
+                return error;
+            }
             auto [error, inserted] = handler.upsert(item, records);
-            if (error.first) return error;
+            if (error.first || error.second) return error;
             ++records;
             dbkeys.record(inserted.first);
         }
