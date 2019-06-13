@@ -7,7 +7,8 @@ GET films / 200 {"columns": ["slug"], "rows": []}
 set t1.film {
         "slug": "t1",
         "title": "Terminator",
-        "released": "1984-10-26"
+        "released": "1984-10-26",
+        "tags": ["action", "adventure", "sci-fi"]
     }
 PUT films /t1 (lookup t1.film) 200 (lookup t1.film)
 ## We now have one film in the list

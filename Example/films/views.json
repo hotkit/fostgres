@@ -23,6 +23,21 @@
                             "released": {},
                             "length_minutes": {}
                         }
+                    }, {
+                        "array": ["tags"],
+                        "table": "film_tags",
+                        "existing": "SELECT slug FROM film_tags WHERE film_slug=$1",
+                        "delete": "DELETE FROM film_tags WHERE film_slug=$1 AND slug=$2",
+                        "columns": {
+                            "slug": {
+                                "key": true,
+                                "source": ["body"]
+                            },
+                            "film_slug": {
+                                "key":  true,
+                                "source": 1
+                            }
+                        }
                     }]
                 }
             ]
