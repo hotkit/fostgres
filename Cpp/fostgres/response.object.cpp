@@ -136,7 +136,7 @@ namespace {
                 if (returning.second >= 400) break;
             }
         }
-        cnx.commit();
+        if (returning.second < 400) cnx.commit();
         if (returning.first) {
             return returning;
         } else {

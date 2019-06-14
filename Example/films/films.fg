@@ -18,6 +18,7 @@ GET films / 200 {"columns": ["slug"], "rows": [["t1"]]}
 ## Invalid JSON gives us a schema violation
 PUT films /invalid [] 422 {"schema": {"type" : "object"},
     "error": {"assertion": "type", "in-schema": [], "in-data": []}}
+GET films /invalid 404
 PUT films /invalid {
         "slug": "t1",
         "title": "Terminator",
@@ -25,3 +26,15 @@ PUT films /invalid {
         "tags": [1]
     } 422 {"schema": {},
         "error": {"assertion": "type", "in-schema": [], "in-data": []}}
+GET films /invalid 404
+PATCH films /t1 {"title": 12} 422 {"schema": {"properties": {"title": {"type": "string"}}},
+    "error": {"assertion": "type",
+        "in-schema": ["properties", "title"],
+        "in-data": ["title"]}}
+GET films /t1 200 {"title": "Terminator"}
+
+
+## We can delete the film and the tags
+DELETE films /t1 200
+GET films /t1 404
+GET films / 200 {"columns": ["slug"], "rows": []}
