@@ -34,6 +34,30 @@ PATCH films /t1 {"title": 12} 422 {"schema": {"properties": {"title": {"type": "
 GET films /t1 200 {"title": "Terminator"}
 
 
+# Mark the film as watched and perform some checks for that. Don't
+# use the HTTP interface yet because we want to be able to check
+# the timestamp comes back correctly.
+sql.insert film_watched {
+        "film_slug": "t1",
+        "watched": "2016-06-04T23:43:34Z",
+        "who": "tester"
+    }
+
+## Check that setting the time zone properly adjusts the reported times
+set pg.zoneinfo Asia/Bangkok
+GET films /t1 200 {
+        "watched": {"times": 1, "last": "2016-06-05 06:43:34+07"}
+    }
+set pg.zoneinfo Europe/London
+GET films /t1 200 {
+        "watched": {"times": 1, "last": "2016-06-05 00:43:34+01"}
+    }
+set pg.zoneinfo America/New_York
+GET films /t1 200 {
+        "watched": {"times": 1, "last": "2016-06-04 19:43:34-04"}
+    }
+
+
 ## We can delete the film and the tags
 DELETE films /t1 200
 GET films /t1 404

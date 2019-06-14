@@ -50,28 +50,6 @@ GET film.slug /t1/tags 200 {"columns": ["tag"],
     "rows": [["action"], ["action\tadventure"], ["adventure"],
         ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"]]}
 
-# Mark the film as watched and perform some checks for that. Don't
-# use the HTTP interface yet because we want to be able to check
-# the timestamp comes back correctly.
-sql.insert film_watched {
-        "film_slug": "t1",
-        "watched": "2016-06-04T23:43:34Z",
-        "who": "tester"
-    }
-
-set pg.zoneinfo Asia/Bangkok
-GET film.slug /t1 200 {
-        "watched": {"times": 1, "last": "2016-06-05 06:43:34+07"}
-    }
-set pg.zoneinfo Europe/London
-GET film.slug /t1 200 {
-        "watched": {"times": 1, "last": "2016-06-05 00:43:34+01"}
-    }
-set pg.zoneinfo America/New_York
-GET film.slug /t1 200 {
-        "watched": {"times": 1, "last": "2016-06-04 19:43:34-04"}
-    }
-
 
 # DELETE the tags and make sure we have the right output
 DELETE film.slug /t1/tags 200
