@@ -1,5 +1,5 @@
 /**
-    Copyright 2016-2018 Felspar Co Ltd. <https://support.felspar.com/>
+    Copyright 2016-2019, Felspar Co Ltd. <https://support.felspar.com/>
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -36,7 +36,7 @@ fg::frame::builtin fg::lib::sql_insert = [](fg::frame &stack,
             stack.lookup("pg.dsn"),
             fostlib::coerce<fostlib::nullable<fostlib::string>>(
                     stack.lookup("pg.zoneinfo"))));
-    cnx.insert(relation.c_str(), data);
+    cnx.insert(relation.shrink_to_fit(), data);
     cnx.commit();
     return fostlib::json();
 };

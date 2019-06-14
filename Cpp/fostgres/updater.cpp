@@ -1,5 +1,5 @@
 /**
-    Copyright 2016-2018, Felspar Co Ltd. <https://support.felspar.com/>
+    Copyright 2016-2019, Felspar Co Ltd. <https://support.felspar.com/>
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -91,13 +91,14 @@ std::pair<boost::shared_ptr<fostlib::mime>, int> fostgres::updater::insert(
                         / col_def.first);
         if (error.first) return error;
     }
+    auto rel = relation;
     if (returning_cols.size()) {
-        auto rs =
-                cnx.upsert(relation.c_str(), d.first, d.second, returning_cols);
+        auto rs = cnx.upsert(
+                rel.shrink_to_fit(), d.first, d.second, returning_cols);
         auto result = fostgres::column_names(std::move(rs));
         return response_object(std::move(result), config);
     } else {
-        cnx.upsert(relation.c_str(), d.first, d.second);
+        cnx.upsert(rel.shrink_to_fit(), d.first, d.second);
     }
     return {nullptr, 0};
 }
@@ -106,8 +107,9 @@ std::pair<boost::shared_ptr<fostlib::mime>, int> fostgres::updater::insert(
 std::pair<boost::shared_ptr<fostlib::mime>, int> fostgres::updater::update(
         fostgres::updater::intermediate_data d,
         std::optional<std::size_t> row) {
+    auto rel = relation;
     std::vector<fostlib::string> returning = {"*"};
-    auto rs = cnx.update(relation.c_str(), d.first, d.second, returning);
+    auto rs = cnx.update(rel.shrink_to_fit(), d.first, d.second, returning);
     auto pos = rs.begin();
     if (pos == rs.end()) {
         return {nullptr, 404};

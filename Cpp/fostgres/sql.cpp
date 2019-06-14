@@ -1,5 +1,5 @@
 /**
-    Copyright 2016-2018, Felspar Co Ltd. <http://support.felspar.com/>
+    Copyright 2016-2019, Felspar Co Ltd. <http://support.felspar.com/>
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -69,10 +69,11 @@ fostlib::json fostgres::connection_config(
                             "config", "current", config)("lookup", lookup);
                     loc.del_key(config);
                 } else {
-                    const auto envname =
+                    auto envname =
                             fostlib::coerce<fostlib::nullable<fostlib::string>>(
-                                    lookup[1]);
-                    const char *env = std::getenv(envname.value().c_str());
+                                    lookup[1])
+                                    .value();
+                    const char *env = std::getenv(envname.shrink_to_fit());
                     if (env == nullptr)
                         loc.del_key(config);
                     else {

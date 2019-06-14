@@ -40,7 +40,7 @@ namespace {
                 } else {
                     return execute(config[""], path, req, host);
                 }
-            } catch (pqxx::pqxx_exception const &e) {
+            } catch (pqxx::failure const &e) {
                 return execute(config[""], path, req, host);
             }
         }
