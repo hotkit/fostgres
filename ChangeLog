@@ -1,3 +1,6 @@
+2019-06-14  Kirit Saelensminde  <kirit@felspar.com>
+ Object APIs can now process JSON arrays into a separate table.
+
 2019-03-07  Kirit Saelensminde  <kirit@felspar.com>
  Add a new view to retry Postgres serialisation errors.
 
