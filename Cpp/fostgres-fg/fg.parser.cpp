@@ -13,8 +13,7 @@
 #include <fost/push_back>
 
 
-fostlib::json fg::parse(const boost::filesystem::path &filename) {
-    fostlib::string code(fostlib::utf::load_file(filename));
+fostlib::json fg::parse(f5::u8view code) {
     std::vector<fostlib::json> script;
     auto pos = f5::cord::make_u32u16_iterator(code.begin(), code.end());
     fg_parser<decltype(pos.first)> fg_p;
