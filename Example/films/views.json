@@ -1,0 +1,83 @@
+{"webserver" : {
+    "views/films": {
+        "view": "fostgres.sql",
+        "configuration": {
+            "sql": [
+                {
+                    "path": [],
+                    "GET": "SELECT
+                            slug, title, released, length_minutes, created, watched__last, watched__times
+                        FROM films_view ORDER BY slug"                },
+                {
+                    "path": [1],
+                    "return": "object",
+                    "GET": "SELECT * FROM films_view WHERE slug=$1",
+                    "PUT": [{
+                        "table": "films",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "slug": {"type": "string"},
+                                "title": {"type": "string"},
+                                "released": {"type": "string"},
+                                "length_minutes": {"type": ["integer", "null"]},
+                                "tags": {"type": "array"}
+                            },
+                            "required": ["title", "released"]
+                        },
+                        "columns": {
+                            "slug": {
+                                "key":  true,
+                                "source": 1
+                            },
+                            "title": {},
+                            "released": {},
+                            "length_minutes": {}
+                        }
+                    }, {
+                        "array": ["tags"],
+                        "table": "film_tags",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "existing": "SELECT slug FROM film_tags WHERE film_slug=$1",
+                        "delete": "DELETE FROM film_tags WHERE film_slug=$1 AND slug=$2",
+                        "columns": {
+                            "slug": {
+                                "key": true,
+                                "source": ["body"]
+                            },
+                            "film_slug": {
+                                "key":  true,
+                                "source": 1
+                            }
+                        }
+                    }],
+                    "PATCH": {
+                        "table": "films",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "slug": {"type": "string"},
+                                "title": {"type": "string"},
+                                "released": {"type": "string"},
+                                "length_minutes": {"type": ["integer", "null"]},
+                                "tags": {"type": "array"}
+                            }
+                        },
+                        "columns": {
+                            "slug": {
+                                "key":  true,
+                                "source": 1
+                            },
+                            "title": {},
+                            "released": {},
+                            "length_minutes": {}
+                        }
+                    },
+                    "DELETE": "DELETE FROM films WHERE slug=$1"
+                }
+            ]
+        }
+    }
+}}

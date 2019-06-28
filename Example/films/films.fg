@@ -1,22 +1,64 @@
 ## # Add some films
 
+## There are no films to start with
+GET films / 200 {"columns": ["slug"], "rows": []}
 
-## ## We can't add films if we don't supply all of the required fields
-## Without the field needed to insert data, Fostgres will try to perform
-## `UPDATE` statements instead of `INSERT` ones. If these don't actually
-## update anything then we will get a 404 back, denoting that the
-## resource we're trying to update doesn't exist.
-#PATCH film.slug.error / (module.path.join films.edit.csj) 404
+## Define a film and add it to the database
+set t1.film {
+        "slug": "t1",
+        "title": "Terminator",
+        "released": "1984-10-26",
+        "tags": ["action", "adventure", "sci-fi"]
+    }
+PUT films /t1 (lookup t1.film) 200 (lookup t1.film)
+## We now have one film in the list
+GET films / 200 {"columns": ["slug"], "rows": [["t1"]]}
 
 
-## ## Add films normally
-## With the correct fields we can create the three new films
-PATCH film.slug / (module.path.join films.csj) 200 {"records": 3}
-GET film.slug /iawl 200 {"title": "It's a Wonderful Life"}
-PATCH film.slug /iawl {"title": "It's a Wonder Life"} 200 {"title": "It's a Wonder Life"}
+## Invalid JSON gives us a schema violation
+PUT films /invalid [] 422 {"schema": {"type" : "object"},
+    "error": {"assertion": "type", "in-schema": [], "in-data": []}}
+GET films /invalid 404
+PUT films /invalid {
+        "slug": "t1",
+        "title": "Terminator",
+        "released": "1984-10-26",
+        "tags": [1]
+    } 422 {"schema": {},
+        "error": {"assertion": "type", "in-schema": [], "in-data": []}}
+GET films /invalid 404
+PATCH films /t1 {"title": 12} 422 {"schema": {"properties": {"title": {"type": "string"}}},
+    "error": {"assertion": "type",
+        "in-schema": ["properties", "title"],
+        "in-data": ["title"]}}
+GET films /t1 200 {"title": "Terminator"}
 
 
-## ## Edit films
-## Once the films are in the database, we can now edit them without needing
-## all of the fields specified.
-PATCH film.slug / (module.path.join films.edit.csj) 200 {"records": 3}
+# Mark the film as watched and perform some checks for that. Don't
+# use the HTTP interface yet because we want to be able to check
+# the timestamp comes back correctly.
+sql.insert film_watched {
+        "film_slug": "t1",
+        "watched": "2016-06-04T23:43:34Z",
+        "who": "tester"
+    }
+
+## Check that setting the time zone properly adjusts the reported times
+set pg.zoneinfo Asia/Bangkok
+GET films /t1 200 {
+        "watched": {"times": 1, "last": "2016-06-05 06:43:34+07"}
+    }
+set pg.zoneinfo Europe/London
+GET films /t1 200 {
+        "watched": {"times": 1, "last": "2016-06-05 00:43:34+01"}
+    }
+set pg.zoneinfo America/New_York
+GET films /t1 200 {
+        "watched": {"times": 1, "last": "2016-06-04 19:43:34-04"}
+    }
+
+
+## We can delete the film and the tags
+DELETE films /t1 200
+GET films /t1 404
+GET films / 200 {"columns": ["slug"], "rows": []}
