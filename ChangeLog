@@ -1,3 +1,6 @@
+2019-06-24  Pumidon Phathong  <pumidon@hot-now.com>
+ GET requests that don't check the body content now return the response body.
+ 
 2019-03-07  Kirit Saelensminde  <kirit@felspar.com>
  Add a new view to retry Postgres serialisation errors.
 
