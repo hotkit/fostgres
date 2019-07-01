@@ -68,8 +68,16 @@ fostlib::nullable<fostlib::json> fostgres::datum(
             return row[name];
         }
         logger("not-found", name);
-    } else {
-        return datum(defn["source"], arguments, row, req);
+    } else {     
+        auto value =  datum(defn["source"], arguments, row, req);
+        if(not value) return value;
+        auto const str = fostlib::coerce<std::optional<f5::u8view>>(value.value());
+        if(str && defn["trim"] != fostlib::json(false)) {
+            auto result = fostlib::coerce<std::optional<fostlib::json>>(fostlib::trim(str));
+            return result;
+        } else {
+            return value;
+        }
     }
     return fostlib::null;
 }
