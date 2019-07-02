@@ -68,7 +68,7 @@ fostlib::nullable<fostlib::json> fostgres::datum(
             return row[name];
         }
         logger("not-found", name);
-    } else {     
+    } else { 
         auto value =  datum(defn["source"], arguments, row, req);
         if(not value) return value;
         auto const str = fostlib::coerce<std::optional<f5::u8view>>(value.value());

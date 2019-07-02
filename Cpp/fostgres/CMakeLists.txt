@@ -23,6 +23,7 @@ if(TARGET check)
             matcher.tests.cpp
             precondition.tests.cpp
             sql.tests.cpp
+            datum.tests.cpp
         )
     target_link_libraries(fostgres-smoke fostgres)
     smoke_test(fostgres-smoke)
