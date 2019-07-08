@@ -1,5 +1,5 @@
 /**
-    Copyright 2016-2018, Felspar Co Ltd. <https://support.felspar.com/>
+    Copyright 2016-2019, Felspar Co Ltd. <https://support.felspar.com/>
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -87,6 +87,55 @@ namespace fostgres {
             const fostlib::json &schema_config,
             const fostlib::json &instance,
             fostlib::jcursor dpos);
+
+
+    /**
+     * ## PUT handling
+     *
+     * Handle PUT requests for array sequences. Used by CSJ bodies and by
+     * JSON arrays in the JSON object requests.
+     */
+
+    template<typename T>
+    using ordered_keys = std::vector<T>;
+
+    /**
+     *  Create a SELECT statement to collect all the associated keys
+     *  in the database. We need to SELECT across the keys not in
+     *  the body data and store the keys that are in the body data
+     *
+     *  The bool is set to true when the key has been seen. Those still
+     *  false by the end of the PUT need to be deleted.
+     */
+    struct put_records_seen {
+        using storage_type =
+                std::vector<std::pair<std::vector<fostlib::json>, bool>>;
+        storage_type records;
+
+        put_records_seen(
+                fostlib::pg::connection &,
+                f5::u8view select_sql,
+                const match &,
+                fostlib::http::server::request &);
+
+        /// The number of records in the database before processing the
+        /// PUT request.
+        auto size() const noexcept { return records.size(); }
+
+        /// Look to see if we had this data in the database before
+        /// and if so mark it as seen in the PUT body
+        bool record(fostlib::json const &inserted);
+
+        /// Look through the initial keys to find any that weren't in the
+        /// incoming data in the PUT body so the rows can be deleted
+        std::size_t delete_left_over_records(f5::u8view delete_sql);
+
+      private:
+        fostlib::pg::connection &cnx;
+        match const &m;
+        std::vector<fostlib::json> key_match;
+        ordered_keys<fostlib::string> key_names;
+    };
 
 
 }

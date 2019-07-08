@@ -7,16 +7,16 @@ install(DIRECTORY users
 
 if(TARGET stress OR TARGET pgtest)
     ## It's not error to have empty script files that do nothing
-    add_custom_command(OUTPUT test-comment
-            COMMAND fostgres-test fostgres-test-comment -o test-comment
+    add_custom_command(OUTPUT example-comment
+            COMMAND fostgres-test fostgres-example-comment -o example-comment
                 ${CMAKE_CURRENT_SOURCE_DIR}/comment.fg
             MAIN_DEPENDENCY comment.fg
             DEPENDS
                 fostgres-test
                 comment.fg
         )
-    add_custom_command(OUTPUT test-empty
-            COMMAND fostgres-test fostgres-test-empty -o test-empty
+    add_custom_command(OUTPUT example-empty
+            COMMAND fostgres-test fostgres-example-empty -o example-empty
                 ${CMAKE_CURRENT_SOURCE_DIR}/empty.fg
             MAIN_DEPENDENCY empty.fg
             DEPENDS
@@ -24,42 +24,25 @@ if(TARGET stress OR TARGET pgtest)
                 empty.fg
         )
 
-    add_custom_command(OUTPUT test-film-t1
-            COMMAND fostgres-test fostgres-test-film-t1 -o test-film-t1
+    add_custom_command(OUTPUT example-films
+            COMMAND fostgres-test fostgres-example-films -o example-films
                 ${CMAKE_CURRENT_SOURCE_DIR}/../Configuration/log-show-all.json
                 $<TARGET_SONAME_FILE:fostgres>
-                ${CMAKE_CURRENT_SOURCE_DIR}/films/films.tables.sql
-                ${CMAKE_CURRENT_SOURCE_DIR}/films/view.film-slug.json
-                ${CMAKE_CURRENT_SOURCE_DIR}/films/film.t1.fg
-            MAIN_DEPENDENCY films/film.t1.fg
-            DEPENDS
-                fostgres
-                fostgres-test
-                films/films.tables.sql
-                films/view.film-slug.json
-                films/film.t1.fg
-        )
-
-    add_custom_command(OUTPUT test-films
-            COMMAND fostgres-test fostgres-test-films -o test-films
-                ${CMAKE_CURRENT_SOURCE_DIR}/../Configuration/log-show-all.json
-                $<TARGET_SONAME_FILE:fostgres>
-                ${CMAKE_CURRENT_SOURCE_DIR}/films/films.tables.sql
-                ${CMAKE_CURRENT_SOURCE_DIR}/films/view.film-slug.json
                 ${CMAKE_CURRENT_SOURCE_DIR}/films/films.fg
+                ${CMAKE_CURRENT_SOURCE_DIR}/films/films.tables.sql
+                ${CMAKE_CURRENT_SOURCE_DIR}/films/views.json
             MAIN_DEPENDENCY films/films.fg
             DEPENDS
                 fostgres
                 fostgres-test
-                films/films.tables.sql
-                films/view.film-slug.json
-                films/films.csj
-                films/films.edit.csj
                 films/films.fg
+                films/films.tables.sql
+                films/views.json
         )
 
-    add_custom_command(OUTPUT test-users
-            COMMAND fostgres-test fostgres-test-users -o test-users
+
+    add_custom_command(OUTPUT example-users
+            COMMAND fostgres-test fostgres-example-users -o example-users
                 ${CMAKE_CURRENT_SOURCE_DIR}/../Configuration/log-show-all.json
                 $<TARGET_SONAME_FILE:fostgres>
                 ${CMAKE_CURRENT_SOURCE_DIR}/users/users.tables.sql
@@ -74,8 +57,8 @@ if(TARGET stress OR TARGET pgtest)
                 users/user.add.fg
         )
 
-    add_custom_command(OUTPUT test-user-avatar
-            COMMAND fostgres-test fostgres-test-user-avatar -o test-user-avatar
+    add_custom_command(OUTPUT example-user-avatar
+            COMMAND fostgres-test fostgres-example-user-avatar -o example-user-avatar
                 ${CMAKE_CURRENT_SOURCE_DIR}/../Configuration/log-show-all.json
                 $<TARGET_SONAME_FILE:fostgres>
                 ${CMAKE_CURRENT_SOURCE_DIR}/users/users.tables.sql
@@ -90,48 +73,47 @@ if(TARGET stress OR TARGET pgtest)
                 users/user.avatar.fg
         )
 
-    add_custom_command(OUTPUT test-pg-error
-            COMMAND fostgres-test fostgres-test-pg-error -o test-pg-error
+    add_custom_command(OUTPUT example-pg-error
+            COMMAND fostgres-test fostgres-example-pg-error -o example-pg-error
                 ${CMAKE_CURRENT_SOURCE_DIR}/../Configuration/log-show-all.json
                 $<TARGET_SONAME_FILE:fostgres>
-                ${CMAKE_CURRENT_SOURCE_DIR}/errors/test-pg-error.sql
-                ${CMAKE_CURRENT_SOURCE_DIR}/errors/test-pg-error-view.json
-                ${CMAKE_CURRENT_SOURCE_DIR}/errors/test-pg-error.fg
-            MAIN_DEPENDENCY errors/test-pg-error.fg
+                ${CMAKE_CURRENT_SOURCE_DIR}/errors/pg-error.sql
+                ${CMAKE_CURRENT_SOURCE_DIR}/errors/pg-error-view.json
+                ${CMAKE_CURRENT_SOURCE_DIR}/errors/pg-error.fg
+            MAIN_DEPENDENCY errors/pg-error.fg
             DEPENDS
                 fostgres-test
-                errors/test-pg-error.sql
-                errors/test-pg-error-view.json
-                errors/test-pg-error.fg
+                errors/pg-error.sql
+                errors/pg-error-view.json
+                errors/pg-error.fg
         )
 
-    add_custom_command(OUTPUT test-pg-retry
-            COMMAND fostgres-test fostgres-test-pg-retry -o test-pg-retry
+    add_custom_command(OUTPUT example-pg-retry
+            COMMAND fostgres-test fostgres-example-pg-retry -o example-pg-retry
                 ${CMAKE_CURRENT_SOURCE_DIR}/../Configuration/log-show-all.json
                 $<TARGET_SONAME_FILE:fostgres>
-                ${CMAKE_CURRENT_SOURCE_DIR}/errors/test-retry.fg
-            MAIN_DEPENDENCY errors/test-retry.fg
+                ${CMAKE_CURRENT_SOURCE_DIR}/errors/retry.fg
+            MAIN_DEPENDENCY errors/retry.fg
             DEPENDS
                 fostgres-test
-                errors/test-retry.fg
+                errors/retry.fg
         )
 
     ## Because of the way cmake works we need this stuff at the end to
     ## actually make the above commands run when things change.
-    add_custom_target(fg-tests DEPENDS
-            test-comment
-            test-empty
-            test-films
-            test-film-t1
-            test-pg-error
-            test-pg-retry
-            test-users
-            test-user-avatar
+    add_custom_target(fg-examples DEPENDS
+            example-comment
+            example-empty
+            example-films
+            example-pg-error
+            example-pg-retry
+            example-users
+            example-user-avatar
         )
     if(TARGET stress)
-        add_dependencies(stress fg-tests)
+        add_dependencies(stress fg-examples)
     endif()
     if(TARGET pgtest)
-        add_dependencies(pgtest fg-tests)
+        add_dependencies(pgtest fg-examples)
     endif()
 endif()

@@ -9,14 +9,6 @@ GET film.slug /t1 200 {
             "robots"
         ]}
 
-# Invalid JSON being pushed leads to a schema validation error
-PUT film.slug /t1 [] 422 {"schema": {"type" : "object"},
-    "error": {"assertion": "type", "in-schema": [], "in-data": []}}
-PATCH film.slug /t1 {"title": 12} 422 {"schema": {"properties": {"title": {"type": "string"}}},
-    "error": {"assertion": "type",
-        "in-schema": ["properties", "title"],
-        "in-data": ["title"]}}
-
 # Set a tag on the film
 PUT film.slug /t1/tag/action%20adventure {} 200 {"tag": "action adventure"}
 
@@ -52,33 +44,11 @@ PUT film.slug /t1/tags (module.path.join tags.csj) 200 {"selected": 8, "records"
 GET film.slug /t1/tags 200 {"columns": ["tag"],
     "rows": [["action"], ["adventure"], ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"]]}
 
-# Check what happens with embedded \t
+# Check what happens with embedded
 PATCH film.slug /t1/tags (module.path.join tags-tab.csj) 200 {"records": 1}
 GET film.slug /t1/tags 200 {"columns": ["tag"],
     "rows": [["action"], ["action\tadventure"], ["adventure"],
         ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"]]}
-
-# Mark the film as watched and perform some checks for that. Don't
-# use the HTTP interface yet because we want to be able to check
-# the timestamp comes back correctly.
-sql.insert film_watched {
-        "film_slug": "t1",
-        "watched": "2016-06-04T23:43:34Z",
-        "who": "tester"
-    }
-
-set pg.zoneinfo Asia/Bangkok
-GET film.slug /t1 200 {
-        "watched": {"times": 1, "last": "2016-06-05 06:43:34+07"}
-    }
-set pg.zoneinfo Europe/London
-GET film.slug /t1 200 {
-        "watched": {"times": 1, "last": "2016-06-05 00:43:34+01"}
-    }
-set pg.zoneinfo America/New_York
-GET film.slug /t1 200 {
-        "watched": {"times": 1, "last": "2016-06-04 19:43:34-04"}
-    }
 
 
 # DELETE the tags and make sure we have the right output

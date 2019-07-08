@@ -176,3 +176,64 @@ std::pair<boost::shared_ptr<fostlib::mime>, int> fostgres::schema_check(
         return ok;
     }
 }
+
+
+/**
+ * ## Updating
+ */
+
+
+fostgres::put_records_seen::put_records_seen(
+        fostlib::pg::connection &c,
+        f5::u8view select_sql,
+        const match &mm,
+        fostlib::http::server::request &req)
+: cnx{c}, m{mm} {
+    auto rs = select_data(cnx, select_sql, m, req);
+    for (const auto &row : rs.second) {
+        std::vector<fostlib::json> keys;
+        for (std::size_t index{}; index != row.size(); ++index) {
+            keys.push_back(row[index]);
+        }
+        records.push_back(std::make_pair(std::move(keys), false));
+    }
+    std::sort(records.begin(), records.end());
+    key_names = std::move(rs.first);
+    key_match.reserve(key_names.size());
+}
+
+
+bool fostgres::put_records_seen::record(fostlib::json const &inserted) {
+    key_match.clear();
+    for (const auto &k : key_names) { key_match.push_back(inserted[k]); }
+    auto found = std::lower_bound(
+            records.begin(), records.end(), std::make_pair(key_match, false));
+    if (found != records.end() && found->first == key_match) {
+        found->second = true;
+        return true;
+    }
+    return false;
+}
+
+
+std::size_t fostgres::put_records_seen::delete_left_over_records(
+        f5::u8view delete_sql) {
+    auto sp = cnx.procedure(fostlib::utf8_string{delete_sql});
+    std::vector<fostlib::json> keys(m.arguments.size() + key_names.size());
+    std::transform(
+            m.arguments.begin(), m.arguments.end(), keys.begin(),
+            [&](const auto &arg) { return fostlib::json(arg); });
+    std::size_t deleted{0};
+    for (const auto &record : records) {
+        if (not record.second) {
+            // The record wasn't "seen" during the upload so we're
+            // going to delete it.
+            std::copy(
+                    record.first.begin(), record.first.end(),
+                    keys.begin() + m.arguments.size());
+            sp.exec(keys);
+            ++deleted;
+        }
+    }
+    return deleted;
+}

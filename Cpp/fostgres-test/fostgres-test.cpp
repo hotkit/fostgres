@@ -15,43 +15,42 @@
 #include <pqxx/except.hxx>
 
 
-using namespace fostlib;
-namespace filesystem = boost::filesystem;
-
-
 namespace {
-    const setting<string> c_host(
+    const fostlib::setting<fostlib::string> c_host(
             "fostgres-test.cpp", "fostgres-test", "Bind to", "localhost");
-    const setting<int>
+    const fostlib::setting<int>
             c_port("fostgres-test.cpp", "fostgres-test", "Port", 8001);
-    const setting<string>
+    const fostlib::setting<fostlib::string>
             c_mime("fostgres-test.cpp",
                    "fostgres-test",
                    "MIME types",
                    "Configuration/mime-types.json");
-    const setting<json> c_load(
-            "fostgres-test.cpp", "fostgres-test", "Load", json::array_t());
+    const fostlib::setting<fostlib::json>
+            c_load("fostgres-test.cpp",
+                   "fostgres-test",
+                   "Load",
+                   fostlib::json::array_t());
 
     /// If we need to output a file when the script runs successfully then
     /// the filename can be specified here.
-    const setting<nullable<string>> c_output(
-            "fostgres-test.cpp", "fostgres-test", "Output", null, true);
+    const fostlib::setting<fostlib::nullable<fostlib::string>> c_output(
+            "fostgres-test.cpp", "fostgres-test", "Output", fostlib::null, true);
 
     const fostlib::setting<fostlib::nullable<fostlib::string>> c_db_host(
             __FILE__, "fostgres-test", "DB Host", fostlib::null, true);
     const fostlib::setting<fostlib::nullable<fostlib::string>> c_db_user(
             __FILE__, "fostgres-test", "DB User", fostlib::null, true);
 
-    const setting<json> c_logger(
+    const fostlib::setting<fostlib::json> c_logger(
             "fostgres-test.cpp", "webserver", "logging", fostlib::json(), true);
     // Take out the Fost logger configuration so we don't end up with both
-    const setting<json> c_fost_logger(
+    const fostlib::setting<fostlib::json> c_fost_logger(
             "fostgres-test.cpp",
             "fostgres-test",
             "Logging sinks",
             fostlib::json::parse("{\"sinks\":[]}"));
 
-    const setting<nullable<string>> c_zoneinfo(
+    const fostlib::setting<fostlib::nullable<fostlib::string>> c_zoneinfo(
             "fostgres-test.cpp",
             "fostgres-test",
             "Zone info",
@@ -77,41 +76,42 @@ FSL_MAIN(L"fostgres-test", L"Fostgres testing environment")
     const auto success = [&o](const char *msg) {
         o << msg << std::endl;
         if (c_output.value()) {
-            utf::save_file(
-                    coerce<filesystem::path>(c_output.value().value()), "");
+            fostlib::utf::save_file(
+                    fostlib::coerce<fostlib::fs::path>(c_output.value().value()),
+                    "");
         }
         return 0;
     };
 
 
     /// State used by the testing process as it runs
-    std::vector<settings> loaded_settings;
+    std::vector<fostlib::settings> loaded_settings;
     std::vector<std::unique_ptr<fostlib::dynlib>> dynlibs;
     fg::program script;
     try {
         /// Create the database
-        json cnxconfig;
+        fostlib::json cnxconfig;
         if (c_db_host.value())
             fostlib::insert(cnxconfig, "host", c_db_host.value().value());
         if (c_db_user.value())
             fostlib::insert(cnxconfig, "user", c_db_user.value().value());
-        const string dbname = args[1].value();
+        const fostlib::string dbname = args[1].value();
         {
             o << "Going to be using database " << dbname << std::endl;
-            const std::vector<string> dbparam(1, dbname);
+            const std::vector<fostlib::string> dbparam(1, dbname);
             auto cnxdb = fostgres::connection(cnxconfig, c_zoneinfo.value());
             auto dbcheck =
                     cnxdb.procedure(
                                  "SELECT COUNT(datname) FROM pg_database "
                                  "WHERE datistemplate = false AND datname=$1")
                             .exec(dbparam);
-            if (coerce<int64_t>((*dbcheck.begin())[0])) {
+            if (fostlib::coerce<int64_t>((*dbcheck.begin())[0])) {
                 o << "Database found. Dropping " << dbname << std::endl;
-                pg::dropdb(cnxconfig, dbname);
+                fostlib::pg::dropdb(cnxconfig, dbname);
             } else {
                 o << "Database not found" << std::endl;
             }
-            pg::createdb(cnxconfig, dbname);
+            fostlib::pg::createdb(cnxconfig, dbname);
             insert(cnxconfig, "dbname", dbname);
         }
         o << "Creating database " << dbname << std::endl;
@@ -119,7 +119,8 @@ FSL_MAIN(L"fostgres-test", L"Fostgres testing environment")
 
         /// Loop through the remaining tasks and run SQL packages or requests
         for (std::size_t argn{2}; argn < args.size(); ++argn) {
-            const auto filename = coerce<filesystem::path>(args[argn].value());
+            const auto filename =
+                    fostlib::coerce<fostlib::fs::path>(args[argn].value());
             const auto extension = filename.extension();
             if (extension == ".fg") {
                 o << "Loading script " << filename << std::endl;
@@ -133,7 +134,8 @@ FSL_MAIN(L"fostgres-test", L"Fostgres testing environment")
                         std::make_unique<fostlib::dynlib>(args[argn].value()));
             } else if (extension == ".sql") {
                 o << "Executing SQL " << filename << std::endl;
-                auto sql = coerce<utf8_string>(utf::load_file(filename));
+                auto sql = fostlib::coerce<fostlib::utf8_string>(
+                        fostlib::utf::load_file(filename));
                 cnx.exec(sql);
                 cnx.commit();
             } else {
@@ -165,7 +167,33 @@ FSL_MAIN(L"fostgres-test", L"Fostgres testing environment")
         o << "No script was specified on the command line" << std::endl;
         return 4;
     } catch (fostlib::exceptions::exception &e) {
-        o << e << std::endl;
+        fostlib::json error = e.data();
+        if (error.has_key(fostlib::jcursor{"fg", "backtrace"})) {
+            auto backtrace = error["fg"]["backtrace"];
+            auto printbt = [backtrace, &o, &e]() {
+                o << e.message() << std::endl;
+                o << "Backtrace: " << backtrace << std::endl;
+            };
+            if (backtrace.has_key(fostlib::jcursor{0, 0})) {
+                auto const place = script.source_for(
+                        fostlib::coerce<f5::u8view>(backtrace[0][0]));
+                if (place) {
+                    o << place->filename << ":" << e.message() << '\n'
+                      << place->source << std::endl;
+                } else {
+                    printbt();
+                }
+            } else {
+                printbt();
+            }
+            fostlib::jcursor{"fg", "backtrace"}.del_key(error);
+            if (error["fg"] == fostlib::json::object_t{}) {
+                fostlib::jcursor{"fg"}.del_key(error);
+            }
+        } else {
+            o << e.message() << std::endl;
+        }
+        o << error << std::endl;
     } catch (pqxx::sql_error &e) {
         o << "Postgres error " << e.sqlstate() << std::endl;
         o << e.what() << std::endl;

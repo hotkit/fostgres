@@ -43,13 +43,18 @@ namespace {
                     __func__, "Actual response status isn't what was expected",
                     actual.second);
         }
+
+        // Body data is only returned if the test doesn't check the outcome of the request.
         if (pos != end) {
             auto response = fg::mime_from_argument(
                     stack, stack.argument("response", pos, end));
             fg::assert_comparable(*actual.first, *response);
+            return fostlib::json();
         }
-        return fostlib::json();
+        return body_data(*actual.first);
     }
+
+
     template<typename O>
     inline fg::json withbody(
             O op,

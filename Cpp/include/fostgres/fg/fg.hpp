@@ -25,7 +25,7 @@ namespace fg {
 
 
     /// Parse an fg script and return its JSON representation
-    json parse(const boost::filesystem::path &);
+    json parse(f5::u8view);
 
 
     /// Return the builtin functions for the fg environment
@@ -34,17 +34,26 @@ namespace fg {
 
     /// A whole program
     class program {
-        boost::filesystem::path filename;
+        fostlib::fs::path filename;
+        f5::u8string source;
         json code;
 
       public:
         /// Construct an empty program that errors when run
         program();
         /// Parse the requested program
-        explicit program(boost::filesystem::path);
+        explicit program(fostlib::fs::path);
 
         /// Execute this program
         void operator()(frame &) const;
+
+        /// Return the source code line for the requested string, if available
+        struct location {
+            fostlib::fs::path const &filename;
+            f5::u8string source;
+            std::size_t line, column;
+        };
+        std::optional<location> source_for(f5::u8view) const;
 
         /// Script not loaded
         class nothing_loaded : public fostlib::exceptions::exception {

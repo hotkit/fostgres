@@ -1,0 +1,22 @@
+## # Add some films
+
+
+## ## We can't add films if we don't supply all of the required fields
+## Without the field needed to insert data, Fostgres will try to perform
+## `UPDATE` statements instead of `INSERT` ones. If these don't actually
+## update anything then we will get a 404 back, denoting that the
+## resource we're trying to update doesn't exist.
+#PATCH film.slug.error / (module.path.join films.edit.csj) 404
+
+
+## ## Add films normally
+## With the correct fields we can create the three new films
+PATCH film.slug / (module.path.join films.csj) 200 {"records": 3}
+GET film.slug /iawl 200 {"title": "It's a Wonderful Life"}
+PATCH film.slug /iawl {"title": "It's a Wonder Life"} 200 {"title": "It's a Wonder Life"}
+
+
+## ## Edit films
+## Once the films are in the database, we can now edit them without needing
+## all of the fields specified.
+PATCH film.slug / (module.path.join films.edit.csj) 200 {"records": 3}

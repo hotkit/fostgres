@@ -48,7 +48,42 @@ namespace {
     }
 
 
-    std::pair<boost::shared_ptr<fostlib::mime>, int> proc_put(
+    std::pair<boost::shared_ptr<fostlib::mime>, int> proc_put_array(
+            fostlib::pg::connection &cnx,
+            const fostlib::json &config,
+            const fostgres::match &m,
+            fostlib::http::server::request &req,
+            const fostlib::json &put_config,
+            const fostlib::json &body) {
+        fostgres::updater handler{put_config, cnx, m, req};
+
+        auto const select_sql =
+                fostlib::coerce<f5::u8view>(put_config["existing"]);
+        fostgres::put_records_seen dbkeys{cnx, select_sql, m, req};
+
+        auto const array_position =
+                fostlib::coerce<fostlib::jcursor>(put_config["array"]);
+        std::size_t records{};
+        for (auto const &item : body[array_position]) {
+            if (auto const error = fostgres::schema_check(
+                        cnx, config, m, req, put_config, item,
+                        fostlib::jcursor{});
+                error.first || error.second) {
+                return error;
+            }
+            auto [error, inserted] = handler.upsert(item, records);
+            if (error.first || error.second) return error;
+            ++records;
+            dbkeys.record(inserted.first);
+        }
+
+        auto const delete_sql =
+                fostlib::coerce<f5::u8view>(put_config["delete"]);
+        dbkeys.delete_left_over_records(delete_sql);
+
+        return std::make_pair(nullptr, 0);
+    }
+    std::pair<boost::shared_ptr<fostlib::mime>, int> proc_put_object(
             fostlib::pg::connection &cnx,
             const fostlib::json &config,
             const fostgres::match &m,
@@ -69,6 +104,21 @@ namespace {
         }
         return std::make_pair(nullptr, 0);
     }
+
+
+    std::pair<boost::shared_ptr<fostlib::mime>, int> proc_put(
+            fostlib::pg::connection &cnx,
+            const fostlib::json &config,
+            const fostgres::match &m,
+            fostlib::http::server::request &req,
+            const fostlib::json &put_config,
+            const fostlib::json &body) {
+        if (put_config.has_key("array")) {
+            return proc_put_array(cnx, config, m, req, put_config, body);
+        } else {
+            return proc_put_object(cnx, config, m, req, put_config, body);
+        }
+    }
     std::pair<boost::shared_ptr<fostlib::mime>, int>
             put(fostlib::pg::connection &cnx,
                 const fostlib::json &config,
@@ -86,7 +136,7 @@ namespace {
                 if (returning.second >= 400) break;
             }
         }
-        cnx.commit();
+        if (returning.second < 400) cnx.commit();
         if (returning.first) {
             return returning;
         } else {

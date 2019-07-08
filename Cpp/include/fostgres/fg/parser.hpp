@@ -1,8 +1,8 @@
-/*
-    Copyright 2017 Felspar Co Ltd. http://support.felspar.com/
+/**
+    Copyright 2017-2019 Felspar Co Ltd. <http://support.felspar.com/>
+
     Distributed under the Boost Software License, Version 1.0.
-    See accompanying file LICENSE_1_0.txt or copy at
-        http://www.boost.org/LICENSE_1_0.txt
+    See <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 
@@ -10,6 +10,38 @@
 
 
 #include <fost/parse/json.hpp>
+
+
+/**
+
+We really want the `identity_seq` below (and any other strings) to be
+`f5::u8string` instances which have been created from an iterator pair
+from the source string. This would allow us to recognise that these strings
+are related, and it would also save us allocations for the sub-stings.
+
+Unfortunately it seems that Spirit doesn't work that way. It insists on
+adding to the strings one character at a time.
+
+```cpp
+namespace  boost::spirit::traits {
+    template<>
+    struct is_string<f5::u8string> {
+        using type = boost::mpl::true_;
+    };
+    template<>
+    struct char_type_of<f5::u8string> {
+        using type = char;
+    };
+    template<>
+    struct extract_c_string<f5::u8string> {
+        using char_type = char;
+        static char_type const *call (f5::u8string &s) {
+            return s.shrink_to_fit();
+        }
+    };
+}
+```
+ */
 
 
 namespace fg {
