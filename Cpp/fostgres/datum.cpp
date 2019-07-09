@@ -15,6 +15,37 @@
 
 namespace {
     const fostlib::json c_file("file");
+
+    fostlib::nullable<fostlib::json> proc_datum(
+            const fostlib::json &jsource,
+            const std::vector<fostlib::string> &arguments,
+            const fostlib::json &row,
+            const fostlib::http::server::request &req) {
+        if (jsource.isarray()) {
+            auto source = fostlib::coerce<fostlib::jcursor>(jsource);
+            if (source.size()) {
+                fostlib::jcursor subpath(++source.begin(), source.end());
+                if (source[0] == "request") {
+                    return req[subpath];
+                } else if (source[0] == "body" && row.has_key(subpath)) {
+                    return row[subpath];
+                }
+            }
+            return fostlib::null;
+        } else {
+            auto n = fostlib::coerce<fostlib::nullable<std::size_t>>(
+                    jsource.get<int64_t>());
+            if (n) {
+                if (n.value() > 0 && n.value() <= arguments.size()) {
+                    return fostlib::json(arguments[n.value() - 1]);
+                }
+            } else {
+                auto s = fostlib::coerce<fostlib::nullable<f5::u8view>>(jsource);
+                if (s && row.has_key(s.value())) { return row[s.value()]; }
+            }
+        }
+        return fostlib::null;
+    }
 }
 
 
@@ -23,30 +54,12 @@ fostlib::nullable<fostlib::json> fostgres::datum(
         const std::vector<fostlib::string> &arguments,
         const fostlib::json &row,
         const fostlib::http::server::request &req) {
-    if (jsource.isarray()) {
-        auto source = fostlib::coerce<fostlib::jcursor>(jsource);
-        if (source.size()) {
-            fostlib::jcursor subpath(++source.begin(), source.end());
-            if (source[0] == "request") {
-                return req[subpath];
-            } else if (source[0] == "body" && row.has_key(subpath)) {
-                return row[subpath];
-            }
-        }
-        return fostlib::null;
-    } else {
-        auto n = fostlib::coerce<fostlib::nullable<std::size_t>>(
-                jsource.get<int64_t>());
-        if (n) {
-            if (n.value() > 0 && n.value() <= arguments.size()) {
-                return fostlib::json(arguments[n.value() - 1]);
-            }
-        } else {
-            auto s = fostlib::coerce<fostlib::nullable<f5::u8view>>(jsource);
-            if (s && row.has_key(s.value())) { return row[s.value()]; }
-        }
+    auto value = proc_datum(jsource, arguments, row, req);
+    if (not value) return value;
+    else {
+        auto const str = fostlib::coerce<std::optional<f5::u8view>>(value.value());
+        return fostlib::coerce<std::optional<fostlib::json>>(fostlib::trim(str));
     }
-    return fostlib::null;
 }
 
 
@@ -69,7 +82,7 @@ fostlib::nullable<fostlib::json> fostgres::datum(
         }
         logger("not-found", name);
     } else { 
-        auto value =  datum(defn["source"], arguments, row, req);
+        auto value =  proc_datum(defn["source"], arguments, row, req);
         if(not value) return value;
         auto const str = fostlib::coerce<std::optional<f5::u8view>>(value.value());
         if(str && defn["trim"] != fostlib::json(false)) {
