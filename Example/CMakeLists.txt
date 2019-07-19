@@ -4,6 +4,8 @@ install(DIRECTORY tutorial
     DESTINATION share/fostgres/examples)
 install(DIRECTORY users
     DESTINATION share/fostgres/examples)
+install(DIRECTORY datum
+    DESTINATION share/fostgres/examples)
 
 if(TARGET stress OR TARGET pgtest)
     ## It's not error to have empty script files that do nothing
@@ -99,6 +101,22 @@ if(TARGET stress OR TARGET pgtest)
                 errors/retry.fg
         )
 
+    add_custom_command(OUTPUT example-datum
+            COMMAND fostgres-test fostgres-example-datum -o example-datum
+                ${CMAKE_CURRENT_SOURCE_DIR}/../Configuration/log-show-all.json
+                $<TARGET_SONAME_FILE:fostgres>
+                ${CMAKE_CURRENT_SOURCE_DIR}/datum/datum.fg
+                ${CMAKE_CURRENT_SOURCE_DIR}/datum/datum.tables.sql
+                ${CMAKE_CURRENT_SOURCE_DIR}/datum/view.datum.json
+            MAIN_DEPENDENCY datum/datum.fg
+            DEPENDS
+                fostgres
+                fostgres-test
+                datum/datum.fg
+                datum/datum.tables.sql
+                datum/view.datum.json
+        )
+
     ## Because of the way cmake works we need this stuff at the end to
     ## actually make the above commands run when things change.
     add_custom_target(fg-examples DEPENDS
@@ -109,6 +127,7 @@ if(TARGET stress OR TARGET pgtest)
             example-pg-retry
             example-users
             example-user-avatar
+            example-datum
         )
     if(TARGET stress)
         add_dependencies(stress fg-examples)
