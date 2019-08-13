@@ -160,7 +160,14 @@ namespace {
             const auto name = fostlib::coerce<fostlib::string>(col_def.key());
             const auto data =
                     fostgres::datum(name, *col_def, m.arguments, body, req);
-            if (data) { fostlib::insert(values, name, data.value()); }
+            if (data) { 
+                auto response = fostgres::schema_check(cnx, config, m, req, *col_def, data.value(), fostlib::jcursor{});
+                if (response.second) { return response; }
+                fostlib::insert(values, name, data.value()); 
+            } else {
+                auto response = fostgres::schema_check(cnx, config, m, req, *col_def, fostlib::json(), fostlib::jcursor{});
+                if (response.second) { return response; }
+            }
         }
         const fostlib::json &ret_cols = post_config["returning"];
         std::vector<fostlib::string> returning;
@@ -186,9 +193,11 @@ namespace {
         auto const post_config = m.configuration["POST"];
         if (post_config.isobject()) {
             returning = proc_post(cnx, config, m, req, post_config, body);
+            if(returning.second >= 400) return returning;
         } else if (post_config.isarray()) {
             for (const auto &cfg : post_config) {
                 returning = proc_post(cnx, config, m, req, cfg, body);
+                if(returning.second >= 400) return returning;
             }
         }
         cnx.commit();
@@ -210,8 +219,10 @@ namespace {
         fostlib::string relation = fostlib::coerce<fostlib::string>(
                 m.configuration["PATCH"]["table"]);
         if (m.configuration["PATCH"].has_key("columns")) {
-            fostgres::updater{m.configuration["PATCH"], cnx, m, req}.update(
-                    body);
+            auto error = fostgres::updater{m.configuration["PATCH"], cnx, m, req}.update(body);
+            if (std::get<3>(error) >= 400) {
+                return std::make_pair(std::get<2>(error), std::get<3>(error));
+            }
             cnx.commit();
         } else {
             fostlib::log::warning(fostgres::c_fostgres)(
