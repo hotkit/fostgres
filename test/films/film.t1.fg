@@ -2,6 +2,24 @@
 PUT film.slug /t1 (module.path.join t1.json) 200 (module.path.join t1.json)
 PUT film.slug /t1/tag/robots {} 200 {"tag": "robots"}
 
+# Film input should be trimmed
+PUT film.slug /t2 {
+    "slug": "t2",
+    "title": "\n\tTerminator2\r\f",
+    "released": "2000-12-22"
+} 200 {
+    "slug": "t2",
+    "title": "Terminator2",
+    "released": "2000-12-22"
+}
+
+# Should fail schema check after whitespace is trimmed
+PUT film.slug /t3 {
+    "slug": "t3",
+    "title": "\n\r\f",
+    "released": "2005-10-02"
+} 422
+
 # Check that the film output is correct
 GET film.slug /t1 200 {
         "watched": {"times": 0, "last": null},
