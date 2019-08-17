@@ -223,12 +223,10 @@ namespace {
         fostlib::string relation = fostlib::coerce<fostlib::string>(
                 m.configuration["PATCH"]["table"]);
         if (m.configuration["PATCH"].has_key("columns")) {
-            auto error =
+            auto [_1, _2, response, status] =
                     fostgres::updater{m.configuration["PATCH"], cnx, m, req}
                             .update(body);
-            if (std::get<3>(error) >= 400) {
-                return std::make_pair(std::get<2>(error), std::get<3>(error));
-            }
+            if (status >= 400) { return std::make_pair(response, status); }
             cnx.commit();
         } else {
             fostlib::log::warning(fostgres::c_fostgres)(

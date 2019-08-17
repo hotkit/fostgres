@@ -123,25 +123,22 @@ std::pair<
 }
 std::tuple<fostlib::json, fostlib::json, boost::shared_ptr<fostlib::mime>, int>
         fostgres::updater::update(const fostlib::json &body) {
-    auto d = data(body);
+    auto [keys, values] = data(body);
     for (const auto &col_def : col_config.object()) {
-        auto instance =
+        auto const instance =
                 (col_def.second["key"].get(false)
-                         ? d.first[col_def.first]
-                         : (d.second != fostlib::json()
-                                    ? d.second[col_def.first]
-                                    : fostlib::json()));
-        auto error = schema_check(
+                         ? keys[col_def.first]
+                         : (values != fostlib::json() ? values[col_def.first]
+                                                      : fostlib::json()));
+        auto const [err_response, err_status] = schema_check(
                 cnx, config, m, req, col_def.second, instance,
                 fostlib::jcursor{});
-        if (error.first) {
-            return std::tuple(
-                    fostlib::json{}, fostlib::json{}, error.first,
-                    error.second);
+        if (err_response) {
+            return {fostlib::json{}, fostlib::json{}, err_response, err_status};
         }
     }
-    update(d);
-    return std::tuple(d.first, d.second, nullptr, 0);
+    update({keys, values});
+    return {keys, values, nullptr, 0};
 }
 
 
