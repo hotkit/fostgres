@@ -1,24 +1,24 @@
-# PUT a name and lastname to table datum
+## PUT a name and lastname to table datum
 PUT test/datum /name01 {"last_name": "last01"} 200 {"name": "name01", "last_name": "last01"}
-# Whitespace in value should be trimmed
+## Whitespace in value should be trimmed
 PUT test/datum "/\u0020name02\u00A0" {"last_name": "last02"} 200 {"name": "name02", "last_name": "last02"}
 
-# POST a name and lastname to table datum
+## POST a name and lastname to table datum
 set-path testserver.headers ["__name"] "name03"
 POST test/datum / {"last_name": "last03"} 200 {"name": "name03", "last_name": "last03"}
-# Whitespace in value should be trimmed
+## Whitespace in value should be trimmed
 set-path testserver.headers ["__name"] "\u2000name04\u3000"
 POST test/datum / {"last_name": "last04"} 200 {"name": "name04", "last_name": "last04"}
 
-# However, last_name column has trim configuration set to false, so it should say as is
+## However, last_name column has trim configuration set to false, so it should say as is
 PUT test/datum /name04 {"last_name": "\uFEFFlast04\u180E"} 200 {"name": "name04", "last_name": "\uFEFFlast04\u180E"}
 set-path testserver.headers ["__name"] "name05"
 POST test/datum / {"last_name": "\u2005last05\u2008"} 200 {"name": "name05", "last_name": "\u2005last05\u2008"}
 
-# GET records
+## GET records
 GET test/datum /name01 200
 GET test/datum /name02 200
-# Whitespace should be trimmed always
+## Whitespace should be trimmed always
 GET test/datum "/\f\rname03\n\t" 200
 GET test/datum "/\u200Aname04\u202F" 200
 GET test/datum "/\u2003name05\u1680" 200

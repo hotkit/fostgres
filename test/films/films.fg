@@ -15,6 +15,16 @@ PATCH film.slug / (module.path.join films.csj) 200 {"records": 3}
 GET film.slug /iawl 200 {"title": "It's a Wonderful Life"}
 PATCH film.slug /iawl {"title": "It's a Wonder Life"} 200 {"title": "It's a Wonder Life"}
 
+# Should fail schema check after whitespace is trimmed
+PATCH film.slug /iawl {"title": "\n\n"} 422
+
+# Should update slug iawl
+PATCH film.slug "/\niawl\n" {"title": "Final"} 200 {"title": "Final"}
+GET film.slug /iawl 200 {"title": "Final"}
+
+## Error should be thrown when there is no execute key in fostgres.control.pg-error view configuration
+GET film.slug.error.missing.execute /iawl 501
+
 
 ## ## Edit films
 ## Once the films are in the database, we can now edit them without needing

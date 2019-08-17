@@ -1,3 +1,6 @@
+2019-08-13  Pattarawut Imamnuaysup  <pattarawut@hot-now.com>
+ Add schema check before insert/update into database and refactor datum for consistent trim
+
 2019-06-24  Pumidon Phathong  <pumidon@hot-now.com>
  GET requests that don't check the body content now return the response body.
  

@@ -44,7 +44,8 @@ namespace {
                     actual.second);
         }
 
-        // Body data is only returned if the test doesn't check the outcome of the request.
+        // Body data is only returned if the test doesn't check the outcome of
+        // the request.
         if (pos != end) {
             auto response = fg::mime_from_argument(
                     stack, stack.argument("response", pos, end));

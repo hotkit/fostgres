@@ -40,9 +40,34 @@ namespace {
                     return fostlib::json(arguments[n.value() - 1]);
                 }
             } else {
-                auto s = fostlib::coerce<fostlib::nullable<f5::u8view>>(jsource);
+                auto s =
+                        fostlib::coerce<fostlib::nullable<f5::u8view>>(jsource);
                 if (s && row.has_key(s.value())) { return row[s.value()]; }
             }
+        }
+        return fostlib::null;
+    }
+
+    fostlib::nullable<fostlib::json> call_datum(
+            const fostlib::string &name,
+            const fostlib::json &defn,
+            const std::vector<fostlib::string> &arguments,
+            const fostlib::json &row,
+            const fostlib::http::server::request &req) {
+        auto logger = fostlib::log::debug(fostgres::c_fostgres);
+        logger("", "Datum lookup")("in", "name", name)("in", "defn", defn)(
+                "in", "row", row);
+        if (defn["type"] == c_file) {
+            return fostgres::file_upload(name, defn, row);
+        } else if (defn["source"].isnull()) {
+            if (row.has_key(name)) {
+                logger("found", "name", name);
+                logger("found", "value", row[name]);
+                return row[name];
+            }
+            logger("not-found", name);
+        } else {
+            return proc_datum(defn["source"], arguments, row, req);
         }
         return fostlib::null;
     }
@@ -55,10 +80,13 @@ fostlib::nullable<fostlib::json> fostgres::datum(
         const fostlib::json &row,
         const fostlib::http::server::request &req) {
     auto value = proc_datum(jsource, arguments, row, req);
-    if (not value) return value;
+    if (not value)
+        return value;
     else {
-        auto const str = fostlib::coerce<std::optional<f5::u8view>>(value.value());
-        return fostlib::coerce<std::optional<fostlib::json>>(fostlib::trim(str));
+        auto const str =
+                fostlib::coerce<std::optional<f5::u8view>>(value.value());
+        return fostlib::coerce<std::optional<fostlib::json>>(
+                fostlib::trim(str));
     }
 }
 
@@ -69,28 +97,14 @@ fostlib::nullable<fostlib::json> fostgres::datum(
         const std::vector<fostlib::string> &arguments,
         const fostlib::json &row,
         const fostlib::http::server::request &req) {
-    auto logger = fostlib::log::debug(fostgres::c_fostgres);
-    logger("", "Datum lookup")("in", "name", name)("in", "defn", defn)(
-            "in", "row", row);
-    if (defn["type"] == c_file) {
-        return file_upload(name, defn, row);
-    } else if (defn["source"].isnull()) {
-        if (row.has_key(name)) {
-            logger("found", "name", name);
-            logger("found", "value", row[name]);
-            return row[name];
-        }
-        logger("not-found", name);
-    } else { 
-        auto value =  proc_datum(defn["source"], arguments, row, req);
-        if(not value) return value;
-        auto const str = fostlib::coerce<std::optional<f5::u8view>>(value.value());
-        if(str && defn["trim"] != fostlib::json(false)) {
-            auto result = fostlib::coerce<std::optional<fostlib::json>>(fostlib::trim(str));
-            return result;
-        } else {
-            return value;
-        }
+    auto value = call_datum(name, defn, arguments, row, req);
+    if (not value) return value;
+    auto const str = fostlib::coerce<std::optional<f5::u8view>>(value.value());
+    if (str && defn["trim"] != fostlib::json(false)) {
+        auto result = fostlib::coerce<std::optional<fostlib::json>>(
+                fostlib::trim(str));
+        return result;
+    } else {
+        return value;
     }
-    return fostlib::null;
 }

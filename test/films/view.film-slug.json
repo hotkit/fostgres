@@ -25,7 +25,12 @@
                                     "key":  true,
                                     "source": 1
                                 },
-                                "title": {},
+                                "title": {
+                                    "schema": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    }
+                                },
                                 "released": {},
                                 "length_minutes": {}
                             }
@@ -46,7 +51,12 @@
                                     "key":  true,
                                     "source": 1
                                 },
-                                "title": {},
+                                "title": {
+                                    "schema": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    }
+                                },
                                 "released": {},
                                 "length_minutes": {}
                             }
@@ -143,6 +153,12 @@
             "configuration": {
                 "execute": "film.slug",
                 "23502": "fost.response.500"
+            }
+        },
+        "views/film.slug.error.missing.execute": {
+            "view": "fostgres.control.pg-error",
+            "configuration": {
+                "view": "film.slug"
             }
         }
     }
