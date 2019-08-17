@@ -126,13 +126,19 @@ std::tuple<fostlib::json, fostlib::json, boost::shared_ptr<fostlib::mime>, int>
     auto d = data(body);
     for (const auto &col_def : col_config.object()) {
         auto instance =
-                (col_def.second["key"].get(false) ? d.first[col_def.first]
-                                                  : (d.second != fostlib::json() ? d.second[col_def.first] 
-                                                                                : fostlib::json()));                                       
+                (col_def.second["key"].get(false)
+                         ? d.first[col_def.first]
+                         : (d.second != fostlib::json()
+                                    ? d.second[col_def.first]
+                                    : fostlib::json()));
         auto error = schema_check(
                 cnx, config, m, req, col_def.second, instance,
                 fostlib::jcursor{});
-        if (error.first) { return std::tuple(fostlib::json{}, fostlib::json{}, error.first, error.second); }
+        if (error.first) {
+            return std::tuple(
+                    fostlib::json{}, fostlib::json{}, error.first,
+                    error.second);
+        }
     }
     update(d);
     return std::tuple(d.first, d.second, nullptr, 0);

@@ -27,7 +27,8 @@ namespace {
                 const fostlib::host &host) const {
             try {
                 if (not config.has_key("execute")) {
-                    throw fostlib::exceptions::not_implemented(__func__, "Missing execute key");
+                    throw fostlib::exceptions::not_implemented(
+                            __PRETTY_FUNCTION__, "Missing execute key");
                 }
                 return execute(config["execute"], path, req, host);
             } catch (pqxx::serialization_failure const &e) {

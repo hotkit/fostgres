@@ -65,7 +65,11 @@ namespace fostgres {
                 std::pair<fostlib::json, fostlib::json>>
                 upsert(const fostlib::json &body_row,
                        std::optional<std::size_t> row = {});
-        std::tuple<fostlib::json, fostlib::json, boost::shared_ptr<fostlib::mime>, int>
+        std::tuple<
+                fostlib::json,
+                fostlib::json,
+                boost::shared_ptr<fostlib::mime>,
+                int>
                 update(const fostlib::json &body_row);
 
       private:
