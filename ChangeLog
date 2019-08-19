@@ -1,5 +1,6 @@
 2019-08-19  Kirit Saelensminde  <kirit@felspar.com>
- Test scripts can now have the view JSON directly in the GET, PUT etc. calls.
+ * Add `rm-path` to test scripts so we can remove JSON from variable values.
+ * Test scripts can now have the view JSON directly in the GET, PUT etc. calls.
 
 2019-08-13  Pattarawut Imamnuaysup  <pattarawut@hot-now.com>
  Add schema check before insert/update into database and refactor datum for consistent trim

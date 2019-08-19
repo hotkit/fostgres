@@ -1,8 +1,8 @@
-/*
-    Copyright 2016-2019 Felspar Co Ltd. http://support.felspar.com/
+/**
+    Copyright 2016-2019 Felspar Co Ltd. <http://support.felspar.com/>
+
     Distributed under the Boost Software License, Version 1.0.
-    See accompanying file LICENSE_1_0.txt or copy at
-        http://www.boost.org/LICENSE_1_0.txt
+    See <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 
@@ -91,6 +91,18 @@ namespace {
                 "path", path)("value", value)("becomes", stack.symbols[name]);
         return value;
     }
+    /// Remove a key/array position in JSON at this symbol
+    fg::json
+            rm_path(fg::frame &stack,
+                    fg::json::const_iterator pos,
+                    fg::json::const_iterator end) {
+        auto name = stack.resolve_string(stack.argument("varname", pos, end));
+        auto path = fostlib::coerce<fostlib::jcursor>(
+                stack.resolve(stack.argument("path", pos, end)));
+        auto old = stack.symbols[name][path];
+        stack.symbols[name] = path.del_key(stack.symbols[name]);
+        return old;
+    }
 
 
     /// Change the value of a setting
@@ -127,6 +139,7 @@ fg::frame fg::builtins() {
     funcs.native["progn"] = ::progn;
     funcs.native["PUT"] = lib::put;
     funcs.native["quote"] = ::quote;
+    funcs.native["rm-path"] = ::rm_path;
     funcs.native["set"] = ::set;
     funcs.native["set-path"] = ::set_path;
     funcs.native["setting"] = ::setting;
