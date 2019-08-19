@@ -127,6 +127,7 @@ namespace {
 fg::frame fg::builtins() {
     frame funcs{nullptr};
 
+    funcs.symbols["testserver.cookies"] = fg::json::object_t();
     funcs.symbols["testserver.headers"] = fg::json::object_t();
 
     funcs.native["cat"] = ::cat;

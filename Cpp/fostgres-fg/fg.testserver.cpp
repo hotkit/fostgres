@@ -24,6 +24,23 @@ namespace {
                     __func__, "Requested path is empty");
         }
         fostlib::host host("localhost");
+        /**
+         * By processing the cookies first and putting them in the request
+         * headers first the `testserver.headers` can override the entire
+         * cookie header.
+         */
+        auto cookies = stack.lookup("testserver.cookies");
+        for (auto [cname, cvalue] : cookies.object()) {
+            if (req.headers().exists("Cookie")) {
+                throw fostlib::exceptions::not_implemented{
+                        __PRETTY_FUNCTION__,
+                        "Only one cookie is currently supported"};
+            } else {
+                req.headers().set(
+                        "Cookie",
+                        cname + "=" + fostlib::coerce<fostlib::string>(cvalue));
+            }
+        }
         auto headers = stack.lookup("testserver.headers");
         for (auto h(headers.begin()); h != headers.end(); ++h) {
             req.headers().set(
