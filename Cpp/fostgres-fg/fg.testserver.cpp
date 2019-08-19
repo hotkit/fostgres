@@ -75,7 +75,7 @@ namespace {
 */
 
 
-fg::testserver::testserver(const frame &stack, const fostlib::string &vn)
+fg::testserver::testserver(const frame &stack, const fostlib::json &vn)
 : viewname(vn),
   host_config(
           "fg.testserver.cpp",
@@ -88,6 +88,11 @@ fg::testserver::testserver(const frame &stack, const fostlib::string &vn)
   view_config("fg.testserver.cpp", "webserver", "views/fg.test", [&]() {
       fg::json views;
       fostlib::insert(views, "view", "fost.middleware.request");
+      if (vn.isobject()) {
+          fostlib::insert(views, "configuration", vn);
+      } else {
+          fostlib::insert(views, "configuration", "view", vn);
+      }
       fostlib::insert(
               views, "configuration", "headers", "__pgdsn",
               stack.lookup("pg.dsn"));
@@ -97,7 +102,6 @@ fg::testserver::testserver(const frame &stack, const fostlib::string &vn)
                   views, "configuration", "headers", "__pgzoneinfo",
                   fostlib::coerce<fostlib::string>(zi));
       }
-      fostlib::insert(views, "configuration", "view", vn);
       return views;
   }()) {}
 
