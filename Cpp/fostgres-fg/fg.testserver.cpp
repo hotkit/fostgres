@@ -32,9 +32,9 @@ namespace {
         auto cookies = stack.lookup("testserver.cookies");
         for (auto [cname, cvalue] : cookies.object()) {
             if (req.headers().exists("Cookie")) {
-                throw fostlib::exceptions::not_implemented{
-                        __PRETTY_FUNCTION__,
-                        "Only one cookie is currently supported"};
+                req.headers().set("Cookie",
+                        req.headers()["Cookie"].value() + "; " +
+                        cname + "=" + fostlib::coerce<fostlib::string>(cvalue));
             } else {
                 req.headers().set(
                         "Cookie",
