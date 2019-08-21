@@ -24,6 +24,23 @@ namespace {
                     __func__, "Requested path is empty");
         }
         fostlib::host host("localhost");
+        /**
+         * By processing the cookies first and putting them in the request
+         * headers first the `testserver.headers` can override the entire
+         * cookie header.
+         */
+        auto cookies = stack.lookup("testserver.cookies");
+        for (auto [cname, cvalue] : cookies.object()) {
+            if (req.headers().exists("Cookie")) {
+                req.headers().set("Cookie",
+                        req.headers()["Cookie"].value() + "; " +
+                        cname + "=" + fostlib::coerce<fostlib::string>(cvalue));
+            } else {
+                req.headers().set(
+                        "Cookie",
+                        cname + "=" + fostlib::coerce<fostlib::string>(cvalue));
+            }
+        }
         auto headers = stack.lookup("testserver.headers");
         for (auto h(headers.begin()); h != headers.end(); ++h) {
             req.headers().set(
@@ -75,7 +92,7 @@ namespace {
 */
 
 
-fg::testserver::testserver(const frame &stack, const fostlib::string &vn)
+fg::testserver::testserver(const frame &stack, const fostlib::json &vn)
 : viewname(vn),
   host_config(
           "fg.testserver.cpp",
@@ -88,6 +105,11 @@ fg::testserver::testserver(const frame &stack, const fostlib::string &vn)
   view_config("fg.testserver.cpp", "webserver", "views/fg.test", [&]() {
       fg::json views;
       fostlib::insert(views, "view", "fost.middleware.request");
+      if (vn.isobject()) {
+          fostlib::insert(views, "configuration", vn);
+      } else {
+          fostlib::insert(views, "configuration", "view", vn);
+      }
       fostlib::insert(
               views, "configuration", "headers", "__pgdsn",
               stack.lookup("pg.dsn"));
@@ -97,7 +119,6 @@ fg::testserver::testserver(const frame &stack, const fostlib::string &vn)
                   views, "configuration", "headers", "__pgzoneinfo",
                   fostlib::coerce<fostlib::string>(zi));
       }
-      fostlib::insert(views, "configuration", "view", vn);
       return views;
   }()) {}
 

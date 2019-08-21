@@ -1,5 +1,5 @@
 /**
-    Copyright 2016-2018 Felspar Co Ltd. <https://support.felspar.com/>
+    Copyright 2016-2019 Felspar Co Ltd. <https://support.felspar.com/>
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -18,11 +18,11 @@ namespace fg {
 
     /// Can be used to check the result of running a request against a URL
     class testserver {
-        fostlib::string viewname;
+        fostlib::json viewname;
         fostlib::setting<json> host_config, view_config;
 
       public:
-        testserver(const fg::frame &, const fostlib::string &viewname);
+        testserver(const fg::frame &, const fostlib::json &viewname);
 
         /// Return the result of the GET request
         std::pair<boost::shared_ptr<fostlib::mime>, int> get(

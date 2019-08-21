@@ -1,5 +1,5 @@
 /**
-    Copyright 2016-2018 Felspar Co Ltd. <https://support.felspar.com/>
+    Copyright 2016-2019 Felspar Co Ltd. <https://support.felspar.com/>
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -33,10 +33,10 @@ namespace {
                    fg::frame &stack,
                    fg::json::const_iterator pos,
                    fg::json::const_iterator end) {
-        auto viewname = stack.resolve_string(stack.argument("view", pos, end));
+        auto viewname = stack.resolve(stack.argument("view", pos, end));
         auto path = stack.resolve_string(stack.argument("path", pos, end));
         auto status = stack.resolve_int(stack.argument("status", pos, end));
-        fg::testserver server(stack, viewname);
+        fg::testserver server{stack, viewname};
         auto actual = (server.*op)(stack, path, status);
         if (actual.second != status) {
             throw fostlib::exceptions::not_implemented(
@@ -62,12 +62,12 @@ namespace {
             fg::frame &stack,
             fg::json::const_iterator pos,
             fg::json::const_iterator end) {
-        auto viewname = stack.resolve_string(stack.argument("view", pos, end));
+        auto viewname = stack.resolve(stack.argument("view", pos, end));
         auto path = stack.resolve_string(stack.argument("path", pos, end));
         auto body =
                 fg::mime_from_argument(stack, stack.argument("body", pos, end));
         auto status = stack.resolve_int(stack.argument("status", pos, end));
-        fg::testserver server(stack, viewname);
+        fg::testserver server{stack, viewname};
         auto actual = (server.*op)(stack, path, std::move(body), status);
         if (actual.second != status) {
             throw fostlib::exceptions::not_implemented(
