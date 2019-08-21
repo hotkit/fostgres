@@ -1,3 +1,6 @@
+2019-08-21  Kirit Saelensminde  <kirit@felspar.com>
+ Add sending of cookie values from `testserver.cookies` to `fostgres-test`.
+
 2019-08-19  Kirit Saelensminde  <kirit@felspar.com>
  * Add `rm-path` to test scripts so we can remove JSON from variable values.
  * Test scripts can now have the view JSON directly in the GET, PUT etc. calls.
