@@ -1,4 +1,7 @@
 2019-08-21  Kirit Saelensminde  <kirit@felspar.com>
+ Improve the display of test failures from `fostgres-test`.
+
+2019-08-21  Kirit Saelensminde  <kirit@felspar.com>
  Add sending of cookie values from `testserver.cookies` to `fostgres-test`.
 
 2019-08-19  Kirit Saelensminde  <kirit@felspar.com>
