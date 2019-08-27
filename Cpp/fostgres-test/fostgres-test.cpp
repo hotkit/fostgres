@@ -171,8 +171,18 @@ FSL_MAIN(L"fostgres-test", L"Fostgres testing environment")
         if (error.has_key(fostlib::jcursor{"fg", "backtrace"})) {
             auto backtrace = error["fg"]["backtrace"];
             auto printbt = [backtrace, &o, &e]() {
+                /**
+                 * Until we can properly identify the source code location
+                 * this is the only display we should see.
+                 */
                 o << e.message() << std::endl;
-                o << "Backtrace: " << backtrace << std::endl;
+                fostlib::json::array_t filtered;
+                for (auto line : backtrace) {
+                    if (line[0] != "progn") {
+                        filtered.push_back(line);
+                    }
+                }
+                o << "Backtrace: " << filtered << std::endl;
             };
             if (backtrace.has_key(fostlib::jcursor{0, 0})) {
                 auto const place = script.source_for(
