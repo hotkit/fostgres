@@ -32,9 +32,10 @@ namespace {
         auto cookies = stack.lookup("testserver.cookies");
         for (auto [cname, cvalue] : cookies.object()) {
             if (req.headers().exists("Cookie")) {
-                req.headers().set("Cookie",
-                        req.headers()["Cookie"].value() + "; " +
-                        cname + "=" + fostlib::coerce<fostlib::string>(cvalue));
+                req.headers().set(
+                        "Cookie",
+                        req.headers()["Cookie"].value() + "; " + cname + "="
+                                + fostlib::coerce<fostlib::string>(cvalue));
             } else {
                 req.headers().set(
                         "Cookie",
