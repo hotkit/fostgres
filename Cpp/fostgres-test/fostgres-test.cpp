@@ -70,11 +70,12 @@ namespace {
                  * this is the only display we should see.
                  */
                 o << e.message() << std::endl;
+                /// The top of the stack trace will always be the `progn`
+                /// that is wrapped around the entire script. We remove
+                /// that as the user doesn't need to see it.
                 fostlib::json::array_t filtered;
-                for (auto line : backtrace) {
-                    if (line[0] != "progn") {
-                        filtered.push_back(line);
-                    }
+                for (std::size_t index{}; index < backtrace.size() - 1u; ++index) {
+                    filtered.push_back(backtrace[index]);
                 }
                 o << "Backtrace: " << filtered << std::endl;
             };
