@@ -89,7 +89,7 @@ namespace {
 
 
 /**
-    ## fg::testserver
+    ## `fg::testserver`
 */
 
 
@@ -160,4 +160,16 @@ std::pair<boost::shared_ptr<fostlib::mime>, int> fg::testserver::post(
 std::pair<boost::shared_ptr<fostlib::mime>, int> fg::testserver::del(
         frame &stack, const fostlib::string &path, int expected_status) {
     return nobody("DELETE", stack, path, expected_status);
+}
+
+
+/// ## `mismatched_status_code`
+
+
+fg::mismatched_status_code::mismatched_status_code(int64_t e, int a)
+: expected{e}, actual{a} {}
+
+
+const wchar_t *const fg::mismatched_status_code::message() const noexcept {
+    return L"Mismatched HTTP status codes";
 }

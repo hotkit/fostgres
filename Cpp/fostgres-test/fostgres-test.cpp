@@ -8,6 +8,7 @@
 
 #include <fostgres/db.hpp>
 #include <fostgres/fg/fg.hpp>
+#include <fostgres/fg/fg.testserver.hpp>
 #include <fost/dynlib>
 #include <fost/main>
 #include <fost/postgres>
@@ -56,6 +57,50 @@ namespace {
             "Zone info",
             fostlib::null,
             true);
+
+    /// Print the exception information and return exception data
+    /// after removing the backtrace
+    fostlib::json print(fostlib::ostream &o, fg::program const &script, fostlib::exceptions::exception &e) {
+        fostlib::json error = e.data();
+        if (error.has_key(fostlib::jcursor{"fg", "backtrace"})) {
+            auto backtrace = error["fg"]["backtrace"];
+            auto printbt = [backtrace, &o, &e]() {
+                /**
+                 * Until we can properly identify the source code location
+                 * this is the only display we should see.
+                 */
+                o << e.message() << std::endl;
+                fostlib::json::array_t filtered;
+                for (auto line : backtrace) {
+                    if (line[0] != "progn") {
+                        filtered.push_back(line);
+                    }
+                }
+                o << "Backtrace: " << filtered << std::endl;
+            };
+            if (backtrace.has_key(fostlib::jcursor{0, 0})) {
+                auto const place = script.source_for(
+                        fostlib::coerce<f5::u8view>(backtrace[0][0]));
+                if (place) {
+                    o << place->filename << ":" << e.message() << '\n'
+                      << place->source << std::endl;
+                } else {
+                    printbt();
+                }
+            } else {
+                printbt();
+            }
+            fostlib::jcursor{"fg", "backtrace"}.del_key(error);
+            if (error["fg"] == fostlib::json::object_t{}) {
+                fostlib::jcursor{"fg"}.del_key(error);
+            }
+        } else {
+            o << e.message() << std::endl;
+        }
+        return error;
+    }
+
+
 }
 
 
@@ -166,44 +211,14 @@ FSL_MAIN(L"fostgres-test", L"Fostgres testing environment")
     } catch (fg::program::nothing_loaded &) {
         o << "No script was specified on the command line" << std::endl;
         return 4;
+    } catch (fg::mismatched_status_code &e) {
+        print(o, script, e);
+        o << "Expected " << e.expected << " but got a response of " << e.actual << '\n' << std::endl;
     } catch (fostlib::exceptions::exception &e) {
-        fostlib::json error = e.data();
-        if (error.has_key(fostlib::jcursor{"fg", "backtrace"})) {
-            auto backtrace = error["fg"]["backtrace"];
-            auto printbt = [backtrace, &o, &e]() {
-                /**
-                 * Until we can properly identify the source code location
-                 * this is the only display we should see.
-                 */
-                o << e.message() << std::endl;
-                fostlib::json::array_t filtered;
-                for (auto line : backtrace) {
-                    if (line[0] != "progn") {
-                        filtered.push_back(line);
-                    }
-                }
-                o << "Backtrace: " << filtered << std::endl;
-            };
-            if (backtrace.has_key(fostlib::jcursor{0, 0})) {
-                auto const place = script.source_for(
-                        fostlib::coerce<f5::u8view>(backtrace[0][0]));
-                if (place) {
-                    o << place->filename << ":" << e.message() << '\n'
-                      << place->source << std::endl;
-                } else {
-                    printbt();
-                }
-            } else {
-                printbt();
-            }
-            fostlib::jcursor{"fg", "backtrace"}.del_key(error);
-            if (error["fg"] == fostlib::json::object_t{}) {
-                fostlib::jcursor{"fg"}.del_key(error);
-            }
-        } else {
-            o << e.message() << std::endl;
+        auto const error = print(o, script, e);
+        if (error.size()) {
+            o << error << std::endl;
         }
-        o << error << std::endl;
     } catch (pqxx::sql_error &e) {
         o << "Postgres error " << e.sqlstate() << std::endl;
         o << e.what() << std::endl;

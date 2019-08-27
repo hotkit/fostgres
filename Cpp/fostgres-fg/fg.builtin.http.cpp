@@ -39,9 +39,7 @@ namespace {
         fg::testserver server{stack, viewname};
         auto actual = (server.*op)(stack, path, status);
         if (actual.second != status) {
-            throw fostlib::exceptions::not_implemented(
-                    __func__, "Actual response status isn't what was expected",
-                    actual.second);
+            throw fg::mismatched_status_code{status, actual.second};
         }
 
         // Body data is only returned if the test doesn't check the outcome of
@@ -70,9 +68,7 @@ namespace {
         fg::testserver server{stack, viewname};
         auto actual = (server.*op)(stack, path, std::move(body), status);
         if (actual.second != status) {
-            throw fostlib::exceptions::not_implemented(
-                    __func__, "Actual response status isn't what was expected",
-                    actual.second);
+            throw fg::mismatched_status_code{status, actual.second};
         }
         if (pos != end) {
             auto response = fg::mime_from_argument(
