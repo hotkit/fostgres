@@ -54,14 +54,14 @@ namespace fg {
     /// Exception thrown when the HTTP status code in the test doesn't match
     /// the one that was returned
     class mismatched_status_code : public fostlib::exceptions::exception {
-    public:
+      public:
         mismatched_status_code(int64_t expected, int actual);
 
         int64_t const expected;
         int const actual;
 
-          protected:
-            const wchar_t *const message() const noexcept override;
+      protected:
+        const wchar_t *const message() const noexcept override;
     };
 
 

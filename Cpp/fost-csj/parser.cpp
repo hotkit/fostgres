@@ -66,8 +66,8 @@ fostlib::csj::parser::const_iterator::const_iterator(
 }
 
 
-fostlib::csj::parser::const_iterator &fostlib::csj::parser::const_iterator::
-        operator++() {
+fostlib::csj::parser::const_iterator &
+        fostlib::csj::parser::const_iterator::operator++() {
     parseline(owner.line_p, ++pos, owner.li_end, line);
     if (not line.size()) {
         // We've hit a blank line. Make sure we only get them from now on

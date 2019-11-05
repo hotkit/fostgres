@@ -60,7 +60,10 @@ namespace {
 
     /// Print the exception information and return exception data
     /// after removing the backtrace
-    fostlib::json print(fostlib::ostream &o, fg::program const &script, fostlib::exceptions::exception &e) {
+    fostlib::json
+            print(fostlib::ostream &o,
+                  fg::program const &script,
+                  fostlib::exceptions::exception &e) {
         fostlib::json error = e.data();
         if (error.has_key(fostlib::jcursor{"fg", "backtrace"})) {
             auto backtrace = error["fg"]["backtrace"];
@@ -74,7 +77,8 @@ namespace {
                 /// that is wrapped around the entire script. We remove
                 /// that as the user doesn't need to see it.
                 fostlib::json::array_t filtered;
-                for (std::size_t index{}; index < backtrace.size() - 1u; ++index) {
+                for (std::size_t index{}; index < backtrace.size() - 1u;
+                     ++index) {
                     filtered.push_back(backtrace[index]);
                 }
                 o << "Backtrace: " << filtered << std::endl;
@@ -214,12 +218,12 @@ FSL_MAIN(L"fostgres-test", L"Fostgres testing environment")
         return 4;
     } catch (fg::mismatched_status_code &e) {
         print(o, script, e);
-        o << "Expected " << e.expected << " but got a response of " << e.actual << '\n' << std::endl;
+        o << "Expected " << e.expected << " but got a response of " << e.actual
+          << '\n'
+          << std::endl;
     } catch (fostlib::exceptions::exception &e) {
         auto const error = print(o, script, e);
-        if (error.size()) {
-            o << error << std::endl;
-        }
+        if (error.size()) { o << error << std::endl; }
     } catch (pqxx::sql_error &e) {
         o << "Postgres error " << e.sqlstate() << std::endl;
         o << e.what() << std::endl;
