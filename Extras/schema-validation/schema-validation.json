@@ -3,7 +3,7 @@
         "Schema loaders": [
             {
                 "loader": "http",
-                "prefix": "http://json-schema.org/"
+                "prefix": "https://json-schema.org/"
             },
             {
                 "loader": "fostgres-db-schema",
@@ -26,7 +26,7 @@
                         "PUT": {
                             "table": "json_schema",
                             "schema": {
-                                "$ref": "http://json-schema.org/draft-07/schema#"
+                                "$ref": "https://json-schema.org/draft-07/schema#"
                             },
                             "columns": {
                                 "slug": {
