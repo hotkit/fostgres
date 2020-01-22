@@ -54,6 +54,20 @@ namespace {
     }
 
 
+    fostlib::json
+            logic_or(fsigma::frame &stack,
+               fostlib::json::const_iterator pos,
+               fostlib::json::const_iterator end) {
+        auto const val = stack.resolve(stack.argument("value", pos, end));
+        while (pos != end) {
+            if (auto ev = stack.resolve(stack.argument("comparing_value", pos, end)); not ev.isnull()) {
+                return ev;
+            }
+        }
+        return fostlib::json{};
+    }
+
+
 }
 
 
@@ -77,6 +91,12 @@ fsigma::frame fostgres::preconditions(
     f.native["eq"] = [](fsigma::frame &stack, fostlib::json::const_iterator pos,
                         fostlib::json::const_iterator end) {
         return eq(stack, pos, end);
+    };
+
+
+    f.native["or"] = [](fsigma::frame &stack, fostlib::json::const_iterator pos,
+                        fostlib::json::const_iterator end) {
+        return logic_or(stack, pos, end);
     };
 
     return f;

@@ -107,3 +107,55 @@ FSL_TEST_FUNCTION(eq) {
             fsigma::call(stack, "eq", ar.begin(), ar.end()),
             fostlib::json{"test"});
 }
+
+
+FSL_TEST_FUNCTION(or) {
+    fostlib::mime::mime_headers heads;
+    heads.add("UserID", "test");
+    fostlib::http::server::request req{
+            "GET", "/", std::make_unique<fostlib::binary_body>(heads)};
+    std::vector<fostlib::string> matched_args;
+    matched_args.push_back("test");
+    auto stack = fostgres::preconditions(req, matched_args);
+
+    /// "or" will return null if the evaluating value is null or empty
+    fostlib::json args;
+    fostlib::push_back(args, "");
+    FSL_CHECK_EQ(
+            fsigma::call(stack, "or", args.begin(), args.end()),
+            fostlib::json{});
+
+    fostlib::jcursor{0}.set(args, fostlib::json{});
+    FSL_CHECK_EQ(
+            fsigma::call(stack, "or", args.begin(), args.end()),
+            fostlib::json{});
+
+    /// return the first evaluating value that is not null or empty
+    fostlib::push_back(args, fostlib::json{"random string"});
+    FSL_CHECK_EQ(
+            fsigma::call(stack, "or", args.begin(), args.end()),
+            fostlib::json{"random string"});
+
+    /// "or" evaluate the arguments before compare
+    /// ["eq", "random_string", "another_random_string"]
+    /// in this case, should return null
+    fostlib::json ar;
+    fostlib::json eq1;
+    fostlib::push_back(eq1, "eq");
+    fostlib::push_back(eq1, "random_string");
+    fostlib::push_back(eq1, "another_random_string");
+    fostlib::push_back(ar, eq1);
+    FSL_CHECK_EQ(
+            fsigma::call(stack, "or", ar.begin(), ar.end()),
+            fostlib::json{});
+
+    /// ["eq", "random_string", "another_random_string" ], ["eq", "test", "test" ]
+    fostlib::json eq2;
+    fostlib::push_back(eq2, "eq");
+    fostlib::push_back(eq2, "test");
+    fostlib::push_back(eq2, "test");
+    fostlib::push_back(ar, eq2);
+    FSL_CHECK_EQ(
+            fsigma::call(stack, "or", ar.begin(), ar.end()),
+            fostlib::json{"test"});
+}
