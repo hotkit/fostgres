@@ -1,5 +1,5 @@
 /**
-    Copyright 2019 Red Anchor Trading Co. Ltd.
+    Copyright 2019-2020 Red Anchor Trading Co. Ltd.
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -31,12 +31,6 @@ namespace {
                             __PRETTY_FUNCTION__, "Missing execute key");
                 }
                 return execute(config["execute"], path, req, host);
-            } catch (pqxx::serialization_failure const &e) {
-                if (config.has_key("40001")) {
-                    return execute(config["40001"], path, req, host);
-                } else {
-                    return execute(config[""], path, req, host);
-                }
             } catch (pqxx::sql_error const &e) {
                 if (config.has_key(e.sqlstate().c_str())) {
                     return execute(
