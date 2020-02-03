@@ -7,7 +7,7 @@
 
 
 #include "precondition.hpp"
-
+#include <fost/log>
 
 namespace {
 
@@ -58,10 +58,8 @@ namespace {
             fsigma::frame &stack,
             fostlib::json::const_iterator pos,
             fostlib::json::const_iterator end) {
-        auto const val = stack.resolve(stack.argument("value", pos, end));
         while (pos != end) {
-            if (auto ev = stack.resolve(
-                        stack.argument("comparing_value", pos, end));
+            if (auto ev = stack.resolve(stack.argument("value", pos, end));
                 not ev.isnull()) {
                 return ev;
             }

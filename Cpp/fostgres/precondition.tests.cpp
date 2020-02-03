@@ -120,10 +120,6 @@ FSL_TEST_FUNCTION(or) {
 
     /// "or" will return null if the evaluating value is null or empty
     fostlib::json args;
-    fostlib::push_back(args, "");
-    FSL_CHECK_EQ(
-            fsigma::call(stack, "or", args.begin(), args.end()),
-            fostlib::json{});
 
     fostlib::jcursor{0}.set(args, fostlib::json{});
     FSL_CHECK_EQ(
@@ -156,5 +152,21 @@ FSL_TEST_FUNCTION(or) {
     fostlib::push_back(ar, eq2);
     FSL_CHECK_EQ(
             fsigma::call(stack, "or", ar.begin(), ar.end()),
+            fostlib::json{"test"});
+
+    // The first true should still works
+    fostlib::json ar2;
+    fostlib::json eq4;
+    fostlib::push_back(eq4, "eq");
+    fostlib::push_back(eq4, "test");
+    fostlib::push_back(eq4, "test");
+    fostlib::push_back(ar2, eq4);
+    fostlib::json eq5;
+    fostlib::push_back(eq5, "eq");
+    fostlib::push_back(eq5, "random_string");
+    fostlib::push_back(eq5, "another_random_string");
+    fostlib::push_back(ar2, eq5);
+    FSL_CHECK_EQ(
+            fsigma::call(stack, "or", ar2.begin(), ar2.end()),
             fostlib::json{"test"});
 }
