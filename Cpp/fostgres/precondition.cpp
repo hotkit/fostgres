@@ -7,7 +7,7 @@
 
 
 #include "precondition.hpp"
-
+#include <fost/log>
 
 namespace {
 
@@ -54,13 +54,13 @@ namespace {
     }
 
 
-    fostlib::json
-            logic_or(fsigma::frame &stack,
-               fostlib::json::const_iterator pos,
-               fostlib::json::const_iterator end) {
-        auto const val = stack.resolve(stack.argument("value", pos, end));
+    fostlib::json logic_or(
+            fsigma::frame &stack,
+            fostlib::json::const_iterator pos,
+            fostlib::json::const_iterator end) {
         while (pos != end) {
-            if (auto ev = stack.resolve(stack.argument("comparing_value", pos, end)); not ev.isnull()) {
+            if (auto ev = stack.resolve(stack.argument("value", pos, end));
+                not ev.isnull()) {
                 return ev;
             }
         }
