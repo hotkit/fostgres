@@ -146,8 +146,7 @@ FSL_TEST_FUNCTION(or) {
     fostlib::push_back(eq1, "another_random_string");
     fostlib::push_back(ar, eq1);
     FSL_CHECK_EQ(
-            fsigma::call(stack, "or", ar.begin(), ar.end()),
-            fostlib::json{});
+            fsigma::call(stack, "or", ar.begin(), ar.end()), fostlib::json{});
 
     /// ["eq", "random_string", "another_random_string" ], ["eq", "test", "test" ]
     fostlib::json eq2;
