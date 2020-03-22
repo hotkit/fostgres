@@ -2,7 +2,7 @@
 
 The simplest way to run Fostgres is through [Docker](https://www.docker.com/), although it can also be built from source.
 
-There is a docker image available, `kayess/fostgres` which can be run. You will need to make Postgres available to it.
+There is a docker image available, `fost/all` which can be run. You will need to make Postgres available to it.
 
 
 ## The `docker run` command
@@ -15,7 +15,7 @@ Assuming you're running Postgres on your host machine and it has a unix domain s
         -w/src \
         -u$(id -u):$(id -g) \
         -ePGUSER=$USER \
-        kayess/fostgres \
+        fost/all \
         fostgres-test todo schema1.sql tests1.fg
 
 This breaks down as:
@@ -26,7 +26,7 @@ This breaks down as:
 * `-w/src` Use the /src folder as the current directory in the container.
 * `-u$(id -u):$(id -g)` Use the currently logged in user and group IDs inside the container.
 * `-ePGUSER=$USER` Use the current username as the Postgresql role name when connecting.
-* `kayess/fostgres` The container name
+* `fost/all` The container name
 * `fostgres-test todo schema1.sql tests1.fg` The command to run in the container.
 
 
@@ -34,7 +34,7 @@ This breaks down as:
 
 Make sure we have the latest version of the image:
 
-    sudo docker pull kayess/fostgres
+    sudo docker pull fost/all
 
 Clone the Fostgres project files:
 
@@ -52,7 +52,7 @@ And finally run the image:
         -u$(id -u):$(id -g) \
         -w/src \
         -ePGUSER=$USER \
-        kayess/fostgres:latest \
+        fost/all:latest \
         fostgres-test fostgres-test-films \
             libfostgres.so films.fg films.tables.sql view.film-slug.json
 
@@ -64,7 +64,7 @@ It's probably most convenient to set up an alias for this:
         -u$(id -u):$(id -g)
         -w/src
         -ePGUSER=$USER
-        kayess/fostgres:latest
+        fost/all:latest
         fostgres-test"
 
 ## Troubleshooting
