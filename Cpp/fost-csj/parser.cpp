@@ -1,5 +1,5 @@
 /**
-    Copyright 2016-2019 Red Anchor Trading Co. Ltd.
+    Copyright 2016-2020 Red Anchor Trading Co. Ltd.
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -8,6 +8,7 @@
 
 #include <fost/csj.parser.hpp>
 #include <fost/insert>
+#include <fost/exception/parse_error.hpp>
 
 
 namespace {
@@ -20,15 +21,14 @@ namespace {
             if (not boost::spirit::qi::parse(
                         line_pos.first, line_pos.second, parser, into)
                 || line_pos.first != line_pos.second) {
-                throw fostlib::exceptions::not_implemented(
-                        __func__, "Could not parse row", *pos);
+                throw fostlib::exceptions::parse_error{"Could not parse row", *pos};
             }
         }
     }
 }
 
 
-/*
+/**
     fostlib::cjs::parser
 */
 
@@ -39,8 +39,7 @@ fostlib::csj::parser::parser(f5::u8view str)
   li_end(line_iter.end()) {
     parseline(headers_p, li_pos, li_end, headers);
     if (not headers.size()) {
-        throw exceptions::not_implemented(
-                __func__, "No headers were found when parsing CSJ");
+        throw exceptions::parse_error{"No headers were found when parsing CSJ"};
     }
     ++li_pos;
 }
@@ -54,7 +53,7 @@ fostlib::csj::parser::const_iterator fostlib::csj::parser::end() const {
 }
 
 
-/*
+/**
     fostlib::csj::parser::const_iterator
 */
 
