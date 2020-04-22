@@ -73,8 +73,7 @@ fostlib::csj::parser::const_iterator &
         while (pos != owner.li_end) {
             parseline(owner.line_p, ++pos, owner.li_end, line);
             if (line.size()) {
-                throw exceptions::not_implemented(
-                        __func__, "Empty line embedded in CSJ file");
+                throw exceptions::parse_error{"Empty line embedded in CSJ file"};
             }
         }
     } else if (line.size() != owner.header().size()) {
