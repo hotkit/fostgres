@@ -29,6 +29,7 @@ if(TARGET stress OR TARGET pgtest)
                 fostgres-test
                 films/view.film-slug.json
                 films/films.csj
+                films/films.edit.broken.csj
                 films/films.edit.csj
                 films/films.fg
         )

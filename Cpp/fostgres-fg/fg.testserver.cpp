@@ -8,6 +8,7 @@
 
 #include <fostgres/fg/mime.hpp>
 #include <fostgres/fg/fg.testserver.hpp>
+#include <fost/exception/parse_error.hpp>
 #include <fost/insert>
 
 
@@ -51,6 +52,16 @@ namespace {
         try {
             return fostlib::urlhandler::view::execute(
                     fg::json("fg.test"), path.substr(1), req, host);
+        } catch (fostlib::exceptions::parse_error &e) {
+            if (expected_status == 400) {
+                auto response = boost::make_shared<fostlib::text_body>(
+                fostlib::string{"<html><head><title>Parse error</title></head><body><h1>Parse error</h1></body></html>"},
+                fostlib::mime::mime_headers(), "text/html");
+                return {response, 400};
+            } else {
+                fostlib::insert(e.data(), "request", "headers", req.headers());
+                throw;
+            }
         } catch (fostlib::exceptions::not_implemented &e) {
             if (expected_status == 501) {
                 return fostlib::urlhandler::response_501(
