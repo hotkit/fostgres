@@ -21,7 +21,8 @@ namespace {
             if (not boost::spirit::qi::parse(
                         line_pos.first, line_pos.second, parser, into)
                 || line_pos.first != line_pos.second) {
-                throw fostlib::exceptions::parse_error{"Could not parse row", *pos};
+                throw fostlib::exceptions::parse_error{"Could not parse row",
+                                                       *pos};
             }
         }
     }
@@ -73,7 +74,8 @@ fostlib::csj::parser::const_iterator &
         while (pos != owner.li_end) {
             parseline(owner.line_p, ++pos, owner.li_end, line);
             if (line.size()) {
-                throw exceptions::parse_error{"Empty line embedded in CSJ file"};
+                throw exceptions::parse_error{
+                        "Empty line embedded in CSJ file"};
             }
         }
     } else if (line.size() != owner.header().size()) {

@@ -55,8 +55,10 @@ namespace {
         } catch (fostlib::exceptions::parse_error &e) {
             if (expected_status == 400) {
                 auto response = boost::make_shared<fostlib::text_body>(
-                fostlib::string{"<html><head><title>Parse error</title></head><body><h1>Parse error</h1></body></html>"},
-                fostlib::mime::mime_headers(), "text/html");
+                        fostlib::string{"<html><head><title>Parse "
+                                        "error</title></head><body><h1>Parse "
+                                        "error</h1></body></html>"},
+                        fostlib::mime::mime_headers(), "text/html");
                 return {response, 400};
             } else {
                 fostlib::insert(e.data(), "request", "headers", req.headers());
