@@ -1,5 +1,5 @@
 /**
-    Copyright 2017-2019 Red Anchor Trading Co. Ltd.
+    Copyright 2017-2020 Red Anchor Trading Co. Ltd.
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -13,10 +13,7 @@
 
 
 fostlib::nullable<fostlib::json> fostgres::file_upload(
-        const fostlib::string &name,
-        const fostlib::json &defn,
-        const fostlib::json &row) {
-    fostlib::json representation;
+        f5::u8view name, fostlib::json const &defn, fostlib::json const &row) {
     if (defn["source"].isnull() && row.has_key(name)) {
         fostlib::base64_string value{
                 fostlib::coerce<fostlib::string>(row[name])};
@@ -39,7 +36,7 @@ fostlib::nullable<fostlib::json> fostgres::file_upload(
         location /= filename;
         fostlib::fs::ofstream save(location);
         save.write(reinterpret_cast<const char *>(data.data()), data.size());
-        return fostlib::json((directory / filename).c_str());
+        return fostlib::coerce<fostlib::json>(directory / filename);
     } else {
         throw fostlib::exceptions::not_implemented(
                 __PRETTY_FUNCTION__, "File upload where `source` is specified");
