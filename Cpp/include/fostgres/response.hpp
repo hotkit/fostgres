@@ -1,5 +1,5 @@
 /**
-    Copyright 2016-2019 Red Anchor Trading Co. Ltd.
+    Copyright 2016-2020 Red Anchor Trading Co. Ltd.
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -35,9 +35,9 @@ namespace fostgres {
 
     /// Process a file upload datum and return the file name
     fostlib::nullable<fostlib::json> file_upload(
-            const fostlib::string &name,
-            const fostlib::json &defn,
-            const fostlib::json &row);
+            f5::u8view name,
+            fostlib::json const &defn,
+            fostlib::json const &row);
 
 
     struct match;

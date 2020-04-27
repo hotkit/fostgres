@@ -27,18 +27,18 @@ namespace {
                 const fostlib::host &host) const {
             try {
                 if (not config.has_key("execute")) {
-                    throw fostlib::exceptions::not_implemented(
-                            __PRETTY_FUNCTION__, "Missing execute key");
+                    throw fostlib::exceptions::not_implemented{
+                            __PRETTY_FUNCTION__, "Missing execute key"};
                 }
                 return execute(config["execute"], path, req, host);
             } catch (pqxx::sql_error const &e) {
-                if (config.has_key(e.sqlstate().c_str())) {
-                    return execute(
-                            config[e.sqlstate().c_str()], path, req, host);
+                f5::u8string sqlstate{e.sqlstate()};
+                if (config.has_key(sqlstate)) {
+                    return execute(config[sqlstate], path, req, host);
                 } else {
                     return execute(config[""], path, req, host);
                 }
-            } catch (pqxx::failure const &e) {
+            } catch (pqxx::failure const &) {
                 return execute(config[""], path, req, host);
             }
         }
