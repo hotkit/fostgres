@@ -24,8 +24,8 @@ namespace {
                 const fostlib::string &path,
                 fostlib::http::server::request &req,
                 const fostlib::host &host) const {
-            std::pair<boost::shared_ptr<fostlib::mime>, int> response{nullptr,
-                                                                      0};
+            std::pair<boost::shared_ptr<fostlib::mime>, int> response{
+                    nullptr, 0};
             std::size_t retries = 0u;
             while (not response.second) {
                 try {

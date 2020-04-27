@@ -17,8 +17,8 @@ namespace {
 
     fostlib::urlhandler::test_throw_plugin const c_serialisation{
             "pqxx::serialization_failure", [](fostlib::string msg) {
-                throw pqxx::serialization_failure{static_cast<std::string>(msg),
-                                                  "SQL query", "40001"};
+                throw pqxx::serialization_failure{
+                        static_cast<std::string>(msg), "SQL query", "40001"};
             }};
 
 
