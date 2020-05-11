@@ -7,6 +7,14 @@ PUT users /test-user {
         "username": "test-user",
         "email": "test@example.com"
     }
+PUT users /random-user {
+        "email": "random@example.com",
+        "hashed": "l8hGztvkFceKl+nVTXsYXC3Bo43venuo",
+        "salt": "I9kv4rSE"
+    } 200 {
+        "username": "random-user",
+        "email": "random@example.com"
+    }
 
 # Schema validation errors
 PUT users /broken-user1 {
@@ -75,4 +83,37 @@ GET precondition /test-user 200 {
         "salt": "I9kv4rSE"
     }
 
-# Preconditions can also run SQL
+# Preconditions can also run SQL. Allow the data to be returned if it is the
+# owning user making the request, or the user is an administrator
+setting webserver views/precondition {
+    "view": "fostgres.sql",
+    "configuration": {
+            "sql": [{
+                "return": "object",
+                "path": [1],
+                "GET": "SELECT * FROM passwords WHERE username=$1",
+                "precondition": ["or",
+                        ["eq", ["match", 1], ["header", "__user"]],
+                        ["sql.exists", "SELECT * FROM administrators WHERE username=$1"]]
+            }]
+        }
+    }
+
+# Can get their own details
+set-path testserver.headers ["__user"] "test-user"
+GET precondition /test-user 200 {
+        "username": "test-user",
+        "hashed": "l8hGztvkFceKl+nVTXsYXC3Bo43venuo",
+        "salt": "I9kv4rSE"
+    }
+
+# Can't get somebody else's
+#GET precondition /random-user 403
+
+# Until they are an administrator
+#sql.insert administrators {"username": "test-user"}
+#GET precondition /random-user 200 {
+#        "username": "random-user",
+#        "hashed": "l8hGztvkFceKl+nVTXsYXC3Bo43venuo",
+#        "salt": "I9kv4rSE"
+#    }

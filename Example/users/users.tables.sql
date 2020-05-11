@@ -19,3 +19,7 @@ CREATE TABLE avatar_upload (
     CONSTRAINT avatar_upload_pk PRIMARY KEY (username)
 );
 
+
+CREATE TABLE administrators (
+    username text NOT NULL REFERENCES users ON DELETE CASCADE INITIALLY DEFERRED
+);
