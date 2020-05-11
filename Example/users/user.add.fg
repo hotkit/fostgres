@@ -92,7 +92,10 @@ setting webserver views/precondition {
                 "GET": "SELECT * FROM users WHERE username=$1",
                 "precondition": ["or",
                         ["eq", ["match", 1], ["header", "__user"]],
-                        ["sql.exists", "SELECT * FROM administrators WHERE username=$1"]]
+                        ["sql.exists", {
+                                "command": "SELECT * FROM administrators WHERE username=$1",
+                                "arguments": [["request", "headers", "__user"]]
+                            }]]
             }]
         }
     }
@@ -109,7 +112,7 @@ GET precondition /random-user 403
 
 # Until they are an administrator
 sql.insert administrators {"username": "test-user"}
-#GET precondition /random-user 200 {
-#        "username": "test-user",
-#        "email": "test@example.com"
-#    }
+GET precondition /random-user 200 {
+        "username": "random-user",
+        "email": "random@example.com"
+    }

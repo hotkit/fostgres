@@ -40,7 +40,7 @@ namespace {
                     } else {
                         precondition_predicates = precondition_config;
                     }
-                    auto stack = fostgres::preconditions({req, *m});
+                    auto stack = fostgres::preconditions({req, *m, &cnx});
                     const auto res =
                             fsigma::call(stack, precondition_predicates);
                     if (res.isnull()) {

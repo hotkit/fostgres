@@ -8,6 +8,8 @@
 
 #include "precondition.hpp"
 #include <fost/log>
+#include <fostgres/sql.hpp>
+
 
 namespace {
 
@@ -67,12 +69,15 @@ namespace {
     }
 
     fostlib::json sql_exists(
+            fostlib::pg::connection &cnx,
             fostlib::http::server::request const &req,
             fostgres::match const &m,
             fsigma::frame &stack,
             fostlib::json::const_iterator pos,
             fostlib::json::const_iterator end) {
         auto const sql = stack.argument("sql", pos, end);
+        auto [_, rs] = fostgres::select_data(cnx, sql, m, req);
+        if (rs.begin() != rs.end()) return true;
         return {};
     }
 
@@ -101,11 +106,18 @@ fsigma::frame fostgres::preconditions(precondition_context ctx) {
                         fostlib::json::const_iterator end) {
         return logic_or(stack, pos, end);
     };
-    f.native["sql.exists"] = [ctx](fsigma::frame &stack,
-                                   fostlib::json::const_iterator pos,
-                                   fostlib::json::const_iterator end) {
-        return sql_exists(ctx.req, ctx.m, stack, pos, end);
-    };
+
+    if (ctx.pcnx) {
+        /// These are only to be included if we have a database connection
+        /// available to us. This should only not be the case for some unit
+        /// tests which shouldn't exercise this case anyway, but we will
+        /// explicitly allow for it.
+        f.native["sql.exists"] = [ctx](fsigma::frame &stack,
+                                       fostlib::json::const_iterator pos,
+                                       fostlib::json::const_iterator end) {
+            return sql_exists(*ctx.pcnx, ctx.req, ctx.m, stack, pos, end);
+        };
+    }
 
     return f;
 }

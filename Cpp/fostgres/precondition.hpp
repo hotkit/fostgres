@@ -11,6 +11,7 @@
 
 #include <fost/http>
 #include <fost/http.server.hpp>
+#include <fostgres/db.hpp>
 #include <fostgres/fsigma.hpp>
 #include <fostgres/matcher.hpp>
 
@@ -21,6 +22,7 @@ namespace fostgres {
     struct precondition_context {
         fostlib::http::server::request &req;
         fostgres::match &m;
+        fostlib::pg::connection *pcnx = nullptr;
     };
 
 
