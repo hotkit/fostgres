@@ -46,6 +46,7 @@ namespace fostgres {
     /// Responder function
     using responder_function =
             std::function<std::pair<boost::shared_ptr<fostlib::mime>, int>(
+                    fostlib::pg::connection &,
                     const fostlib::json &,
                     const match &,
                     fostlib::http::server::request &)>;
@@ -60,14 +61,16 @@ namespace fostgres {
     /// Turn response data into an actual response taking into account the
     /// accept header
     std::pair<boost::shared_ptr<fostlib::mime>, int> response(
-            const fostlib::json &config,
-            const match &,
+            fostlib::pg::connection &cnx,
+            fostlib::json const &config,
+            match const &,
             fostlib::http::server::request &);
     /// Turn response data into an actual response taking into account the
     /// accept header
     std::pair<boost::shared_ptr<fostlib::mime>, int> response_csj(
-            const fostlib::json &config,
-            const match &,
+            fostlib::pg::connection &cnx,
+            fostlib::json const &config,
+            match const &,
             fostlib::http::server::request &);
 
     /// Generate a response for a single JSON object from a row of data

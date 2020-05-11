@@ -1,5 +1,5 @@
 /**
-    Copyright 2016-2019 Red Anchor Trading Co. Ltd.
+    Copyright 2016-2020 Red Anchor Trading Co. Ltd.
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -165,23 +165,6 @@ std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
 }
 
 
-std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
-        const fostlib::json &dsn,
-        const fostlib::http::server::request &req,
-        const fostlib::string &cmd) {
-    auto logger = fostlib::log::debug(c_fostgres);
-    logger("", "Executing SQL command")("command", cmd);
-
-    /// Execute the SQL we've been given
-    fostlib::pg::connection cnx(connection(dsn, req));
-    logger("dsn", cnx.configuration());
-    auto rs = cnx.exec(fostlib::coerce<fostlib::utf8_string>(cmd));
-
-    /// Return data suitable for sending to the browser
-    return column_names(std::move(rs));
-}
-
-
 namespace {
     const auto sql_impl = [](auto &cnx, const auto &cmd, const auto &args) {
         auto logger = fostlib::log::debug(fostgres::c_fostgres);
@@ -206,24 +189,6 @@ std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
         const fostlib::string &cmd,
         const std::vector<fostlib::json> &args) {
     return sql_impl(cnx, cmd, args);
-}
-
-
-std::pair<std::vector<fostlib::string>, fostlib::pg::recordset> fostgres::sql(
-        const fostlib::json &dsn,
-        const fostlib::http::server::request &req,
-        const fostlib::string &cmd,
-        const std::vector<fostlib::string> &args) {
-    auto logger = fostlib::log::debug(c_fostgres);
-    logger("", "Executing SQL command")("command", cmd)("args", args);
-
-    /// Execute the SQL we've been given
-    fostlib::pg::connection cnx(connection(dsn, req));
-    logger("dsn", cnx.configuration());
-    auto sp = cnx.procedure(fostlib::coerce<fostlib::utf8_string>(cmd));
-    auto rs = sp.exec(args);
-
-    return column_names(std::move(rs));
 }
 
 

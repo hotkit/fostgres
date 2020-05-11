@@ -11,7 +11,9 @@
 
 #include <fostgres/matcher.hpp>
 #include <fostgres/response.hpp>
+#include <fostgres/sql.hpp>
 #include "precondition.hpp"
+
 
 namespace {
 
@@ -27,6 +29,8 @@ namespace {
                 const fostlib::host &host) const {
             auto m = fostgres::matcher(configuration["sql"], path);
             if (m) {
+                fostlib::pg::connection cnx{
+                        fostgres::connection(configuration, req)};
                 if (m.value().configuration.has_key("precondition")) {
                     fostlib::json precondition_config =
                             m.value().configuration["precondition"];
@@ -36,7 +40,7 @@ namespace {
                     } else {
                         precondition_predicates = precondition_config;
                     }
-                    auto stack = fostgres::preconditions(req, *m);
+                    auto stack = fostgres::preconditions({req, *m});
                     const auto res =
                             fsigma::call(stack, precondition_predicates);
                     if (res.isnull()) {
@@ -54,11 +58,10 @@ namespace {
                     }
                 }
                 try {
-                    return fostgres::response(configuration, m.value(), req);
+                    return fostgres::response(cnx, configuration, *m, req);
                 } catch (fostlib::exceptions::exception &e) {
                     fostlib::insert(
-                            e.data(), "view", "matched",
-                            m.value().configuration);
+                            e.data(), "view", "matched", m->configuration);
                     throw;
                 }
             }

@@ -19,7 +19,8 @@ FSL_TEST_FUNCTION(header) {
     heads.add("Content-Type", "application/json");
     fostlib::http::server::request req(
             "GET", "/", std::make_unique<fostlib::binary_body>(heads));
-    auto stack = fostgres::preconditions(req, {});
+    fostgres::match m;
+    auto stack = fostgres::preconditions({req, m});
 
     fostlib::json args;
     fostlib::push_back(args, "Content-Type");
@@ -37,7 +38,7 @@ FSL_TEST_FUNCTION(match) {
     fostgres::match m;
     m.arguments.push_back("first-arg");
     m.arguments.push_back("second-arg");
-    auto stack = fostgres::preconditions(req, m);
+    auto stack = fostgres::preconditions({req, m});
 
     /// Can retrieve arguments from matcher
     fostlib::json args;
@@ -68,7 +69,7 @@ FSL_TEST_FUNCTION(eq) {
             "GET", "/", std::make_unique<fostlib::binary_body>(heads)};
     fostgres::match m;
     m.arguments.push_back("test");
-    auto stack = fostgres::preconditions(req, m);
+    auto stack = fostgres::preconditions({req, m});
 
     /// eq will return the evaluating value
     fostlib::json args;
@@ -116,7 +117,7 @@ FSL_TEST_FUNCTION(or) {
             "GET", "/", std::make_unique<fostlib::binary_body>(heads)};
     fostgres::match m;
     m.arguments.push_back("test");
-    auto stack = fostgres::preconditions(req, m);
+    auto stack = fostgres::preconditions({req, m});
 
     /// "or" will return null if the evaluating value is null or empty
     fostlib::json args;

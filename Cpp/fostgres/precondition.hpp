@@ -18,9 +18,14 @@
 namespace fostgres {
 
 
+    struct precondition_context {
+        fostlib::http::server::request &req;
+        fostgres::match &m;
+    };
+
+
     /// Returns the base frame with the available preconditions
-    fsigma::frame preconditions(
-            const fostlib::http::server::request &, const fostgres::match &m);
+    fsigma::frame preconditions(precondition_context);
 
 
 }

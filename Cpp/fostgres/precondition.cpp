@@ -80,33 +80,31 @@ namespace {
 }
 
 
-fsigma::frame fostgres::preconditions(
-        fostlib::http::server::request const &req, fostgres::match const &m) {
+fsigma::frame fostgres::preconditions(precondition_context ctx) {
     fsigma::frame f{nullptr};
 
     f.native["eq"] = [](fsigma::frame &stack, fostlib::json::const_iterator pos,
                         fostlib::json::const_iterator end) {
         return eq(stack, pos, end);
     };
-    f.native["header"] = [&req](fsigma::frame &stack,
-                                fostlib::json::const_iterator pos,
-                                fostlib::json::const_iterator end) {
-        return header(req, stack, pos, end);
+    f.native["header"] = [ctx](fsigma::frame &stack,
+                               fostlib::json::const_iterator pos,
+                               fostlib::json::const_iterator end) {
+        return header(ctx.req, stack, pos, end);
     };
-    f.native["match"] = [&m](fsigma::frame &stack,
-                             fostlib::json::const_iterator pos,
-                             fostlib::json::const_iterator end) {
-        return ::match(m.arguments, stack, pos, end);
+    f.native["match"] = [ctx](fsigma::frame &stack,
+                              fostlib::json::const_iterator pos,
+                              fostlib::json::const_iterator end) {
+        return ::match(ctx.m.arguments, stack, pos, end);
     };
     f.native["or"] = [](fsigma::frame &stack, fostlib::json::const_iterator pos,
                         fostlib::json::const_iterator end) {
         return logic_or(stack, pos, end);
     };
-    f.native["sql.exists"] = [&req,
-                              &m](fsigma::frame &stack,
-                                  fostlib::json::const_iterator pos,
-                                  fostlib::json::const_iterator end) {
-        return sql_exists(req, m, stack, pos, end);
+    f.native["sql.exists"] = [ctx](fsigma::frame &stack,
+                                   fostlib::json::const_iterator pos,
+                                   fostlib::json::const_iterator end) {
+        return sql_exists(ctx.req, ctx.m, stack, pos, end);
     };
 
     return f;

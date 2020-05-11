@@ -1,5 +1,5 @@
 /**
-    Copyright 2016-2019 Red Anchor Trading Co. Ltd.
+    Copyright 2016-2020 Red Anchor Trading Co. Ltd.
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -36,18 +36,6 @@ namespace fostgres {
             fostlib::json config,
             const fostlib::nullable<fostlib::string> &,
             const fostlib::http::server::request &req);
-
-    /// Execute the command and return the column names and data
-    std::pair<std::vector<fostlib::string>, fostlib::pg::recordset>
-            sql(const fostlib::json &dsn,
-                const fostlib::http::server::request &req,
-                const fostlib::string &cmd);
-    /// Execute the command with arguments and return the column names and data
-    std::pair<std::vector<fostlib::string>, fostlib::pg::recordset>
-            sql(const fostlib::json &dsn,
-                const fostlib::http::server::request &req,
-                const fostlib::string &cmd,
-                const std::vector<fostlib::string> &args);
 
     /// Execute the command and return the column names and data
     std::pair<std::vector<fostlib::string>, fostlib::pg::recordset>
