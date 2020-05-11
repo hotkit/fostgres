@@ -1,5 +1,5 @@
 /**
-    Copyright 2019 Red Anchor Trading Co. Ltd.
+    Copyright 2019-2020 Red Anchor Trading Co. Ltd.
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -19,7 +19,7 @@ FSL_TEST_FUNCTION(header) {
     heads.add("Content-Type", "application/json");
     fostlib::http::server::request req(
             "GET", "/", std::make_unique<fostlib::binary_body>(heads));
-    auto stack = fostgres::preconditions(req, std::vector<fostlib::string>{});
+    auto stack = fostgres::preconditions(req, {});
 
     fostlib::json args;
     fostlib::push_back(args, "Content-Type");
@@ -34,10 +34,10 @@ FSL_TEST_FUNCTION(header) {
 
 FSL_TEST_FUNCTION(match) {
     fostlib::http::server::request req{"GET", "/"};
-    std::vector<fostlib::string> matched_args;
-    matched_args.push_back("first-arg");
-    matched_args.push_back("second-arg");
-    auto stack = fostgres::preconditions(req, matched_args);
+    fostgres::match m;
+    m.arguments.push_back("first-arg");
+    m.arguments.push_back("second-arg");
+    auto stack = fostgres::preconditions(req, m);
 
     /// Can retrieve arguments from matcher
     fostlib::json args;
@@ -66,9 +66,9 @@ FSL_TEST_FUNCTION(eq) {
     heads.add("UserID", "test");
     fostlib::http::server::request req{
             "GET", "/", std::make_unique<fostlib::binary_body>(heads)};
-    std::vector<fostlib::string> matched_args;
-    matched_args.push_back("test");
-    auto stack = fostgres::preconditions(req, matched_args);
+    fostgres::match m;
+    m.arguments.push_back("test");
+    auto stack = fostgres::preconditions(req, m);
 
     /// eq will return the evaluating value
     fostlib::json args;
@@ -114,9 +114,9 @@ FSL_TEST_FUNCTION(or) {
     heads.add("UserID", "test");
     fostlib::http::server::request req{
             "GET", "/", std::make_unique<fostlib::binary_body>(heads)};
-    std::vector<fostlib::string> matched_args;
-    matched_args.push_back("test");
-    auto stack = fostgres::preconditions(req, matched_args);
+    fostgres::match m;
+    m.arguments.push_back("test");
+    auto stack = fostgres::preconditions(req, m);
 
     /// "or" will return null if the evaluating value is null or empty
     fostlib::json args;

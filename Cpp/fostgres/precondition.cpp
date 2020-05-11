@@ -1,5 +1,5 @@
 /**
-    Copyright 2019 Red Anchor Trading Co. Ltd.
+    Copyright 2019-2020 Red Anchor Trading Co. Ltd.
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -62,14 +62,21 @@ namespace {
         }
         return fostlib::json{};
     }
+    fostlib::json sql_exists(
+            const fostlib::http::server::request &req,
+            const std::vector<fostlib::string> &args,
+            fsigma::frame &stack,
+            fostlib::json::const_iterator pos,
+            fostlib::json::const_iterator end) {
+        auto const sql = stack.resolve_string(stack.argument("sql", pos, end));
+    }
 
 
 }
 
 
 fsigma::frame fostgres::preconditions(
-        const fostlib::http::server::request &req,
-        const std::vector<fostlib::string> &args) {
+        const fostlib::http::server::request &req, const fostgres::match &m) {
     fsigma::frame f{nullptr};
 
     f.native["eq"] = [](fsigma::frame &stack, fostlib::json::const_iterator pos,
@@ -81,10 +88,10 @@ fsigma::frame fostgres::preconditions(
                                 fostlib::json::const_iterator end) {
         return header(req, stack, pos, end);
     };
-    f.native["match"] = [&args](fsigma::frame &stack,
-                                fostlib::json::const_iterator pos,
-                                fostlib::json::const_iterator end) {
-        return match(args, stack, pos, end);
+    f.native["match"] = [&m](fsigma::frame &stack,
+                             fostlib::json::const_iterator pos,
+                             fostlib::json::const_iterator end) {
+        return ::match(m.arguments, stack, pos, end);
     };
     f.native["or"] = [](fsigma::frame &stack, fostlib::json::const_iterator pos,
                         fostlib::json::const_iterator end) {

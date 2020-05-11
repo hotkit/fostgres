@@ -1,5 +1,5 @@
 /**
-    Copyright 2016-2019 Red Anchor Trading Co. Ltd.
+    Copyright 2016-2020 Red Anchor Trading Co. Ltd.
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -36,8 +36,7 @@ namespace {
                     } else {
                         precondition_predicates = precondition_config;
                     }
-                    auto stack =
-                            fostgres::preconditions(req, m.value().arguments);
+                    auto stack = fostgres::preconditions(req, *m);
                     const auto res =
                             fsigma::call(stack, precondition_predicates);
                     if (res.isnull()) {
