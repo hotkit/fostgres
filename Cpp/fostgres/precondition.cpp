@@ -13,19 +13,6 @@ namespace {
 
 
     fostlib::json
-            header(const fostlib::http::server::request &req,
-                   fsigma::frame &stack,
-                   fostlib::json::const_iterator pos,
-                   fostlib::json::const_iterator end) {
-        auto const name =
-                stack.resolve_string(stack.argument("name", pos, end));
-        if (req.headers().exists(name)) {
-            return fostlib::json{req.headers()[name].value()};
-        } else {
-            return fostlib::json{};
-        }
-    }
-    fostlib::json
             eq(fsigma::frame &stack,
                fostlib::json::const_iterator pos,
                fostlib::json::const_iterator end) {
@@ -38,6 +25,21 @@ namespace {
         }
         return fostlib::json{val};
     }
+
+    fostlib::json
+            header(const fostlib::http::server::request &req,
+                   fsigma::frame &stack,
+                   fostlib::json::const_iterator pos,
+                   fostlib::json::const_iterator end) {
+        auto const name =
+                stack.resolve_string(stack.argument("name", pos, end));
+        if (req.headers().exists(name)) {
+            return fostlib::json{req.headers()[name].value()};
+        } else {
+            return fostlib::json{};
+        }
+    }
+
     fostlib::json logic_or(
             fsigma::frame &stack,
             fostlib::json::const_iterator pos,
@@ -50,6 +52,7 @@ namespace {
         }
         return fostlib::json{};
     }
+
     fostlib::json
             match(const std::vector<fostlib::string> &args,
                   fsigma::frame &stack,
