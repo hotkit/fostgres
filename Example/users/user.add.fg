@@ -105,10 +105,10 @@ GET precondition /test-user 200 {
     }
 
 # Can't get somebody else's
-#GET precondition /random-user 403
+GET precondition /random-user 403
 
 # Until they are an administrator
-#sql.insert administrators {"username": "test-user"}
+sql.insert administrators {"username": "test-user"}
 #GET precondition /random-user 200 {
 #        "username": "test-user",
 #        "email": "test@example.com"

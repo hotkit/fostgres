@@ -20,14 +20,14 @@ namespace {
         while (pos != end) {
             if (val
                 != stack.resolve(stack.argument("comparing_value", pos, end))) {
-                return fostlib::json{};
+                return {};
             }
         }
-        return fostlib::json{val};
+        return val;
     }
 
     fostlib::json
-            header(const fostlib::http::server::request &req,
+            header(fostlib::http::server::request const &req,
                    fsigma::frame &stack,
                    fostlib::json::const_iterator pos,
                    fostlib::json::const_iterator end) {
@@ -36,7 +36,7 @@ namespace {
         if (req.headers().exists(name)) {
             return fostlib::json{req.headers()[name].value()};
         } else {
-            return fostlib::json{};
+            return {};
         }
     }
 
@@ -50,11 +50,11 @@ namespace {
                 return ev;
             }
         }
-        return fostlib::json{};
+        return {};
     }
 
     fostlib::json
-            match(const std::vector<fostlib::string> &args,
+            match(std::vector<fostlib::string> const &args,
                   fsigma::frame &stack,
                   fostlib::json::const_iterator pos,
                   fostlib::json::const_iterator end) {
@@ -63,15 +63,17 @@ namespace {
         if (arg_idx > 0 && arg_idx <= args.size()) {
             return fostlib::json{args[arg_idx - 1]};
         }
-        return fostlib::json{};
+        return {};
     }
+
     fostlib::json sql_exists(
-            const fostlib::http::server::request &req,
-            const std::vector<fostlib::string> &args,
+            fostlib::http::server::request const &req,
+            fostgres::match const &m,
             fsigma::frame &stack,
             fostlib::json::const_iterator pos,
             fostlib::json::const_iterator end) {
-        auto const sql = stack.resolve_string(stack.argument("sql", pos, end));
+        auto const sql = stack.argument("sql", pos, end);
+        return {};
     }
 
 
@@ -79,7 +81,7 @@ namespace {
 
 
 fsigma::frame fostgres::preconditions(
-        const fostlib::http::server::request &req, const fostgres::match &m) {
+        fostlib::http::server::request const &req, fostgres::match const &m) {
     fsigma::frame f{nullptr};
 
     f.native["eq"] = [](fsigma::frame &stack, fostlib::json::const_iterator pos,
@@ -99,6 +101,12 @@ fsigma::frame fostgres::preconditions(
     f.native["or"] = [](fsigma::frame &stack, fostlib::json::const_iterator pos,
                         fostlib::json::const_iterator end) {
         return logic_or(stack, pos, end);
+    };
+    f.native["sql.exists"] = [&req,
+                              &m](fsigma::frame &stack,
+                                  fostlib::json::const_iterator pos,
+                                  fostlib::json::const_iterator end) {
+        return sql_exists(req, m, stack, pos, end);
     };
 
     return f;
