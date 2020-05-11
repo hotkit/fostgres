@@ -31,7 +31,7 @@ setting webserver views/precondition {
             "sql": [{
                 "return": "object",
                 "path": [1],
-                "GET": "SELECT * FROM passwords WHERE username=$1",
+                "GET": "SELECT * FROM users WHERE username=$1",
                 "precondition": ["eq", ["match", 1], ["header", "__user"]]
             }]
         }
@@ -47,10 +47,9 @@ GET precondition /test-user 403
 # The right user passes and then executes the GET SQL
 set-path testserver.headers ["__user"] "test-user"
 GET precondition /test-user 200 {
-    "username": "test-user",
-    "hashed": "l8hGztvkFceKl+nVTXsYXC3Bo43venuo",
-    "salt": "I9kv4rSE"
-}
+        "username": "test-user",
+        "email": "test@example.com"
+    }
 
 # precondition configuration support either predicate array or object
 setting webserver views/precondition {
@@ -59,7 +58,7 @@ setting webserver views/precondition {
             "sql": [{
                 "return": "object",
                 "path": [1],
-                "GET": "SELECT * FROM passwords WHERE username=$1",
+                "GET": "SELECT * FROM users WHERE username=$1",
                 "precondition": {
                     "check": ["eq", ["match", 1], ["header", "__user"]],
                     "failed": {
@@ -79,8 +78,7 @@ GET precondition /test-user 401
 set-path testserver.headers ["__user"] "test-user"
 GET precondition /test-user 200 {
         "username": "test-user",
-        "hashed": "l8hGztvkFceKl+nVTXsYXC3Bo43venuo",
-        "salt": "I9kv4rSE"
+        "email": "test@example.com"
     }
 
 # Preconditions can also run SQL. Allow the data to be returned if it is the
@@ -91,7 +89,7 @@ setting webserver views/precondition {
             "sql": [{
                 "return": "object",
                 "path": [1],
-                "GET": "SELECT * FROM passwords WHERE username=$1",
+                "GET": "SELECT * FROM users WHERE username=$1",
                 "precondition": ["or",
                         ["eq", ["match", 1], ["header", "__user"]],
                         ["sql.exists", "SELECT * FROM administrators WHERE username=$1"]]
@@ -103,8 +101,7 @@ setting webserver views/precondition {
 set-path testserver.headers ["__user"] "test-user"
 GET precondition /test-user 200 {
         "username": "test-user",
-        "hashed": "l8hGztvkFceKl+nVTXsYXC3Bo43venuo",
-        "salt": "I9kv4rSE"
+        "email": "test@example.com"
     }
 
 # Can't get somebody else's
@@ -113,7 +110,6 @@ GET precondition /test-user 200 {
 # Until they are an administrator
 #sql.insert administrators {"username": "test-user"}
 #GET precondition /random-user 200 {
-#        "username": "random-user",
-#        "hashed": "l8hGztvkFceKl+nVTXsYXC3Bo43venuo",
-#        "salt": "I9kv4rSE"
+#        "username": "test-user",
+#        "email": "test@example.com"
 #    }
