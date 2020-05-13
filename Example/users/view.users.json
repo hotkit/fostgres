@@ -3,7 +3,6 @@
         "views/users": {
             "view": "fostgres.sql",
             "configuration": {
-                "dbname": ["request", "headers", "__pgdsn", "dbname"],
                 "sql": [
                     {
                         "return": "object",
@@ -46,26 +45,6 @@
                                 }
                             }
                         ]
-                    },
-                    {
-                        "return": "object",
-                        "path": [1, "/password-with-precondition-array"],
-                        "GET": "SELECT * FROM passwords WHERE username=$1",
-                        "precondition": ["eq", ["match", 1], ["header", "__user"]] 
-                    },
-                    {
-                        "return": "object",
-                        "path": [1, "/password-with-precondition-object"],
-                        "GET": "SELECT * FROM passwords WHERE username=$1",
-                        "precondition": {
-                            "check": ["eq", ["match", 1], ["header", "__user"]],
-                            "failed": {
-                                "view": "fost.response.401",
-                                "configuration": {
-                                    "schemes": "Bearer"
-                                }
-                            }
-                        }
                     },
                     {
                         "return": "object",

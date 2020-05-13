@@ -21,8 +21,8 @@ namespace {
             if (not boost::spirit::qi::parse(
                         line_pos.first, line_pos.second, parser, into)
                 || line_pos.first != line_pos.second) {
-                throw fostlib::exceptions::parse_error{"Could not parse row",
-                                                       *pos};
+                throw fostlib::exceptions::parse_error{
+                        "Could not parse row", *pos};
             }
         }
     }

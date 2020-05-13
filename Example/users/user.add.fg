@@ -7,6 +7,14 @@ PUT users /test-user {
         "username": "test-user",
         "email": "test@example.com"
     }
+PUT users /random-user {
+        "email": "random@example.com",
+        "hashed": "l8hGztvkFceKl+nVTXsYXC3Bo43venuo",
+        "salt": "I9kv4rSE"
+    } 200 {
+        "username": "random-user",
+        "email": "random@example.com"
+    }
 
 # Schema validation errors
 PUT users /broken-user1 {
@@ -16,31 +24,95 @@ PUT users /broken-user1 {
     } 422 {"error": {"assertion" : "minLength", "in-data" : ["email"]}}
 GET users /broken-user1 404
 
-# Add a user without a password
-#PUT users /another-user {"email": "another@example.com"} 200
-#GET users /another-user/password 404
+# Views can also check preconditions
+setting webserver views/precondition {
+    "view": "fostgres.sql",
+    "configuration": {
+            "sql": [{
+                "return": "object",
+                "path": [1],
+                "GET": "SELECT * FROM users WHERE username=$1",
+                "precondition": ["eq", ["match", 1], ["header", "__user"]]
+            }]
+        }
+    }
 
 # Check the precondition(array), if failed then return 403
-GET users /test-user/password-with-precondition-array 403
+GET precondition /test-user 403
 
+# The wrong user also fails
 set-path testserver.headers ["__user"] "random-user"
-GET users /test-user/password-with-precondition-array 403
+GET precondition /test-user 403
 
-# If passed then execute the view
+# The right user passes and then executes the GET SQL
 set-path testserver.headers ["__user"] "test-user"
-GET users /test-user/password-with-precondition-array 200 {
-    "username": "test-user",
-    "hashed": "l8hGztvkFceKl+nVTXsYXC3Bo43venuo",
-    "salt": "I9kv4rSE"
-}
+GET precondition /test-user 200 {
+        "username": "test-user",
+        "email": "test@example.com"
+    }
 
 # precondition configuration support either predicate array or object
+setting webserver views/precondition {
+    "view": "fostgres.sql",
+    "configuration": {
+            "sql": [{
+                "return": "object",
+                "path": [1],
+                "GET": "SELECT * FROM users WHERE username=$1",
+                "precondition": {
+                    "check": ["eq", ["match", 1], ["header", "__user"]],
+                    "failed": {
+                        "view": "fost.response.401",
+                        "configuration": {
+                            "schemes": "Bearer"
+                        }
+                    }
+                }
+            }]
+        }
+    }
+
 set-path testserver.headers ["__user"] ""
-GET users /test-user/password-with-precondition-object 401
+GET precondition /test-user 401
 
 set-path testserver.headers ["__user"] "test-user"
-GET users /test-user/password-with-precondition-object 200 {
-    "username": "test-user",
-    "hashed": "l8hGztvkFceKl+nVTXsYXC3Bo43venuo",
-    "salt": "I9kv4rSE"
-}
+GET precondition /test-user 200 {
+        "username": "test-user",
+        "email": "test@example.com"
+    }
+
+# Preconditions can also run SQL. Allow the data to be returned if it is the
+# owning user making the request, or the user is an administrator
+setting webserver views/precondition {
+    "view": "fostgres.sql",
+    "configuration": {
+            "sql": [{
+                "return": "object",
+                "path": [1],
+                "GET": "SELECT * FROM users WHERE username=$1",
+                "precondition": ["or",
+                        ["eq", ["match", 1], ["header", "__user"]],
+                        ["sql.exists", {
+                                "command": "SELECT * FROM administrators WHERE username=$1",
+                                "arguments": [["request", "headers", "__user"]]
+                            }]]
+            }]
+        }
+    }
+
+# Can get their own details
+set-path testserver.headers ["__user"] "test-user"
+GET precondition /test-user 200 {
+        "username": "test-user",
+        "email": "test@example.com"
+    }
+
+# Can't get somebody else's
+GET precondition /random-user 403
+
+# Until they are an administrator
+sql.insert administrators {"username": "test-user"}
+GET precondition /random-user 200 {
+        "username": "random-user",
+        "email": "random@example.com"
+    }

@@ -1,5 +1,5 @@
 /**
-    Copyright 2016-2019 Red Anchor Trading Co. Ltd.
+    Copyright 2016-2020 Red Anchor Trading Co. Ltd.
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -172,10 +172,10 @@ namespace {
 
 
     std::pair<boost::shared_ptr<fostlib::mime>, int>
-            get(const fostlib::json &config,
-                const fostgres::match &m,
+            get(fostlib::pg::connection &cnx,
+                fostlib::json const &config,
+                fostgres::match const &m,
                 fostlib::http::server::request &req) {
-        fostlib::pg::connection cnx(fostgres::connection(config, req));
         auto data = fostgres::select_data(cnx, m.configuration["GET"], m, req);
         return std::make_pair(
                 boost::shared_ptr<fostlib::mime>(new csj_mime(
@@ -186,8 +186,9 @@ namespace {
 
 
     std::pair<boost::shared_ptr<fostlib::mime>, int>
-            patch(const fostlib::json &config,
-                  const fostgres::match &m,
+            patch(fostlib::pg::connection &cnx,
+                  fostlib::json const &config,
+                  fostgres::match const &m,
                   fostlib::http::server::request &req) {
         auto logger = fostlib::log::debug(fostgres::c_fostgres);
         logger("", "CSJ PATCH");
@@ -195,7 +196,6 @@ namespace {
         std::size_t records{};
 
         // We're going to need these items later
-        fostlib::pg::connection cnx{fostgres::connection(config, req)};
         fostgres::updater handler{m.configuration["PATCH"], cnx, m, req};
 
         // Interpret body as UTF8 and split into lines. Ensure it's not empty
@@ -228,13 +228,13 @@ namespace {
 
 
     std::pair<boost::shared_ptr<fostlib::mime>, int>
-            put(const fostlib::json &config,
-                const fostgres::match &m,
+            put(fostlib::pg::connection &cnx,
+                fostlib::json const &config,
+                fostgres::match const &m,
                 fostlib::http::server::request &req) {
         auto logger = fostlib::log::debug(fostgres::c_fostgres);
         logger("", "CSJ PUT");
 
-        fostlib::pg::connection cnx{fostgres::connection(config, req)};
         fostgres::updater handler{m.configuration["PUT"], cnx, m, req};
         fostlib::json work_done{fostlib::json::object_t()};
 
@@ -284,10 +284,10 @@ namespace {
 
 
     std::pair<boost::shared_ptr<fostlib::mime>, int>
-            del(const fostlib::json &config,
-                const fostgres::match &m,
+            del(fostlib::pg::connection &cnx,
+                fostlib::json const &config,
+                fostgres::match const &m,
                 fostlib::http::server::request &req) {
-        fostlib::pg::connection cnx{fostgres::connection(config, req)};
         auto sql = fostlib::coerce<fostlib::string>(m.configuration["DELETE"]);
         auto sp = cnx.procedure(fostlib::coerce<fostlib::utf8_string>(sql));
         sp.exec(m.arguments);
@@ -301,17 +301,18 @@ namespace {
 
 
 std::pair<boost::shared_ptr<fostlib::mime>, int> fostgres::response_csj(
-        const fostlib::json &config,
-        const fostgres::match &m,
+        fostlib::pg::connection &cnx,
+        fostlib::json const &config,
+        fostgres::match const &m,
         fostlib::http::server::request &req) {
     if (req.method() == "GET") {
-        return get(config, m, req);
+        return get(cnx, config, m, req);
     } else if (req.method() == "PATCH") {
-        return patch(config, m, req);
+        return patch(cnx, config, m, req);
     } else if (req.method() == "PUT") {
-        return put(config, m, req);
+        return put(cnx, config, m, req);
     } else if (req.method() == "DELETE") {
-        return del(config, m, req);
+        return del(cnx, config, m, req);
     } else {
         throw fostlib::exceptions::not_implemented(
                 __FUNCTION__, "Must use GET, HEAD, DELETE, PUT or PATCH");

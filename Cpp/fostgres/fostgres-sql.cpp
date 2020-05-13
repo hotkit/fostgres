@@ -1,5 +1,5 @@
 /**
-    Copyright 2016-2019 Red Anchor Trading Co. Ltd.
+    Copyright 2016-2020 Red Anchor Trading Co. Ltd.
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -11,7 +11,9 @@
 
 #include <fostgres/matcher.hpp>
 #include <fostgres/response.hpp>
+#include <fostgres/sql.hpp>
 #include "precondition.hpp"
+
 
 namespace {
 
@@ -27,6 +29,8 @@ namespace {
                 const fostlib::host &host) const {
             auto m = fostgres::matcher(configuration["sql"], path);
             if (m) {
+                fostlib::pg::connection cnx{
+                        fostgres::connection(configuration, req)};
                 if (m.value().configuration.has_key("precondition")) {
                     fostlib::json precondition_config =
                             m.value().configuration["precondition"];
@@ -36,8 +40,7 @@ namespace {
                     } else {
                         precondition_predicates = precondition_config;
                     }
-                    auto stack =
-                            fostgres::preconditions(req, m.value().arguments);
+                    auto stack = fostgres::preconditions({req, *m, &cnx});
                     const auto res =
                             fsigma::call(stack, precondition_predicates);
                     if (res.isnull()) {
@@ -55,11 +58,10 @@ namespace {
                     }
                 }
                 try {
-                    return fostgres::response(configuration, m.value(), req);
+                    return fostgres::response(cnx, configuration, *m, req);
                 } catch (fostlib::exceptions::exception &e) {
                     fostlib::insert(
-                            e.data(), "view", "matched",
-                            m.value().configuration);
+                            e.data(), "view", "matched", m->configuration);
                     throw;
                 }
             }

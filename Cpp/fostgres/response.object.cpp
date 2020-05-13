@@ -1,5 +1,5 @@
 /**
-    Copyright 2016-2019 Red Anchor Trading Co. Ltd.
+    Copyright 2016-2020 Red Anchor Trading Co. Ltd.
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -258,11 +258,11 @@ namespace {
     }
 
 
-    std::pair<boost::shared_ptr<fostlib::mime>, int> response_object(
+    std::pair<boost::shared_ptr<fostlib::mime>, int> object_view(
+            fostlib::pg::connection &cnx,
             const fostlib::json &config,
             const fostgres::match &m,
             fostlib::http::server::request &req) {
-        fostlib::pg::connection cnx(fostgres::connection(config, req));
         if (req.method() == "GET" or req.method() == "HEAD") {
             return get(cnx, config, m, req);
         } else if (req.method() == "PATCH") {
@@ -280,7 +280,7 @@ namespace {
     }
 
 
-    const fostgres::responder c_object("object", response_object);
+    fostgres::responder const c_object("object", object_view);
 
 
 }

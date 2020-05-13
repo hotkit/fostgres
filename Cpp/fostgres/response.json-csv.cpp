@@ -1,5 +1,5 @@
 /**
-    Copyright 2016-2019 Red Anchor Trading Co. Ltd.
+    Copyright 2016-2020 Red Anchor Trading Co. Ltd.
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -17,16 +17,17 @@ namespace {
 
 
     std::pair<boost::shared_ptr<fostlib::mime>, int>
-            get(const fostlib::json &config,
-                const fostgres::match &m,
+            get(fostlib::pg::connection &cnx,
+                fostlib::json const &config,
+                fostgres::match const &m,
                 fostlib::http::server::request &req) {
         auto data = m.arguments.size() ? fostgres::sql(
-                            config, req,
+                            cnx,
                             fostlib::coerce<fostlib::string>(
                                     m.configuration["GET"]),
                             m.arguments)
                                        : fostgres::sql(
-                                               config, req,
+                                               cnx,
                                                fostlib::coerce<fostlib::string>(
                                                        m.configuration["GET"]));
         fostlib::json result;
@@ -42,7 +43,7 @@ namespace {
         }
         { // Continue with rows
             fostlib::json rows;
-            for (const auto &record : data.second) {
+            for (auto const &record : data.second) {
                 fostlib::json row;
                 for (std::size_t index{0}; index < record.size(); ++index) {
                     fostlib::push_back(row, record[index]);
@@ -51,7 +52,7 @@ namespace {
             }
             fostlib::insert(result, "rows", rows);
         }
-        const bool pretty =
+        bool const pretty =
                 fostlib::coerce<fostlib::nullable<bool>>(config["pretty"])
                         .value_or(true);
         boost::shared_ptr<fostlib::mime> response(new fostlib::text_body(
@@ -62,10 +63,11 @@ namespace {
 
 
     std::pair<boost::shared_ptr<fostlib::mime>, int> response_json_csv(
-            const fostlib::json &config,
-            const fostgres::match &m,
+            fostlib::pg::connection &cnx,
+            fostlib::json const &config,
+            fostgres::match const &m,
             fostlib::http::server::request &req) {
-        return get(config, m, req);
+        return get(cnx, config, m, req);
     }
 
 
