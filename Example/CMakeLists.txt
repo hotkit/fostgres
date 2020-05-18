@@ -23,14 +23,14 @@ if(TARGET stress OR TARGET pgtest)
                 $<TARGET_SONAME_FILE:fostgres>
                 ${CMAKE_CURRENT_SOURCE_DIR}/datum/datum.fg
                 ${CMAKE_CURRENT_SOURCE_DIR}/datum/datum.tables.sql
-                ${CMAKE_CURRENT_SOURCE_DIR}/datum/view.datum.json
+                ${CMAKE_CURRENT_SOURCE_DIR}/datum/view.whitespace.json
             MAIN_DEPENDENCY datum/datum.fg
             DEPENDS
                 fostgres
                 fostgres-test
                 datum/datum.fg
                 datum/datum.tables.sql
-                datum/view.datum.json
+                datum/view.whitespace.json
         )
 
     add_custom_command(OUTPUT example-empty
