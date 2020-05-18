@@ -41,8 +41,8 @@ set-path testserver.headers ["Authorization"] "value"
 PUT test/header /name1 {} 200 {"authn": "XXXXREDACTED", "last_name": "Last"}
 
 ## If we have a proper method then only redact the token itself
-set-path testserver.headers ["Authorization"] "BASIC value"
-PUT test/header /name1 {} 200 {"authn": "BASIC XXXXREDACTED", "last_name": "Last"}
+set-path testserver.headers ["Authorization"] "Basic value"
+PUT test/header /name1 {} 200 {"authn": "Basic XXXXREDACTED", "last_name": "Last"}
 
 ## If we have what looks like a JWT then we'll redact only the signature
 set-path testserver.headers ["Authorization"] "Bearer eyJhVCJ9.eyJzdWIiDN9.tyBXG7LTw"
