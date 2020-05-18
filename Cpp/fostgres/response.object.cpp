@@ -8,6 +8,7 @@
 
 #include "updater.hpp"
 
+#include <fostgres/datum.hpp>
 #include <fostgres/fostgres.hpp>
 
 #include <fost/insert>

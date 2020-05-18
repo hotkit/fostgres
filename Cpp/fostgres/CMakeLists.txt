@@ -20,10 +20,10 @@ install(TARGETS fostgres LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 
 if(TARGET check)
     add_library(fostgres-smoke STATIC EXCLUDE_FROM_ALL
+            datum.tests.cpp
             matcher.tests.cpp
             precondition.tests.cpp
             sql.tests.cpp
-            datum.tests.cpp
         )
     target_link_libraries(fostgres-smoke fostgres)
     smoke_test(fostgres-smoke)
