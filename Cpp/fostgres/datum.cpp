@@ -37,13 +37,35 @@ namespace {
                 fostlib::jcursor subpath(++source.begin(), source.end());
                 if (source[0] == "request") {
                     auto val = req[subpath];
-                    if (subpath.size() >= 2 && subpath[0] == "headers"
+                    if (val && subpath.size() >= 2 && subpath[0] == "headers"
                         && ieq("authorization",
                                fostlib::coerce<std::optional<fostlib::string>>(
                                        subpath[1])
                                        .value_or(fostlib::string{}))) {
+                        if (subpath.size() == 2) {
+                            auto const parts = fostlib::partition(
+                                    fostlib::coerce<fostlib::string>(*val),
+                                    " ");
+                            if (parts.first == "Bearer" && parts.second
+                                && parts.second->startswith("ey")) {
+                                auto end = parts.second->find('.');
+                                if (end != f5::u8view::npos) {
+                                    end = parts.second->find('.', end + 1);
+                                    if (end != f5::u8view::npos) {
+                                        return fostlib::json{
+                                                "Bearer "
+                                                + parts.second->substr(
+                                                        0, end + 1)
+                                                + redacted};
+                                    }
+                                }
+                            }
+                            if (parts.second) {
+                                return fostlib::json{
+                                        parts.first + " " + redacted};
+                            }
+                        }
                         return fostlib::json{redacted};
-                        return val;
                     } else {
                         return val;
                     }
