@@ -80,9 +80,9 @@ fostlib::nullable<fostlib::json> fostgres::datum(
         const fostlib::json &row,
         const fostlib::http::server::request &req) {
     auto value = proc_datum(jsource, arguments, row, req);
-    if (not value)
+    if (not value) {
         return value;
-    else {
+    } else {
         auto const str =
                 fostlib::coerce<std::optional<f5::u8view>>(value.value());
         return fostlib::coerce<std::optional<fostlib::json>>(
