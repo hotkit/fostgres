@@ -16,6 +16,15 @@
 
 namespace {
     const fostlib::json c_file("file");
+    constexpr f5::u8view redacted{"XXXXREDACTED"};
+
+    /// ASCII based case insensitive comparison for equality which performs
+    /// the same check as the header `map` does for the key names
+    template<typename L, typename R>
+    inline bool ieq(L &&l, R &&r) {
+        fostlib::detail::ascii_iless less{};
+        return not(less(l, r) || less(r, l));
+    }
 
     fostlib::nullable<fostlib::json> proc_datum(
             const fostlib::json &jsource,
@@ -27,7 +36,17 @@ namespace {
             if (source.size()) {
                 fostlib::jcursor subpath(++source.begin(), source.end());
                 if (source[0] == "request") {
-                    return req[subpath];
+                    auto val = req[subpath];
+                    if (subpath.size() >= 2 && subpath[0] == "headers"
+                        && ieq("authorization",
+                               fostlib::coerce<std::optional<fostlib::string>>(
+                                       subpath[1])
+                                       .value_or(fostlib::string{}))) {
+                        return fostlib::json{redacted};
+                        return val;
+                    } else {
+                        return val;
+                    }
                 } else if (source[0] == "body" && row.has_key(subpath)) {
                     return row[subpath];
                 }

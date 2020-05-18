@@ -1,0 +1,29 @@
+{
+    "webserver" : {
+        "views/test/header": {
+            "view": "fostgres.sql",
+            "configuration": {
+                "sql": [{
+                    "return": "object",
+                    "path": [1],
+                    "GET": "SELECT * FROM datum WHERE name=$1",
+                    "PUT": {
+                        "table": "datum",
+                        "columns": {
+                            "name": {
+                                "key": true,
+                                "source": 1
+                            },
+                            "last_name": {
+                                "source": ["request", "headers", "__name"]
+                            },
+                            "authn": {
+                                "source": ["request", "headers", "authorization"]
+                            }
+                        }
+                    }
+                }]
+            }
+        }
+    }
+}

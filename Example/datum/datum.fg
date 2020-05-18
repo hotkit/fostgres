@@ -33,3 +33,9 @@ GET test/datum "/\u2003name05\u1680" 200
 
 ## ## Headers
 
+set-path testserver.headers ["__name"] "Last"
+
+## The `Authorization` header is treated specially. For most methods it fully
+## redacts the security token.
+set-path testserver.headers ["Authorization"] "value"
+PUT test/header /name1 {} 200 {"authn": "XXXXREDACTED"}
