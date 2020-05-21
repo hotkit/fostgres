@@ -66,7 +66,8 @@ namespace {
             }
         } catch (fostlib::exceptions::not_implemented &e) {
             if (expected_status == 501) {
-                return fostlib::urlhandler::view::execute(fostlib::json{"fost.response.501"}, path, req, host);
+                return fostlib::urlhandler::view::execute(
+                        fostlib::json{"fost.response.501"}, path, req, host);
             } else {
                 fostlib::insert(e.data(), "request", "headers", req.headers());
                 throw;

@@ -87,7 +87,8 @@ namespace {
                 auto const place = script.source_for(
                         fostlib::coerce<f5::u8view>(backtrace[0][0]));
                 if (place) {
-                    o << place->filename << ":" << fostlib::transitional_stringify(e.message()) << '\n'
+                    o << place->filename << ":"
+                      << fostlib::transitional_stringify(e.message()) << '\n'
                       << place->source << '\n';
                 } else {
                     printbt();
