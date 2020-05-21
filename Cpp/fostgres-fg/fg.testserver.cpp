@@ -1,5 +1,5 @@
 /**
-    Copyright 2016-2019 Red Anchor Trading Co. Ltd.
+    Copyright 2016-2020 Red Anchor Trading Co. Ltd.
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -22,7 +22,7 @@ namespace {
                     int expected_status) {
         if (path.empty()) {
             throw fostlib::exceptions::not_implemented(
-                    __func__, "Requested path is empty");
+                    __PRETTY_FUNCTION__, "Requested path is empty");
         }
         fostlib::host host("localhost");
         /**
@@ -66,8 +66,7 @@ namespace {
             }
         } catch (fostlib::exceptions::not_implemented &e) {
             if (expected_status == 501) {
-                return fostlib::urlhandler::response_501(
-                        fg::json(), path, req, host);
+                return fostlib::urlhandler::view::execute(fostlib::json{"fost.response.501"}, path, req, host);
             } else {
                 fostlib::insert(e.data(), "request", "headers", req.headers());
                 throw;

@@ -1,5 +1,5 @@
 /**
-    Copyright 2016-2019 Red Anchor Trading Co. Ltd.
+    Copyright 2016-2020 Red Anchor Trading Co. Ltd.
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -72,7 +72,7 @@ namespace {
                  * Until we can properly identify the source code location
                  * this is the only display we should see.
                  */
-                o << e.message() << std::endl;
+                o << fostlib::transitional_stringify(e.message()) << '\n';
                 /// The top of the stack trace will always be the `progn`
                 /// that is wrapped around the entire script. We remove
                 /// that as the user doesn't need to see it.
@@ -87,8 +87,8 @@ namespace {
                 auto const place = script.source_for(
                         fostlib::coerce<f5::u8view>(backtrace[0][0]));
                 if (place) {
-                    o << place->filename << ":" << e.message() << '\n'
-                      << place->source << std::endl;
+                    o << place->filename << ":" << fostlib::transitional_stringify(e.message()) << '\n'
+                      << place->source << '\n';
                 } else {
                     printbt();
                 }
@@ -100,7 +100,7 @@ namespace {
                 fostlib::jcursor{"fg"}.del_key(error);
             }
         } else {
-            o << e.message() << std::endl;
+            o << fostlib::transitional_stringify(e.message()) << std::endl;
         }
         return error;
     }
@@ -109,14 +109,14 @@ namespace {
 }
 
 
-FSL_MAIN(L"fostgres-test", L"Fostgres testing environment")
+FSL_MAIN("fostgres-test", "Fostgres testing environment")
 (fostlib::ostream &o, fostlib::arguments &args) {
     if (args.size() < 2) {
         o << "\nRun with:\n\n    fostgres-test dbname ...\n\n"
           << "      -h     Postgres hostname or path\n"
           << "      -U     Postgres username\n"
           << "      -o     Output filename to write on success\n"
-          << std::endl;
+          << '\n';
         return 2;
     }
     args.commandSwitch("h", c_db_host);

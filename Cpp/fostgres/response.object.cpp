@@ -298,7 +298,7 @@ std::pair<boost::shared_ptr<fostlib::mime>, int> fostgres::response_object(
         insert(result, "error", "Not found");
         boost::shared_ptr<fostlib::mime> response(new fostlib::text_body(
                 fostlib::json::unparse(result, pretty),
-                fostlib::mime::mime_headers(), L"application/json"));
+                fostlib::mime::mime_headers(), "application/json"));
         return std::make_pair(response, 404);
     }
     fostlib::json result;
@@ -312,11 +312,11 @@ std::pair<boost::shared_ptr<fostlib::mime>, int> fostgres::response_object(
     }
     if (++row != data.second.end()) {
         // TODO Return proper error
-        throw fostlib::exceptions::not_implemented(
-                __func__, "Too many rows returned");
+        throw fostlib::exceptions::not_implemented{
+                __PRETTY_FUNCTION__, "Too many rows returned"};
     }
     boost::shared_ptr<fostlib::mime> response(new fostlib::text_body(
             fostlib::json::unparse(result, pretty),
-            fostlib::mime::mime_headers(), L"application/json"));
+            fostlib::mime::mime_headers(), "application/json"));
     return std::make_pair(response, 200);
 }

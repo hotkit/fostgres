@@ -57,7 +57,7 @@ namespace {
                         .value_or(true);
         boost::shared_ptr<fostlib::mime> response(new fostlib::text_body(
                 fostlib::json::unparse(result, pretty),
-                fostlib::mime::mime_headers(), L"application/json"));
+                fostlib::mime::mime_headers(), "application/json"));
         return std::make_pair(response, 200);
     }
 

@@ -127,7 +127,7 @@ namespace {
             }
         };
 
-        fostlib::nliteral mime_type(const fostlib::string &accept) {
+        f5::u8view mime_type(fostlib::string const &accept) {
             const auto csj_pos = accept.find("application/csj");
             const auto csv_pos = accept.find("application/csv");
             if (csj_pos < csv_pos) {
@@ -140,7 +140,7 @@ namespace {
         }
 
         csj_mime(
-                const fostlib::string &accept,
+                fostlib::string const &accept,
                 std::vector<fostlib::string> &&cols,
                 fostlib::pg::recordset &&rs)
         : mime(fostlib::mime::mime_headers(), mime_type(accept)),
@@ -222,7 +222,7 @@ namespace {
         fostlib::insert(work_done, "records", records);
         boost::shared_ptr<fostlib::mime> response(new fostlib::text_body(
                 fostlib::json::unparse(work_done, true),
-                fostlib::mime::mime_headers(), L"application/json"));
+                fostlib::mime::mime_headers(), "application/json"));
         return std::make_pair(response, 200);
     }
 
@@ -278,7 +278,7 @@ namespace {
 
         boost::shared_ptr<fostlib::mime> response(new fostlib::text_body(
                 fostlib::json::unparse(work_done, true),
-                fostlib::mime::mime_headers(), L"application/json"));
+                fostlib::mime::mime_headers(), "application/json"));
         return std::make_pair(response, 200);
     }
 
@@ -292,7 +292,7 @@ namespace {
         auto sp = cnx.procedure(fostlib::coerce<fostlib::utf8_string>(sql));
         sp.exec(m.arguments);
         cnx.commit();
-        boost::shared_ptr<fostlib::mime> response(new fostlib::text_body(L""));
+        boost::shared_ptr<fostlib::mime> response(new fostlib::text_body(""));
         return std::make_pair(response, 200);
     }
 
