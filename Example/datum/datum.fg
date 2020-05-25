@@ -1,3 +1,10 @@
+## # Datums
+
+## This is how SQL field values are processed.
+
+
+## ## Whitespace stripping
+
 ## PUT a name and lastname to table datum
 PUT test/datum /name01 {"last_name": "last01"} 200 {"name": "name01", "last_name": "last01"}
 ## Whitespace in value should be trimmed
@@ -10,7 +17,7 @@ POST test/datum / {"last_name": "last03"} 200 {"name": "name03", "last_name": "l
 set-path testserver.headers ["__name"] "\u2000name04\u3000"
 POST test/datum / {"last_name": "last04"} 200 {"name": "name04", "last_name": "last04"}
 
-## However, last_name column has trim configuration set to false, so it should say as is
+## However, last_name column has trim configuration set to false, so it should stay as is
 PUT test/datum /name04 {"last_name": "\uFEFFlast04\u180E"} 200 {"name": "name04", "last_name": "\uFEFFlast04\u180E"}
 set-path testserver.headers ["__name"] "name05"
 POST test/datum / {"last_name": "\u2005last05\u2008"} 200 {"name": "name05", "last_name": "\u2005last05\u2008"}
@@ -22,3 +29,24 @@ GET test/datum /name02 200
 GET test/datum "/\f\rname03\n\t" 200
 GET test/datum "/\u200Aname04\u202F" 200
 GET test/datum "/\u2003name05\u1680" 200
+
+
+## ## Headers
+
+set-path testserver.headers ["__name"] "Last"
+
+## The `Authorization` header is treated specially. For most methods it fully
+## redacts the security token.
+set-path testserver.headers ["Authorization"] "value"
+PUT test/header /name1 {} 200 {"authn": "XXXXREDACTED", "last_name": "Last"}
+
+## If we have a proper method then only redact the token itself
+set-path testserver.headers ["Authorization"] "Basic value"
+PUT test/header /name1 {} 200 {"authn": "Basic XXXXREDACTED", "last_name": "Last"}
+
+## If we have what looks like a JWT then we'll redact only the signature
+set-path testserver.headers ["Authorization"] "Bearer eyJhVCJ9.eyJzdWIiDN9.tyBXG7LTw"
+PUT test/header /name1 {} 200 {
+    "authn": "Bearer eyJhVCJ9.eyJzdWIiDN9.XXXXREDACTED",
+    "last_name": "Last"}
+

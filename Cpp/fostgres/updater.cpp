@@ -8,6 +8,7 @@
 
 #include "updater.hpp"
 
+#include <fostgres/datum.hpp>
 #include <f5/json/schema.cache.hpp>
 #include <fost/insert>
 
