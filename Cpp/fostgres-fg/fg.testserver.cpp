@@ -143,6 +143,12 @@ std::pair<boost::shared_ptr<fostlib::mime>, int> fg::testserver::get(
 }
 
 
+std::pair<boost::shared_ptr<fostlib::mime>, int> fg::testserver::head(
+        frame &stack, const fostlib::string &path, int expected_status) {
+    return nobody("HEAD", stack, path, expected_status);
+}
+
+
 std::pair<boost::shared_ptr<fostlib::mime>, int> fg::testserver::patch(
         frame &stack,
         const fostlib::string &path,
