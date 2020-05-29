@@ -50,8 +50,14 @@ namespace {
                     fostlib::coerce<fostlib::string>(*h));
         }
         try {
-            return fostlib::urlhandler::view::execute(
+            auto view_result = fostlib::urlhandler::view::execute(
                     fg::json("fg.test"), path.substr(1), req, host);
+            if (req.method() == "HEAD") {
+                // HEAD returns empty body so we will not use the view result response body
+                auto response = boost::make_shared<fostlib::empty_mime>();
+                return {response, view_result.second};
+            }
+            return view_result;
         } catch (fostlib::exceptions::parse_error &e) {
             if (expected_status == 400) {
                 auto response = boost::make_shared<fostlib::text_body>(
