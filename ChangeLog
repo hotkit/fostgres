@@ -1,3 +1,6 @@
+2020-05-29  Pam Suebvisai  <suebvisai.pam@gmail.com>
+ * Added HEAD support for `fostgres-test`.
+
 2020-04-22  Kirit Saelensminde  <kirit@felspar.com>
  * CSJ parsing now throws a proper `parse_error`
  * Special case `parse_error` to map to 400 responses when expected in fg tests.
