@@ -86,6 +86,12 @@ namespace {
         return nobody(&fg::testserver::get, stack, pos, end);
     }
     fg::json
+            head(fg::frame &stack,
+                fg::json::const_iterator pos,
+                fg::json::const_iterator end) {
+        return nobody(&fg::testserver::head, stack, pos, end);
+    }
+    fg::json
             put(fg::frame &stack,
                 fg::json::const_iterator pos,
                 fg::json::const_iterator end) {
@@ -115,6 +121,7 @@ namespace {
 
 
 fg::frame::builtin fg::lib::get = ::get;
+fg::frame::builtin fg::lib::head = ::head;
 fg::frame::builtin fg::lib::put = ::put;
 fg::frame::builtin fg::lib::patch = ::patch;
 fg::frame::builtin fg::lib::post = ::post;

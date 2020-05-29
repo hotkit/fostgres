@@ -15,6 +15,9 @@ PATCH film.slug / (module.path.join films.csj) 200 {"records": 3}
 GET film.slug /iawl 200 {"title": "It's a Wonderful Life"}
 PATCH film.slug /iawl {"title": "It's a Wonder Life"} 200 {"title": "It's a Wonder Life"}
 
+# Should be able to support HEAD automatically with GET
+HEAD film.slug /iawl 200
+
 # Should fail schema check after whitespace is trimmed
 PATCH film.slug /iawl {"title": "\n\n"} 422
 

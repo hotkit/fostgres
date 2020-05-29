@@ -27,6 +27,9 @@ namespace fg {
         /// Return the result of the GET request
         std::pair<boost::shared_ptr<fostlib::mime>, int> get(
                 frame &stack, const fostlib::string &path, int expected_status);
+        /// Return the result of the HEAD request
+        std::pair<boost::shared_ptr<fostlib::mime>, int> head(
+                frame &stack, const fostlib::string &path, int expected_status);
         /// Return the result of the PATCH request
         std::pair<boost::shared_ptr<fostlib::mime>, int>
                 patch(frame &stack,

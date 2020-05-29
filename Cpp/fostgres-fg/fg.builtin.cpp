@@ -134,6 +134,7 @@ fg::frame fg::builtins() {
     funcs.native["contains"] = lib::contains;
     funcs.native["DELETE"] = lib::del;
     funcs.native["GET"] = lib::get;
+    funcs.native["HEAD"] = lib::head;
     funcs.native["lookup"] = ::lookup;
     funcs.native["PATCH"] = lib::patch;
     funcs.native["POST"] = lib::post;
