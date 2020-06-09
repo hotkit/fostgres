@@ -53,7 +53,7 @@ namespace fostgres {
         [[nodiscard]] std::pair<boost::shared_ptr<fostlib::mime>, int>
                 insert(intermediate_data, std::optional<std::size_t> row = {});
         /// Perform an update
-        std::pair<boost::shared_ptr<fostlib::mime>, int>
+        [[nodiscard]] std::pair<boost::shared_ptr<fostlib::mime>, int>
                 update(intermediate_data, std::optional<std::size_t> row = {});
 
         action perform() const { return deduced_action; }

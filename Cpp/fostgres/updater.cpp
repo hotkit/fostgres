@@ -138,8 +138,8 @@ std::tuple<fostlib::json, fostlib::json, boost::shared_ptr<fostlib::mime>, int>
             return {fostlib::json{}, fostlib::json{}, err_response, err_status};
         }
     }
-    update({keys, values});
-    return {keys, values, nullptr, 0};
+    auto const [ubody, ustatus] = update({keys, values});
+    return {keys, values, ubody, ustatus};
 }
 
 
