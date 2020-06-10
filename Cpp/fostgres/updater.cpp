@@ -175,9 +175,6 @@ std::pair<boost::shared_ptr<fostlib::mime>, int> fostgres::schema_check(
         fostlib::jcursor dpos) {
     const std::pair<boost::shared_ptr<fostlib::mime>, int> ok{nullptr, 0};
     const auto validate = [&](const f5::json::schema &s) {
-        //         throw
-        //         fostlib::exceptions::not_implemented{__PRETTY_FUNCTION__,
-        //         fostlib::json::unparse(s_config["schema"], true)};
         if (auto valid = s.validate(body); not valid) {
             const bool pretty =
                     fostlib::coerce<fostlib::nullable<bool>>(config["pretty"])
