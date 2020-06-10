@@ -83,6 +83,13 @@
                         },
                         "PATCH": {
                             "table": "film_tags",
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "tag": {"type": "string"}
+                                },
+                                "additionalProperties": false
+                            },
                             "columns": {
                                 "film_slug": {
                                     "key": true,

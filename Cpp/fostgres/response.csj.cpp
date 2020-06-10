@@ -205,14 +205,15 @@ namespace {
         // Parse each line and send it to the database
         for (auto line(data.begin()), e(data.end()); line != e; ++line) {
             std::pair<boost::shared_ptr<fostlib::mime>, int> error;
-            auto linedata = handler.data(line.as_json());
+            auto linejson = line.as_json();
+            auto linedata = handler.data(linejson);
             switch (handler.perform()) {
             case fostgres::updater::action::do_default: [[fallthrough]];
             case fostgres::updater::action::insertable:
-                error = handler.insert(linedata, records);
+                error = handler.insert(linejson, linedata, records);
                 break;
             case fostgres::updater::action::updateable:
-                error = handler.update(linedata, records);
+                error = handler.update(linejson, linedata, records);
                 break;
             }
             if (error.first) return error;

@@ -62,12 +62,18 @@ PUT film.slug /t1/tags (module.path.join tags.csj) 200 {"selected": 8, "records"
 GET film.slug /t1/tags 200 {"columns": ["tag"],
     "rows": [["action"], ["adventure"], ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"]]}
 
-# Check what happens with embedded
+# Check what happens with embedded white-space
 PATCH film.slug /t1/tags (module.path.join tags-tab.csj) 200 {"records": 1}
 GET film.slug /t1/tags 200 {"columns": ["tag"],
     "rows": [["action"], ["action\tadventure"], ["adventure"],
         ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"]]}
 
+# Schema validation can reject the CSJ
+PATCH film.slug /t1/tags (module.path.join tags-error.csj) 422 {"error" : {
+            "assertion" : "false",
+            "in-data" : ["extra"],
+            "in-schema" : ["additionalProperties"]
+        }}
 
 # DELETE the tags and make sure we have the right output
 DELETE film.slug /t1/tags 200
