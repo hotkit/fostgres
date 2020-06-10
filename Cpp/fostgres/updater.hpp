@@ -47,7 +47,7 @@ namespace fostgres {
 
         /// Break apart the data into the key and value parts
         using intermediate_data = std::pair<fostlib::json, fostlib::json>;
-        intermediate_data data(const fostlib::json &data);
+        [[nodiscard]] intermediate_data data(const fostlib::json &data);
 
         /// Perform an INSERT and potentially return a response
         [[nodiscard]] std::pair<boost::shared_ptr<fostlib::mime>, int>
