@@ -84,7 +84,10 @@
                                 },
                                 "slug": {
                                     "key": true,
-                                    "source": "tag"
+                                    "source": "tag",
+                                    "schema": {
+                                        "minLength": 3
+                                    }
                                 }
                             }
                         },
@@ -104,7 +107,10 @@
                                 },
                                 "slug": {
                                     "key": true,
-                                    "source": "tag"
+                                    "source": "tag",
+                                    "schema": {
+                                        "minLength": 3
+                                    }
                                 }
                             }
                         },

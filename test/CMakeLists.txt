@@ -13,6 +13,7 @@ if(TARGET stress OR TARGET pgtest)
                 fostgres-test
                 films/tags.csj
                 films/tags-extra-column.csj
+                films/tags-short-tag.csj
                 films/tags-tab.csj
                 films/view.film-slug.json
                 films/film.t1.fg

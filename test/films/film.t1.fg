@@ -68,7 +68,7 @@ GET film.slug /t1/tags 200 {"columns": ["tag"],
     "rows": [["action"], ["action\tadventure"], ["adventure"],
         ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"]]}
 
-# Schema validation can reject the CSJ
+# Schema validation can reject the CSJ based on the row schema validation
 PUT film.slug /t1/tags (module.path.join tags-extra-column.csj) 422 {"error" : {
             "assertion" : "false",
             "in-data" : ["extra"],
@@ -78,6 +78,17 @@ PATCH film.slug /t1/tags (module.path.join tags-extra-column.csj) 422 {"error" :
             "assertion" : "false",
             "in-data" : ["extra"],
             "in-schema" : ["additionalProperties"]
+        }}
+# Also can reject based on column schema validation
+PUT film.slug /t1/tags (module.path.join tags-short-tag.csj) 422 {"error" : {
+            "assertion" : "minLength",
+            "in-data" : [0, "slug"],
+            "in-schema" : ["minLength"]
+        }}
+PATCH film.slug /t1/tags (module.path.join tags-short-tag.csj) 422 {"error" : {
+            "assertion" : "minLength",
+            "in-data" : [0, "slug"],
+            "in-schema" : ["minLength"]
         }}
 
 # DELETE the tags and make sure we have the right output
