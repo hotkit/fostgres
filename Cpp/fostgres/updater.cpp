@@ -143,18 +143,6 @@ std::pair<
 std::tuple<fostlib::json, fostlib::json, boost::shared_ptr<fostlib::mime>, int>
         fostgres::updater::update(const fostlib::json &body) {
     auto [keys, values] = data(body);
-    for (const auto &col_def : col_config.object()) {
-        auto const instance =
-                (col_def.second["key"].get(false)
-                         ? keys[col_def.first]
-                         : (values != fostlib::json() ? values[col_def.first]
-                                                      : fostlib::json()));
-        auto const [err_response, err_status] =
-                schema_check(cnx, config, m, req, col_def.second, instance, {});
-        if (err_response) {
-            return {fostlib::json{}, fostlib::json{}, err_response, err_status};
-        }
-    }
     auto const [ubody, ustatus] = update(body, {keys, values});
     return {keys, values, ubody, ustatus};
 }
