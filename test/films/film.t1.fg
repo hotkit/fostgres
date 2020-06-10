@@ -69,12 +69,12 @@ GET film.slug /t1/tags 200 {"columns": ["tag"],
         ["dystopian"], ["robots"], ["sci-fi"], ["time-travel"]]}
 
 # Schema validation can reject the CSJ
-PUT film.slug /t1/tags (module.path.join tags-error.csj) 422 {"error" : {
+PUT film.slug /t1/tags (module.path.join tags-extra-column.csj) 422 {"error" : {
             "assertion" : "false",
             "in-data" : ["extra"],
             "in-schema" : ["additionalProperties"]
         }}
-PATCH film.slug /t1/tags (module.path.join tags-error.csj) 422 {"error" : {
+PATCH film.slug /t1/tags (module.path.join tags-extra-column.csj) 422 {"error" : {
             "assertion" : "false",
             "in-data" : ["extra"],
             "in-schema" : ["additionalProperties"]

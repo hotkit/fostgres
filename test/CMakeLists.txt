@@ -11,6 +11,9 @@ if(TARGET stress OR TARGET pgtest)
                 ../Example/films/films.tables.sql
                 fostgres
                 fostgres-test
+                films/tags.csj
+                films/tags-extra-column.csj
+                films/tags-tab.csj
                 films/view.film-slug.json
                 films/film.t1.fg
         )
