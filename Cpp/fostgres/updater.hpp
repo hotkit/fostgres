@@ -47,14 +47,18 @@ namespace fostgres {
 
         /// Break apart the data into the key and value parts
         using intermediate_data = std::pair<fostlib::json, fostlib::json>;
-        intermediate_data data(const fostlib::json &data);
+        [[nodiscard]] intermediate_data data(const fostlib::json &data);
 
         /// Perform an INSERT and potentially return a response
         [[nodiscard]] std::pair<boost::shared_ptr<fostlib::mime>, int>
-                insert(intermediate_data, std::optional<std::size_t> row = {});
+                insert(fostlib::json const &body_row,
+                       intermediate_data,
+                       std::optional<std::size_t> row = {});
         /// Perform an update
-        std::pair<boost::shared_ptr<fostlib::mime>, int>
-                update(intermediate_data, std::optional<std::size_t> row = {});
+        [[nodiscard]] std::pair<boost::shared_ptr<fostlib::mime>, int>
+                update(fostlib::json const &body_row,
+                       intermediate_data,
+                       std::optional<std::size_t> row = {});
 
         action perform() const { return deduced_action; }
 
@@ -65,7 +69,7 @@ namespace fostgres {
                 std::pair<fostlib::json, fostlib::json>>
                 upsert(const fostlib::json &body_row,
                        std::optional<std::size_t> row = {});
-        std::tuple<
+        [[nodiscard]] std::tuple<
                 fostlib::json,
                 fostlib::json,
                 boost::shared_ptr<fostlib::mime>,
@@ -74,7 +78,7 @@ namespace fostgres {
 
       private:
         action deduced_action;
-        fostlib::json config, col_config;
+        fostlib::json config, method_config, col_config;
         std::vector<fostlib::string> returning_cols;
 
         fostlib::pg::connection &cnx;

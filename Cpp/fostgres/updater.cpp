@@ -26,6 +26,7 @@ fostgres::updater::updater(
 : relation(fostlib::coerce<fostlib::string>(mconf["table"])),
   deduced_action(action::do_default),
   config(m.configuration),
+  method_config(mconf),
   col_config(mconf["columns"]),
   cnx(cnx),
   m(m),
@@ -54,9 +55,10 @@ std::pair<fostlib::json, fostlib::json>
             if (data) {
                 fostlib::insert(keys, key, data.value());
             } else {
-                throw fostlib::exceptions::not_implemented(
+                /// TODO Should return a 422 response instead
+                throw fostlib::exceptions::not_implemented{
                         __PRETTY_FUNCTION__, "Key column doesn't have a value",
-                        key);
+                        key};
             }
         } else if (data) {
             /// Value column with data
@@ -77,20 +79,21 @@ std::pair<fostlib::json, fostlib::json>
 
 
 std::pair<boost::shared_ptr<fostlib::mime>, int> fostgres::updater::insert(
+        fostlib::json const &body_row,
         fostgres::updater::intermediate_data d,
         std::optional<std::size_t> row) {
+    auto const [sbody, sstatus] =
+            schema_check(cnx, config, m, req, method_config, body_row, {});
+    if (sbody || sstatus) return {sbody, sstatus};
     for (const auto &col_def : col_config.object()) {
-        const bool allow_schema = fostlib::coerce<std::optional<bool>>(
-                                          col_def.second["allow$schema"])
-                                          .value_or(false);
-        auto instance =
+        auto const instance =
                 (col_def.second["key"].get(false) ? d.first
                                                   : d.second)[col_def.first];
         auto error = schema_check(
                 cnx, config, m, req, col_def.second, instance,
                 (row ? fostlib::jcursor{*row} : fostlib::jcursor{})
                         / col_def.first);
-        if (error.first) return error;
+        if (error.first || error.second) return error;
     }
     auto rel = relation;
     if (returning_cols.size()) {
@@ -106,8 +109,23 @@ std::pair<boost::shared_ptr<fostlib::mime>, int> fostgres::updater::insert(
 
 
 std::pair<boost::shared_ptr<fostlib::mime>, int> fostgres::updater::update(
+        fostlib::json const &combined,
         fostgres::updater::intermediate_data d,
         std::optional<std::size_t> row) {
+    auto const [sbody, sstatus] =
+            schema_check(cnx, config, m, req, method_config, combined, {});
+    if (sbody || sstatus) return {sbody, sstatus};
+    for (const auto &col_def : col_config.object()) {
+        auto const instance =
+                (col_def.second["key"].get(false)
+                         ? d.first[col_def.first]
+                         : (d.second != fostlib::json()
+                                    ? d.second[col_def.first]
+                                    : fostlib::json()));
+        auto const [err_response, err_status] =
+                schema_check(cnx, config, m, req, col_def.second, instance, {});
+        if (err_response) { return {err_response, err_status}; }
+    }
     auto rel = relation;
     cnx.update(rel.shrink_to_fit(), d.first, d.second);
     return {nullptr, 0};
@@ -120,26 +138,13 @@ std::pair<
         fostgres::updater::upsert(
                 const fostlib::json &body, std::optional<std::size_t> row) {
     auto d = data(body);
-    return {insert(d, row), d};
+    return {insert(body, d, row), d};
 }
 std::tuple<fostlib::json, fostlib::json, boost::shared_ptr<fostlib::mime>, int>
         fostgres::updater::update(const fostlib::json &body) {
     auto [keys, values] = data(body);
-    for (const auto &col_def : col_config.object()) {
-        auto const instance =
-                (col_def.second["key"].get(false)
-                         ? keys[col_def.first]
-                         : (values != fostlib::json() ? values[col_def.first]
-                                                      : fostlib::json()));
-        auto const [err_response, err_status] = schema_check(
-                cnx, config, m, req, col_def.second, instance,
-                fostlib::jcursor{});
-        if (err_response) {
-            return {fostlib::json{}, fostlib::json{}, err_response, err_status};
-        }
-    }
-    update({keys, values});
-    return {keys, values, nullptr, 0};
+    auto const [ubody, ustatus] = update(body, {keys, values});
+    return {keys, values, ubody, ustatus};
 }
 
 

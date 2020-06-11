@@ -97,6 +97,11 @@ namespace {
         if (put_config.has_key("columns")) {
             return fostgres::updater{put_config, cnx, m, req}.upsert(body).first;
         } else {
+            fostlib::log::warning(fostgres::c_fostgres)(
+                    "",
+                    "PUT configuration with 'keys' and 'attributes' is "
+                    "deprecated. Use 'columns'")(
+                    "configuration", m.configuration["PUT"]);
             fostlib::string relation =
                     fostlib::coerce<fostlib::string>(put_config["table"]);
             fostlib::json keys(calc_keys(m, put_config["keys"]));
