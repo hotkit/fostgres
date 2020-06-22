@@ -73,7 +73,7 @@ namespace fg {
 
 
     namespace lib {
-        extern frame::builtin contains, del, get, head, patch, post, put, sql_file,
+        extern frame::builtin contains, del, ua_get, get, head, patch, post, put, sql_file,
                 sql_insert;
     }
 
