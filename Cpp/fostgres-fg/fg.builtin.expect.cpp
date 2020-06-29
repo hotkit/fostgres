@@ -37,7 +37,8 @@ fg::frame::builtin fg::lib::expect = [](
                 fostlib::ua::expect(http_method, url, fostlib::ua::http_error{url, static_cast<int>(response_status)});
         }
     } else if (response_status < 300) {
-        auto response_body =  fostlib::json::parse(stack.resolve_string(stack.argument("response_body", pos, end)));
+        // auto response_body =  fostlib::json::parse(stack.resolve_string(stack.argument("response_body", pos, end)));
+        auto response_body = stack.argument("response_body", pos, end);
         fostlib::ua::expect(http_method, url, response_body);
     } else {
         throw fostlib::exceptions::not_implemented{
