@@ -3,6 +3,7 @@ add_library(fostgres-fg
         fg.cpp
         fg.builtin.cpp
         fg.builtin.checks.cpp
+        fg.builtin.expect.cpp
         fg.builtin.http.cpp
         fg.builtin.sql.cpp
         fg.parser.cpp

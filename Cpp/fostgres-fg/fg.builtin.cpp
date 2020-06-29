@@ -1,5 +1,5 @@
 /**
-    Copyright 2016-2019 Red Anchor Trading Co. Ltd.
+    Copyright 2016-2020 Red Anchor Trading Co. Ltd.
 
     Distributed under the Boost Software License, Version 1.0.
     See <http://www.boost.org/LICENSE_1_0.txt>
@@ -133,7 +133,7 @@ fg::frame fg::builtins() {
     funcs.native["cat"] = ::cat;
     funcs.native["contains"] = lib::contains;
     funcs.native["DELETE"] = lib::del;
-    funcs.native["ua.expect"] = lib::ua_expect;
+    funcs.native["expect"] = lib::expect;
     funcs.native["GET"] = lib::get;
     funcs.native["HEAD"] = lib::head;
     funcs.native["lookup"] = ::lookup;
