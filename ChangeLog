@@ -1,3 +1,6 @@
+2020-06-10  Kirit Saelensminde  <kirit@felspar.com>
+ Added schema validation for CSJ PUT and PATCH requests.
+
 2020-05-29  Pam Suebvisai  <suebvisai.pam@gmail.com>
  * Added HEAD support for `fostgres-test`.
 

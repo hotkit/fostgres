@@ -87,8 +87,8 @@ namespace {
     }
     fg::json
             head(fg::frame &stack,
-                fg::json::const_iterator pos,
-                fg::json::const_iterator end) {
+                 fg::json::const_iterator pos,
+                 fg::json::const_iterator end) {
         return nobody(&fg::testserver::head, stack, pos, end);
     }
     fg::json

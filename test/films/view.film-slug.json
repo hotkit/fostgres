@@ -70,6 +70,13 @@
                             "table": "film_tags",
                             "existing": "SELECT slug FROM film_tags WHERE film_slug=$1",
                             "delete": "DELETE FROM film_tags WHERE film_slug=$1 AND slug=$2",
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "tag": {"type": "string"}
+                                },
+                                "additionalProperties": false
+                            },
                             "columns": {
                                 "film_slug": {
                                     "key": true,
@@ -77,12 +84,22 @@
                                 },
                                 "slug": {
                                     "key": true,
-                                    "source": "tag"
+                                    "source": "tag",
+                                    "schema": {
+                                        "minLength": 3
+                                    }
                                 }
                             }
                         },
                         "PATCH": {
                             "table": "film_tags",
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "tag": {"type": "string"}
+                                },
+                                "additionalProperties": false
+                            },
                             "columns": {
                                 "film_slug": {
                                     "key": true,
@@ -90,7 +107,10 @@
                                 },
                                 "slug": {
                                     "key": true,
-                                    "source": "tag"
+                                    "source": "tag",
+                                    "schema": {
+                                        "minLength": 3
+                                    }
                                 }
                             }
                         },
