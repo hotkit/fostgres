@@ -1,0 +1,52 @@
+## Test expect get request 
+expect GET http://127.0.0.1/test/200 200 {
+    "hello": "world"
+}
+POST chain.request / {"id": "200", "method": "GET"} 200 {
+    "hello": "world"
+}
+
+expect GET http://127.0.0.1/test/400 400 
+POST chain.request / {"id": "400", "method": "GET"} 400
+
+expect GET http://127.0.0.1/test/401 401 
+POST chain.request / {"id": "401", "method": "GET"} 401
+
+expect GET http://127.0.0.1/test/403 403 
+POST chain.request / {"id": "403", "method": "GET"} 403
+
+expect GET http://127.0.0.1/test/404 404 
+POST chain.request / {"id": "404", "method": "GET"} 404
+
+expect GET http://127.0.0.1/test/410 410 
+POST chain.request / {"id": "410", "method": "GET"} 404
+
+expect GET http://127.0.0.1/test/500 500 
+POST chain.request / {"id": "500", "method": "GET"} 500
+
+
+## Test expect post request 
+expect POST http://127.0.0.1/test/200 200 {
+    "hello": "world"
+}
+POST chain.request / {"id": "200", "method": "POST"} 200 {
+    "hello": "world"
+}
+
+expect POST http://127.0.0.1/test/400 400 
+POST chain.request / {"id": "400", "method": "POST"} 400
+
+expect POST http://127.0.0.1/test/401 401 
+POST chain.request / {"id": "401", "method": "POST"} 401
+
+expect POST http://127.0.0.1/test/403 403 
+POST chain.request / {"id": "403", "method": "POST"} 403
+
+expect POST http://127.0.0.1/test/404 404 
+POST chain.request / {"id": "404", "method": "POST"} 404
+
+expect POST http://127.0.0.1/test/410 410 
+POST chain.request / {"id": "410", "method": "POST"} 404
+
+expect POST http://127.0.0.1/test/500 500 
+POST chain.request / {"id": "500", "method": "POST"} 500

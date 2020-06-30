@@ -1,3 +1,6 @@
+2020-06-30 Sukit Saeo <sukit_owl@hotmail.com>
+ Added expect command to fg
+
 2020-06-10  Kirit Saelensminde  <kirit@felspar.com>
  Added schema validation for CSJ PUT and PATCH requests.
 
