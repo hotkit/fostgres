@@ -7,7 +7,6 @@
 
 
 #include <string>
-#include <iostream>
 
 #include <fostgres/fg/fg.hpp>
 #include <fost/ua/cache>
