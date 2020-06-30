@@ -45,13 +45,11 @@ if(TARGET stress OR TARGET pgtest)
             ${CMAKE_CURRENT_SOURCE_DIR}/../Configuration/log-show-all.json
             $<TARGET_SONAME_FILE:fostgres>
             $<TARGET_SONAME_FILE:test-views>
-            ${CMAKE_CURRENT_SOURCE_DIR}/fg-expect/view.chain-request.json
             ${CMAKE_CURRENT_SOURCE_DIR}/fg-expect/fg-expect.fg
         MAIN_DEPENDENCY fg-expect/fg-expect.fg
         DEPENDS
             fostgres
             fostgres-test
-            fg-expect/view.chain-request.json
             fg-expect/fg-expect.fg
     )
     

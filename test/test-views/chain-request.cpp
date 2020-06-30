@@ -8,8 +8,7 @@
 
 #include <fost/http>
 #include <fost/ua/exceptions.hpp>
-#include "tests.hpp"
-#include <iostream>
+#include <fost/urlhandler>
 
 
 namespace {
@@ -64,6 +63,3 @@ namespace {
 
 
 }
-
-
-const fostlib::urlhandler::view &test::view::chain_request = c_chain_request;

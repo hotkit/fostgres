@@ -1,8 +1,0 @@
-{
-    "webserver" : {
-        "views/chain.request": {
-            "view": "test.chain.request"
-        }
-    }
-}
-
