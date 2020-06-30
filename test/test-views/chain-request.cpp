@@ -30,7 +30,8 @@ namespace {
             auto const body = fostlib::json::parse(body_str);
 
             fostlib::mime::mime_headers headers;
-            fostlib::string url = "http://127.0.0.1/test/" + fostlib::coerce<fostlib::string>(body["id"]);
+            fostlib::string url = "http://127.0.0.1/test/"
+                    + fostlib::coerce<fostlib::string>(body["id"]);
             boost::shared_ptr<fostlib::mime> response(new fostlib::text_body(
                     fostlib::json::unparse(fostlib::json{}, true), headers,
                     "application/json"));
@@ -40,8 +41,9 @@ namespace {
                 if (fostlib::coerce<fostlib::string>(body["method"]) == "GET") {
                     result = fostlib::ua::get_json(fostlib::url{url}, headers);
                 } else {
-                    result = fostlib::ua::post_json(fostlib::url{url}, fostlib::json{}, headers);
-                } 
+                    result = fostlib::ua::post_json(
+                            fostlib::url{url}, fostlib::json{}, headers);
+                }
             } catch (fostlib::ua::unauthorized &e) {
                 return std::make_pair(response, 401);
             } catch (fostlib::ua::forbidden &e) {
