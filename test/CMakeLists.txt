@@ -1,4 +1,6 @@
 if(TARGET stress OR TARGET pgtest)
+    add_subdirectory(test-views)
+
     add_custom_command(OUTPUT test-film-t1
             COMMAND fostgres-test fostgres-test-film-t1 -o test-film-t1
                 ${CMAKE_CURRENT_SOURCE_DIR}/../Configuration/log-show-all.json
@@ -38,9 +40,23 @@ if(TARGET stress OR TARGET pgtest)
                 films/films.fg
         )
 
+        add_custom_command(OUTPUT test-fg-expect
+        COMMAND fostgres-test fostgres-test-fg-expect -o test-fg-expect
+            ${CMAKE_CURRENT_SOURCE_DIR}/../Configuration/log-show-all.json
+            $<TARGET_SONAME_FILE:fostgres>
+            $<TARGET_SONAME_FILE:test-views>
+            ${CMAKE_CURRENT_SOURCE_DIR}/fg-expect/fg-expect.fg
+        MAIN_DEPENDENCY fg-expect/fg-expect.fg
+        DEPENDS
+            fostgres
+            fostgres-test
+            fg-expect/fg-expect.fg
+    )
+    
     ## Because of the way cmake works we need this stuff at the end to
     ## actually make the above commands run when things change.
     add_custom_target(fg-test DEPENDS
+            test-fg-expect
             test-films
             test-film-t1
         )
